@@ -1,14 +1,9 @@
 import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
-
-  console.log('Congratulations, your extension "plastic-scm" is now active!');
-
-  let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-    vscode.window.showInformationMessage('Hello World!');
-  });
-
-  context.subscriptions.push(disposable);
+  const disposables: vscode.Disposable[] = [];
+  context.subscriptions.push(new vscode.Disposable(
+    () => vscode.Disposable.from(...disposables)));
 }
 
 export function deactivate() {}
