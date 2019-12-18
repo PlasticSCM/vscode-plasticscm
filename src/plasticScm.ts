@@ -10,8 +10,9 @@ class Workspace implements Disposable {
     this.mShell = shell;
   }
 
-  dispose() {
-    this.mShell.stop();
+  async dispose(): Promise<void> {
+    await this.mShell.stop();
+    this.mShell.dispose();
   }
 
   private readonly mPath: string;
