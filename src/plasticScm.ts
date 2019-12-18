@@ -1,58 +1,57 @@
-import { Uri, workspace } from "vscode";
 
-class Workspace {
-  constructor(path: string, name: string) {
+import { workspace, Disposable } from 'vscode';
+import { ICmdResult, ICmShell, CmShell } from './cmShell';
+import * as os from 'os';
+
+class Workspace implements Disposable {
+  constructor(path: string, name: string, shell: ICmShell) {
     this.mPath = path;
     this.mName = name;
+    this.mShell = shell;
   }
 
-  private mPath: string;
-  private mName: string;
+  dispose() {
+    this.mShell.stop();
+  }
+
+  private readonly mPath: string;
+  private readonly mName: string;
+  private readonly mShell: ICmShell;
 }
 
-interface ICmdResult {
-  stdout?: string;
-  stderr?: string;
-  success: boolean;
-}
-
-class CmShell {
-  constructor() {
-  }
-
-  public exec(command: string, args: string[]) : ICmdResult {
-    return {
-      success: true,
-    };
-  }
-}
-
-export class PlasticScm {
-  constructor(shell: CmShell) {
-    this.mCmShell = shell;
-  }
-
+export class PlasticScm implements Disposable {
   public initialize() {
     if (!workspace.workspaceFolders) {
       return;
     }
 
-    const workspaces: {[key: string]: Workspace} = {};
+    const shell: ICmShell = new CmShell(os.tmpdir());
     for (const folder of workspace.workspaceFolders) {
-      const workspaceRoot: string = this.findWorkspaceRoot(folder.uri.fsPath);
+      try{
+          const workspaceRoot: string = this.findWorkspaceRoot(shell, folder.uri.fsPath);
 
-      if (workspaces[workspaceRoot]) {
-        continue;
-      }
+          if (this.mWorkspaces.has(workspaceRoot)) {
+            continue;
+          }
 
-      workspaces[workspaceRoot] = new Workspace(workspaceRoot, '');
+          this.mWorkspaces.set(workspaceRoot, new Workspace(
+            workspaceRoot, '', new CmShell(workspaceRoot)));
+
+        } catch (error) {
+          console.error(`Unable to find workspace in ${folder.uri.fsPath}`, error);
+          
+        }
     }
   }
 
-  private findWorkspaceRoot(workspaceDir: string): string {
-    const result: ICmdResult = this.mCmShell.exec('gwp', [workspaceDir]);
+  dispose() {
+    Disposable.from(...this.mWorkspaces.values()).dispose();
+  }
+
+  private findWorkspaceRoot(shell: ICmShell, workspaceDir: string): string {
+    const result: ICmdResult = shell.exec('gwp', [workspaceDir]);
     return '';
   }
 
-  private mCmShell: CmShell;
+  readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
 }
