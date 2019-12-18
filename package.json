@@ -14,8 +14,7 @@
     "*"
   ],
   "main": "./out/extension.js",
-  "contributes": {
-  },
+  "contributes": {},
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
@@ -30,8 +29,14 @@
     "@types/vscode": "^1.41.0",
     "glob": "^7.1.5",
     "mocha": "^6.2.2",
-    "typescript": "^3.6.4",
     "tslint": "^5.20.0",
+    "typescript": "^3.6.4",
+    "uuid": "^3.3.3",
     "vscode-test": "^1.2.2"
+  },
+  "dependencies": {
+    "@types/byline": "^4.2.31",
+    "@types/uuid": "^3.4.6",
+    "byline": "^5.0.0"
   }
 }
