@@ -6,6 +6,7 @@ import * as uuid from 'uuid';
 import { ChildProcess, spawn } from 'child_process';
 import { StringDecoder } from 'string_decoder';
 import * as fs from 'fs';
+import { Disposable } from 'vscode';
 
 export interface ICmdResult<T> {
   result?: T;
@@ -20,7 +21,7 @@ export interface IParser<T> {
   getError(): Error;
 }
 
-export interface ICmShell {
+export interface ICmShell extends Disposable {
   readonly isRunning: boolean;
 
   start(path: string): Promise<boolean>;
@@ -44,6 +45,14 @@ export class CmShell implements ICmShell {
     this.mErrStream = new LineStream(UTF8);
   }
 
+  dispose() {
+    this.mErrStream.dispose();
+    this.mOutStream.dispose();
+    if (this.mProcess && this.isRunning) {
+      this.mProcess.kill();
+    }
+  }
+
   async start(): Promise<boolean> {
     const commFile = path.join(os.tmpdir(), uuid.v4());
 
@@ -57,7 +66,6 @@ export class CmShell implements ICmShell {
       stdio: ['pipe', 'pipe', 'pipe']
     });
 
-    this.mProcess.once('exit', this.onExit);
     this.mProcess.stdout?.on('data', this.mOutStream.write);
     this.mProcess.stderr?.on('data', this.mErrStream.write);
 
@@ -70,7 +78,13 @@ export class CmShell implements ICmShell {
   }
 
   stop(): void {
+    if (!this.isRunning) {
+      return;
+    }
+
     this.write('exit');
+    this.mProcess?.disconnect();
+    this.mbIsRunning = false;
   }
 
   async exec<T>(
@@ -104,11 +118,6 @@ export class CmShell implements ICmShell {
     result.result = parser.parse();
     result.error = parser.getError();
     return result;
-  }
-
-  private onExit(code: number, signal: string) {
-    console.info(`Shell exited with code ${code}`);
-    this.mbIsRunning = false;
   }
 
   private write(command: string, ...args: string[]) {
@@ -150,7 +159,7 @@ export class CmShell implements ICmShell {
 }
 
 
-class LineStream {
+class LineStream implements Disposable {
   get on() {
     return this.lines.on;
   }
@@ -162,6 +171,11 @@ class LineStream {
   constructor(encoding: string) {
     this.decoder = new StringDecoder(encoding);
     this.lines = new byline.LineStream({ encoding });
+  }
+
+  dispose() {
+    this.decoder.end();
+    this.lines.destroy();
   }
   
   write(buffer: Buffer) {
