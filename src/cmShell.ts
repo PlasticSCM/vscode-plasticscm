@@ -56,8 +56,10 @@ export class CmShell implements ICmShell {
 
   async start(): Promise<boolean> {
     const commFile = path.join(os.tmpdir(), uuid.v4());
+    await new Promise<void>(resolve => {
+      fs.writeFile(commFile, '', () => resolve());
+    });
 
-    this.mbIsRunning = true;
     this.mProcess = spawn('cm',
       [
         'shell', '--encoding=UTF-8', `--commfile=${commFile}`, this.mStartDir
@@ -67,6 +69,9 @@ export class CmShell implements ICmShell {
       stdio: ['pipe', 'pipe', 'pipe']
     });
 
+    const logError = (err: Error) => this.mChannel.appendLine(`ERROR: ${err}`);
+    this.mProcess.on('error', logError);
+
     const readOut: (chunk: any) => void = chunk => this.mOutStream.write(chunk);
     const readErr: (chunk: any) => void = chunk => this.mErrStream.write(chunk);
     this.mProcess.stdout!.on('data', readOut);
@@ -75,8 +80,13 @@ export class CmShell implements ICmShell {
     if (!await this.waitUntilFileDeleted(commFile, 3000)) {
       this.mProcess.stdout!.off('data', readOut);
       this.mProcess.stderr!.off('data', readErr);
+
+      if (fs.existsSync(commFile)) {
+        await new Promise<void>(resolve => fs.unlink(commFile, () => resolve()));
+      }
       return false;
     }
+    this.mbIsRunning = true;
     return true;
   }
 
@@ -98,6 +108,17 @@ export class CmShell implements ICmShell {
       args: string[],
       parser: ICmdParser<T>)
       : Promise<ICmdResult<T>> {
+    const commandLine = CmShell.buildCommandLine(command, ...args);
+
+    if (!this.isRunning) {
+      this.mChannel.appendLine(
+        `Warning: unable to run command ${command} because the shell isn't running!`);
+      return {
+        error: new Error('Shell wasn\'t running'),
+        success: false
+      };
+    }
+
     const commandResultToken = 'CommandResult ';
     const result: ICmdResult<T> = {
       success: false
@@ -122,11 +143,11 @@ export class CmShell implements ICmShell {
       this.mOutStream.on('data', parserOutRead);
     });
 
-    this.write(command, ...args);
+    this.write(commandLine);
     try {
       await listenResult;
     } catch (error) {
-      debugger;
+      this.mChannel.appendLine(`ERROR: ${error}`);
     }
 
     result.result = parser.parse();
@@ -134,14 +155,16 @@ export class CmShell implements ICmShell {
     return result;
   }
 
-  private write(commandName: string, ...args: string[]) {
-    let command = commandName;
-    if (args && args.length > 0) {
-      command += ` ${args.map(arg => `"${arg}"`).join(' ')}`;
-    }
+  private write(commandLine: string) {
+    this.mChannel.appendLine(`${this.mStartDir}> ${commandLine}`);
+    this.mProcess?.stdin?.write(commandLine + '\n');
+  }
 
-    this.mChannel.appendLine(`${this.mStartDir}> ${command}`);
-    this.mProcess?.stdin?.write(command + '\n');
+  private static buildCommandLine(command: string, ...args: string[]) {
+    if (!args || args.length === 0) {
+      return command;
+    }
+    return `${command} ${args.map(arg => `"${arg}"`).join(' ')}`;
   }
 
   private async waitUntilFileDeleted(path: string, timeout: number): Promise<boolean> {
@@ -153,7 +176,7 @@ export class CmShell implements ICmShell {
     };
 
     while (waitTime < timeout) {
-      if (fs.existsSync(path)) {
+      if (!fs.existsSync(path)) {
         return true;
       }
 
