@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
+import { PlasticScm } from './plasticScm';
 
 export function activate(context: vscode.ExtensionContext) {
-  const disposables: vscode.Disposable[] = [];
-  context.subscriptions.push(new vscode.Disposable(
-    () => vscode.Disposable.from(...disposables)));
+  context.subscriptions.push(new PlasticScm());
 }
 
 export function deactivate() {}
