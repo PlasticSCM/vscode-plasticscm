@@ -49,7 +49,8 @@ export class PlasticScm implements Disposable {
   }
 
   private findWorkspaceRoot(shell: ICmShell, workspaceDir: string): string {
-    const result: ICmdResult = shell.exec('gwp', [workspaceDir]);
+    // TODO use the shell here
+    // const result: ICmdResult = shell.exec('gwp', [workspaceDir]);
     return '';
   }
 
