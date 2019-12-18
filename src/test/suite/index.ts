@@ -1,7 +1,6 @@
 import * as path from 'path';
 import * as Mocha from 'mocha';
 import * as glob from 'glob';
-import * as chai from 'chai';
 
 export function run(): Promise<void> {
   // Create the mocha test
@@ -9,7 +8,6 @@ export function run(): Promise<void> {
     ui: 'bdd',
   });
   mocha.useColors(true);
-  chai.use(require('sinon-chai'));
 
   const testsRoot = path.resolve(__dirname, '..');
 
