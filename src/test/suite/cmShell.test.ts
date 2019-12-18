@@ -19,7 +19,8 @@ describe('CmShell', () => {
       expect(cmShell.isRunning).to.be.false;
 
       channel.verify(
-        ch => ch.appendLine(It.isAnyString()),
+        ch => ch.appendLine(It.is(
+          message => message.includes("unable to run command 'location'"))),
         Times.once());
       parser.verify(
         p => p.readLineErr(It.isAnyString()),

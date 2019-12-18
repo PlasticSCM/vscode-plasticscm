@@ -112,7 +112,7 @@ export class CmShell implements ICmShell {
 
     if (!this.isRunning) {
       this.mChannel.appendLine(
-        `Warning: unable to run command ${command} because the shell isn't running!`);
+        `Warning: unable to run command '${command}' because the shell isn't running!`);
       return {
         error: new Error('Shell wasn\'t running'),
         success: false
@@ -214,7 +214,7 @@ class LineStream implements Disposable {
     this.lines.end();
     this.lines.destroy();
   }
-  
+
   write(buffer: Buffer) {
     this.lines.write(this.decoder.write(buffer));
   }
