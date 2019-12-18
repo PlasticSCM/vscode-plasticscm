@@ -1,5 +1,5 @@
 
-import { workspace, Disposable } from 'vscode';
+import { workspace, Disposable, OutputChannel } from 'vscode';
 import { ICmdResult, ICmShell, CmShell } from './cmShell';
 import * as os from 'os';
 
@@ -21,12 +21,16 @@ class Workspace implements Disposable {
 }
 
 export class PlasticScm implements Disposable {
+  constructor(channel: OutputChannel) {
+    this.mChannel = channel;
+  }
+
   public initialize() {
     if (!workspace.workspaceFolders) {
       return;
     }
 
-    const shell: ICmShell = new CmShell(os.tmpdir());
+    const shell: ICmShell = new CmShell(os.tmpdir(), this.mChannel);
     for (const folder of workspace.workspaceFolders) {
       try{
           const workspaceRoot: string = this.findWorkspaceRoot(shell, folder.uri.fsPath);
@@ -36,7 +40,7 @@ export class PlasticScm implements Disposable {
           }
 
           this.mWorkspaces.set(workspaceRoot, new Workspace(
-            workspaceRoot, '', new CmShell(workspaceRoot)));
+            workspaceRoot, '', new CmShell(workspaceRoot, this.mChannel)));
 
         } catch (error) {
           console.error(`Unable to find workspace in ${folder.uri.fsPath}`, error);
@@ -55,5 +59,6 @@ export class PlasticScm implements Disposable {
     return '';
   }
 
-  readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
+  private readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
+  private readonly mChannel: OutputChannel;
 }
