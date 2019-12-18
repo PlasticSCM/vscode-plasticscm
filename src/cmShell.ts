@@ -6,41 +6,42 @@ import * as uuid from 'uuid';
 import { ChildProcess, spawn } from 'child_process';
 import { StringDecoder } from 'string_decoder';
 import * as fs from 'fs';
-import { Disposable } from 'vscode';
+import { Disposable, OutputChannel } from 'vscode';
 
 export interface ICmdResult<T> {
   result?: T;
-  error?: Error;
+  error?: Error | null;
   success: boolean;
 }
 
-export interface IParser<T> {
+export interface ICmdParser<T> {
   readLineOut(line: string): void;
   readLineErr(line: string): void;
   parse(): T;
-  getError(): Error;
+  getError(): Error | null;
 }
 
 export interface ICmShell extends Disposable {
   readonly isRunning: boolean;
 
-  start(path: string): Promise<boolean>;
+  start(): Promise<boolean>;
   exec<T>(
     command: string,
     args: string[],
-    parser: IParser<T>): Promise<ICmdResult<T>>;
+    parser: ICmdParser<T>): Promise<ICmdResult<T>>;
   stop(): void;
 }
 
-declare const UTF8 = 'utf8';
+const UTF8 = 'utf8';
 
 export class CmShell implements ICmShell {
   public get isRunning(): boolean {
     return this.mbIsRunning;
   }
 
-  constructor(startDir: string) {
+  constructor(startDir: string, channel: OutputChannel) {
     this.mStartDir = startDir;
+    this.mChannel = channel;
     this.mOutStream = new LineStream(UTF8);
     this.mErrStream = new LineStream(UTF8);
   }
@@ -66,12 +67,14 @@ export class CmShell implements ICmShell {
       stdio: ['pipe', 'pipe', 'pipe']
     });
 
-    this.mProcess.stdout?.on('data', this.mOutStream.write);
-    this.mProcess.stderr?.on('data', this.mErrStream.write);
+    const readOut: (chunk: any) => void = chunk => this.mOutStream.write(chunk);
+    const readErr: (chunk: any) => void = chunk => this.mErrStream.write(chunk);
+    this.mProcess.stdout!.on('data', readOut);
+    this.mProcess.stderr!.on('data', readErr);
 
     if (!await this.waitUntilFileDeleted(commFile, 3000)) {
-      this.mProcess.stdout?.off('data', this.mOutStream.write);
-      this.mProcess.stderr?.off('data', this.mErrStream.write);
+      this.mProcess.stdout!.off('data', readOut);
+      this.mProcess.stderr!.off('data', readErr);
       return false;
     }
     return true;
@@ -83,50 +86,62 @@ export class CmShell implements ICmShell {
     }
 
     this.write('exit');
-    this.mProcess?.disconnect();
     this.mbIsRunning = false;
+    this.mProcess?.stdin?.end();
+    if (this.mProcess?.connected) {
+      this.mProcess?.disconnect();
+    }
   }
 
   async exec<T>(
       command: string,
       args: string[],
-      parser: IParser<T>)
+      parser: ICmdParser<T>)
       : Promise<ICmdResult<T>> {
     const commandResultToken = 'CommandResult ';
     const result: ICmdResult<T> = {
       success: false
     };
 
-    this.mErrStream.on('data', parser.readLineErr);
+    const parserErrorRead: (line: string) => void = line => parser.readLineErr(line);
+    this.mErrStream.on('data', parserErrorRead);
+
     const listenResult: Promise<void> = new Promise<void>(resolve => {
-      this.mOutStream.on('data', line => {
+      const parserOutRead: (line: string) => void = line => {
         if (!line.startsWith(commandResultToken)) {
           parser.readLineOut(line);
           return;
         }
 
-        result.success = parseInt(commandResultToken.substr(commandResultToken.length)) === 0;
-        this.mOutStream.off('data', parser.readLineOut);
+        result.success = parseInt(line.substr(commandResultToken.length)) === 0;
+        this.mOutStream.off('data', parserOutRead);
+        this.mErrStream.off('data', parserErrorRead);
         resolve();
-      });
+      };
+
+      this.mOutStream.on('data', parserOutRead);
     });
 
     this.write(command, ...args);
-
-    await listenResult;
+    try {
+      await listenResult;
+    } catch (error) {
+      debugger;
+    }
 
     result.result = parser.parse();
     result.error = parser.getError();
     return result;
   }
 
-  private write(command: string, ...args: string[]) {
-    this.mProcess?.stdin?.write(command);
+  private write(commandName: string, ...args: string[]) {
+    let command = commandName;
     if (args && args.length > 0) {
-      this.mProcess?.stdin?.write(` ${args.map(arg => `"${arg}"`).join(' ')}`);
+      command += ` ${args.map(arg => `"${arg}"`).join(' ')}`;
     }
-    this.mProcess?.stdin?.write('\n');
-    this.mProcess?.stdin?.end();
+
+    this.mChannel.appendLine(`${this.mStartDir}> ${command}`);
+    this.mProcess?.stdin?.write(command + '\n');
   }
 
   private waitUntilFileDeleted(path: string, timeout: number): Promise<boolean> {
@@ -152,6 +167,7 @@ export class CmShell implements ICmShell {
   }
 
   private readonly mStartDir: string;
+  private readonly mChannel: OutputChannel;
   private mProcess?: ChildProcess;
   private mbIsRunning: boolean = false;
   private readonly mOutStream: LineStream;
@@ -160,12 +176,12 @@ export class CmShell implements ICmShell {
 
 
 class LineStream implements Disposable {
-  get on() {
-    return this.lines.on;
+  on(event: string, listener: (chunk: any) => void) {
+    this.lines.on(event, listener);
   }
 
-  get off() {
-    return this.lines.off;
+  off(event: string, listener: (chunk: any) => void) {
+    this.lines.off(event, listener);
   }
 
   constructor(encoding: string) {
@@ -175,6 +191,7 @@ class LineStream implements Disposable {
 
   dispose() {
     this.decoder.end();
+    this.lines.end();
     this.lines.destroy();
   }
   
