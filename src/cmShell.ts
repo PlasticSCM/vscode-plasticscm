@@ -144,26 +144,23 @@ export class CmShell implements ICmShell {
     this.mProcess?.stdin?.write(command + '\n');
   }
 
-  private waitUntilFileDeleted(path: string, timeout: number): Promise<boolean> {
-    let retries = 0;
+  private async waitUntilFileDeleted(path: string, timeout: number): Promise<boolean> {
     const intervalTime = 50;
+    let waitTime = 0;
 
-    return new Promise<boolean>(resolve => {
-      const interval = setInterval(() => {
-        if (!fs.existsSync(path)) {
-          clearInterval(interval);
-          resolve(true);
-        }
-  
-        if (retries < timeout / intervalTime) {
-          retries += 1;
-          return;
-        }
-        
-        clearInterval(interval);
-        resolve(false);
-      }, intervalTime);
-    });
+    const delay: (ms: number) => Promise<void> = ms => {
+      return new Promise<void>(resolve => setTimeout(resolve, ms));
+    };
+
+    while (waitTime < timeout) {
+      if (fs.existsSync(path)) {
+        return true;
+      }
+
+      await delay(intervalTime);
+      waitTime += intervalTime;
+    }
+    return false;
   }
 
   private readonly mStartDir: string;
