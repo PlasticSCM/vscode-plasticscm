@@ -1,21 +1,29 @@
 import { expect } from 'chai';
-import * as sinon from 'sinon';
+import { IMock, Mock, MockBehavior, It, Times } from 'typemoq';
 
 import { CmShell, ICmdParser } from '../../cmShell';
-import { OutputChannel } from 'vscode';
+import { OutputChannel, OnTypeFormattingEditProvider } from 'vscode';
 
 describe('CmShell', () => {
-  context("Shell isn't running", () => {
-    const channel = sinon.createStubInstance<OutputChannel>(
-      () => {});
-    const parser = sinon.createStubInstance<ICmdParser<any>>(() => {});
-    const cmShell: CmShell = new CmShell('mydir', <OutputChannel>channel);
+  context('not running', () => {
+    const channel: IMock<OutputChannel> = Mock.ofType<OutputChannel>(
+      undefined, MockBehavior.Strict);
 
-    it("shouldn't run anything if shell isn't running", () => {
-      cmShell.exec('location', [], <ICmdParser<any>>parser)
+    const parser: IMock<ICmdParser<any>> = Mock.ofType<ICmdParser<any>>(
+      undefined, MockBehavior.Strict);
+
+    const cmShell: CmShell = new CmShell('mydir', channel.object);
+
+    it("shouldn't run commands", () => {
+      cmShell.exec('location', [], parser.object)
       expect(cmShell.isRunning).to.be.false;
-      expect(channel.appendLine.calledOnce).to.be.true;
-      expect(parser.readLineErr.notCalled).to.be.true;
+
+      channel.verify(
+        ch => ch.appendLine(It.isAnyString()),
+        Times.once());
+      parser.verify(
+        p => p.readLineErr(It.isAnyString()),
+        Times.never());
     });
   });
 });
