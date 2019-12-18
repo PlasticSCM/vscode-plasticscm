@@ -1,6 +1,6 @@
 
 import { workspace, Disposable, OutputChannel } from 'vscode';
-import { ICmdResult, ICmShell, CmShell } from './cmShell';
+import { ICmShell, CmShell } from './cmShell';
 import * as os from 'os';
 
 class Workspace implements Disposable {
@@ -25,12 +25,18 @@ export class PlasticScm implements Disposable {
     this.mChannel = channel;
   }
 
-  public initialize() {
+  public async initialize() {
     if (!workspace.workspaceFolders) {
       return;
     }
 
     const shell: ICmShell = new CmShell(os.tmpdir(), this.mChannel);
+    if (!await shell.start()) {
+      this.mChannel.appendLine(
+        "Plastic SCM extension can't start: unable to start `cm shell'");
+      return;
+    }
+
     for (const folder of workspace.workspaceFolders) {
       try{
           const workspaceRoot: string = this.findWorkspaceRoot(shell, folder.uri.fsPath);
