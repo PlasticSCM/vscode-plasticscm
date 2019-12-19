@@ -1,11 +1,10 @@
 import * as os from 'os';
 import * as byline from 'byline';
+import * as fs from 'fs';
 import * as path from 'path';
-import * as proc from 'process';
 import * as uuid from 'uuid';
 import { ChildProcess, spawn } from 'child_process';
 import { StringDecoder } from 'string_decoder';
-import * as fs from 'fs';
 import { Disposable, OutputChannel } from 'vscode';
 
 export interface ICmdResult<T> {
@@ -64,7 +63,7 @@ export class CmShell implements ICmShell {
       [
         'shell', '--encoding=UTF-8', `--commfile=${commFile}`, this.mStartDir
       ], {
-      env: proc.env,
+      env: process.env,
       cwd: this.mStartDir,
       stdio: ['pipe', 'pipe', 'pipe']
     });
