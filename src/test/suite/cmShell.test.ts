@@ -25,6 +25,6 @@ describe('CmShell', () => {
       parser.verify(
         p => p.readLineErr(It.isAnyString()),
         Times.never());
-    });
+    }).timeout(2000);
   });
 });
