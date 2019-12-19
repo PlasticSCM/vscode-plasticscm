@@ -31,6 +31,9 @@
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"
       ],
+      "env": {
+        "DEBUG": "true"
+      },
       "preLaunchTask": "${defaultBuildTask}"
     }
   ]
