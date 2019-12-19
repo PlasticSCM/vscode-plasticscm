@@ -2,12 +2,17 @@
 
 ## Intro
 
-[plasticscm](https://marketplace.visualstudio.com/items?itemName=Plastic.vscode-plasticscm) is a Visual Studio Code extension that integrates [Plastic SCM](https://www.plasticscm.com/). With this plugin, you can use Plastic SCM as your SCM tool. It is powered by [Codice Software](https://www.plasticscm.com/).
-This plugin contains a subset of Plastic SCM commands and features. We will extend it in the future, and we hope it will be useful and convenient to use.
+[plasticscm](https://marketplace.visualstudio.com/items?itemName=Plastic.vscode-plasticscm)
+is a Visual Studio Code extension that integrates [Plastic SCM](https://www.plasticscm.com/).
+With this plugin, you can use Plastic SCM as your SCM tool. It is powered by
+[Codice Software](https://www.plasticscm.com/).
+
+This plugin contains a subset of Plastic SCM commands and features. We will
+extend it in the future, and we hope it will be useful and convenient to use.
 
 ## Requirements
 
-* Visual Studio Code v1.19
+* Visual Studio Code v1.5
 * Plastic SCM
 
 ## Features
@@ -18,9 +23,10 @@ This plugin contains a subset of Plastic SCM commands and features. We will exte
 
 ## Install
 
-1. Install *Visual Studio Code* (1.19 or higher)
+1. Install *Visual Studio Code* (1.5 or higher)
 2. Launch *Code*
-3. From the command palette `ctrl+shift+p` (Windows, Linux) or `cmd+shift+p` (OS X)
+3. From the command palette `ctrl+shift+p` (Windows, Linux) or `cmd+shift+p`
+  (macOS)
 4. Select `Install Extensions`
 5. Choose the extension `Plastic SCM`
 6. Reload *Visual Studio Code*
