@@ -17,18 +17,18 @@
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "Plastic SCM for vscode - Use 'PlasticSCM: Open Settings' to open settings in the IDE",
+      "title": "Plastic SCM",
       "properties": {
-        "plasticscm.cmConfiguration.cmPath": {
+        "PlasticSCM.cmConfiguration.cmPath": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Specifies a given cm.exe executable that is not in your `PATH` environment variable",
+          "markdownDescription": "Specifies a given `cm` executable that is not in your `PATH` environment variable",
           "scope": "window"
         },
-        "plasticscm.cmConfiguration.millisToWaitUntilUp": {
+        "PlasticSCM.cmConfiguration.millisToWaitUntilUp": {
           "type": "number",
           "default": 5000,
-          "markdownDescription": "Milliseconds to wait for the `cm` shell to be up. In some systems, shell initialization might be slow.",
+          "markdownDescription": "Milliseconds to wait for the `cm shell` to be up before disabling the extension. In some systems, shell initialization might be slow.",
           "scope": "window"
         }
       }
