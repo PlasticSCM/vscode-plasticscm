@@ -35,7 +35,8 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "deploy": "vsce publish --yarn"
   },
   "devDependencies": {
     "@types/byline": "^4.2.31",
@@ -55,5 +56,5 @@
     "uuid": "^3.3.3",
     "typemoq": "^2.1.0",
     "vscode-test": "^1.2.2"
-  }
+  },
 }
