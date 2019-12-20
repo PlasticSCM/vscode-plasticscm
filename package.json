@@ -19,13 +19,13 @@
       "type": "object",
       "title": "Plastic SCM",
       "properties": {
-        "PlasticSCM.cmConfiguration.cmPath": {
+        "plastic-scm.cmConfiguration.cmPath": {
           "type": "string",
           "default": "",
           "markdownDescription": "Specifies a given `cm` executable that is not in your `PATH` environment variable",
           "scope": "window"
         },
-        "PlasticSCM.cmConfiguration.millisToWaitUntilUp": {
+        "plastic-scm.cmConfiguration.millisToWaitUntilUp": {
           "type": "number",
           "default": 5000,
           "markdownDescription": "Milliseconds to wait for the `cm shell` to be up before disabling the extension. In some systems, shell initialization might be slow.",
