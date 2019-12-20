@@ -1,58 +1,70 @@
-import { Uri, workspace } from "vscode";
 
-class Workspace {
-  constructor(path: string, name: string) {
+import { workspace, Disposable, OutputChannel } from 'vscode';
+import { ICmShell, CmShell } from './cmShell';
+import * as os from 'os';
+
+class Workspace implements Disposable {
+  constructor(path: string, name: string, shell: ICmShell) {
     this.mPath = path;
     this.mName = name;
+    this.mShell = shell;
   }
 
-  private mPath: string;
-  private mName: string;
+  async dispose(): Promise<void> {
+    await this.mShell.stop();
+    this.mShell.dispose();
+  }
+
+  private readonly mPath: string;
+  private readonly mName: string;
+  private readonly mShell: ICmShell;
 }
 
-interface ICmdResult {
-  stdout?: string;
-  stderr?: string;
-  success: boolean;
-}
-
-class CmShell {
-  constructor() {
+export class PlasticScm implements Disposable {
+  constructor(channel: OutputChannel) {
+    this.mChannel = channel;
   }
 
-  public exec(command: string, args: string[]) : ICmdResult {
-    return {
-      success: true,
-    };
-  }
-}
-
-export class PlasticScm {
-  constructor(shell: CmShell) {
-    this.mCmShell = shell;
-  }
-
-  public initialize() {
+  public async initialize() {
     if (!workspace.workspaceFolders) {
       return;
     }
 
-    const workspaces: {[key: string]: Workspace} = {};
+    const shell: ICmShell = new CmShell(os.tmpdir(), this.mChannel);
+    if (!await shell.start()) {
+      this.mChannel.appendLine(
+        "Plastic SCM extension can't start: unable to start `cm shell'");
+      return;
+    }
+
     for (const folder of workspace.workspaceFolders) {
-      const workspaceRoot: string = this.findWorkspaceRoot(folder.uri.fsPath);
+      try{
+          const workspaceRoot: string = this.findWorkspaceRoot(shell, folder.uri.fsPath);
 
-      if (workspaces[workspaceRoot]) {
-        continue;
-      }
+          if (this.mWorkspaces.has(workspaceRoot)) {
+            continue;
+          }
 
-      workspaces[workspaceRoot] = new Workspace(workspaceRoot, '');
+          this.mWorkspaces.set(workspaceRoot, new Workspace(
+            workspaceRoot, '', new CmShell(workspaceRoot, this.mChannel)));
+
+        } catch (error) {
+          console.error(`Unable to find workspace in ${folder.uri.fsPath}`, error);
+          
+        }
     }
   }
 
-  private findWorkspaceRoot(workspaceDir: string): string {
-    const result: ICmdResult = this.mCmShell.exec('gwp', [workspaceDir]);
+  dispose() {
+    Disposable.from(...this.mWorkspaces.values()).dispose();
+  }
+
+  private findWorkspaceRoot(shell: ICmShell, workspaceDir: string): string {
+    // TODO use the shell here
+    // const result: ICmdResult = shell.exec('gwp', [workspaceDir]);
     return '';
   }
 
-  private mCmShell: CmShell;
+  private readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
+  private readonly mChannel: OutputChannel;
 }

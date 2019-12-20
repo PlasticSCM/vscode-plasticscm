@@ -1,65 +1,73 @@
-# plastic-scm README
+<p align="center">
+  <img src="images/logo-full.svg" alt="Plastic SCM" width="400" />
+</p>
 
-This is the README for your extension "plastic-scm". After writing up a brief description, we recommend including the following sections.
+# Plastic SCM integration with VS Code's SCM features
 
-## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## Intro
 
-For example if there is an image subfolder under your extension project workspace:
+[plasticscm](https://marketplace.visualstudio.com/items?itemName=Plastic.vscode-plasticscm)
+is a Visual Studio Code extension that integrates [Plastic SCM](https://www.plasticscm.com/).
+With this plugin, you can use Plastic SCM as your SCM tool. It is powered by
+[Codice Software](https://www.plasticscm.com/).
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+This plugin contains a subset of Plastic SCM commands and features. We will
+extend it in the future, and we hope it will be useful and convenient to use.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+* Visual Studio Code v1.5
+* Plastic SCM
 
-## Extension Settings
+## Features
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+1. Feature one
+2. Feature two
+3. Feature 3
 
-For example:
+## Install
 
-This extension contributes the following settings:
+1. Install *Visual Studio Code* (1.5 or higher)
+2. Launch *Code*
+3. From the command palette `ctrl+shift+p` (Windows, Linux) or `cmd+shift+p`
+  (macOS)
+4. Select `Install Extensions`
+5. Choose the extension `Plastic SCM`
+6. Reload *Visual Studio Code*
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+## Configure
 
-## Known Issues
+|Name                               |Type       |Description
+|-----------------------------------|-----------|-----------
+|`plastic.user`                     |`string`   |Use the specified user
+|`plastic.password`                 |`string`   |Use the specified password
+|`plastic.confitem1`                |`string`   |Use item 1
+|`plastic.confitem2`                |`string`   |Use item 2...
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## Commands
 
-## Release Notes
+* `workspace` - Create a new workspace
+* `status` -  Get the status of the repository
+* `update` -  Update to the last
+* `branch` - Create a new branch
+* `undo` - Undo all changes
+* `checkin` - Add the changes to the branch
+* `switch` - Switch or move to another branch
 
-Users appreciate release notes as you update your extension.
+## Contribute
 
-### 1.0.0
+1. Fork it!
+2. Create your feature branch: `git checkout -b my-new-feature`
+3. Commit your changes: `git commit -am 'Add some feature'`
+4. Push to the branch: `git push origin my-new-feature`
+5. Submit a pull request
 
-Initial release of ...
+## Credits
 
-### 1.0.1
+* [Visual Studio Code](https://code.visualstudio.com/)
+* [vscode-docs on GitHub](https://github.com/Microsoft/vscode-docs)
 
-Fixed issue #.
+## License
 
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+[MIT](LICENSE.md)
