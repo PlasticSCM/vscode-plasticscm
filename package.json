@@ -14,8 +14,7 @@
     "*"
   ],
   "main": "./out/extension.js",
-  "contributes": {
-  },
+  "contributes": {},
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
@@ -24,14 +23,22 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/byline": "^4.2.31",
+    "@types/chai": "^4.2.7",
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.11.7",
+    "@types/uuid": "^3.4.6",
     "@types/vscode": "^1.41.0",
+    "byline": "^5.0.0",
+    "chai": "^4.2.0",
     "glob": "^7.1.5",
     "mocha": "^6.2.2",
+    "nyc": "^14.1.1",
+    "tslint": "^5.20.1",
     "typescript": "^3.6.4",
-    "tslint": "^5.20.0",
+    "uuid": "^3.3.3",
+    "typemoq": "^2.1.0",
     "vscode-test": "^1.2.2"
   }
 }
