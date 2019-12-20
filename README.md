@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/logo-full.svg" alt="Plastic SCM" width="400" />
+  <img src="images/logo-full.png" alt="Plastic SCM" width="400" />
 </p>
 
 # Plastic SCM integration with VS Code's SCM features
