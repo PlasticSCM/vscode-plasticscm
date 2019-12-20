@@ -1,18 +1,44 @@
 export * from './config';
 
-import { ExtensionContext, Uri, workspace, ConfigurationChangeEvent, WorkspaceConfiguration } from 'vscode';
+import {
+  Event,
+  ExtensionContext,
+  Uri,
+  workspace,
+  ConfigurationChangeEvent,
+  WorkspaceConfiguration,
+  EventEmitter } from 'vscode';
 import { Config } from './config';
 import { extensionId } from './constants';
 
 export class Configuration {
-  static configure(context: ExtensionContext) {
+
+  static configureEvents(context: ExtensionContext) {
     context.subscriptions.push(
-      workspace.onDidChangeConfiguration(configuration.onConfigurationChanged, configuration)
-    );
+      workspace.onDidChangeConfiguration(e => {
+        configuration.mOnDidChangeAny.fire(e);
+        if (e.affectsConfiguration(extensionId)) {
+          configuration.mOnDidChange.fire(e);
+        }
+      }));
+  }
+
+  get onDidChangeAny(): Event<ConfigurationChangeEvent> {
+    return this.mOnDidChangeAny.event;
+  }
+
+  get onDidChange(): Event<ConfigurationChangeEvent> {
+    return this.mOnDidChange.event;
   }
 
   private onConfigurationChanged(e: ConfigurationChangeEvent) {
-    // TODO implement configuration change handling
+    if (!e.affectsConfiguration(extensionId, null!)) {
+      this.mOnDidChangeAny.fire(e);
+      return;
+    }
+
+    this.mOnDidChangeAny.fire(e);
+    this.mOnDidChange.fire(e);
   }
 
   get(): Config;
@@ -73,6 +99,12 @@ export class Configuration {
 
     return args.length;
   }
+
+  private mOnDidChange: EventEmitter<ConfigurationChangeEvent> =
+    new EventEmitter<ConfigurationChangeEvent>();
+
+  private mOnDidChangeAny: EventEmitter<ConfigurationChangeEvent> =
+    new EventEmitter<ConfigurationChangeEvent>();
 }
 
 export const configuration = new Configuration();
