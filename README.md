@@ -7,7 +7,7 @@
 
 ## Intro
 
-[plasticscm](https://marketplace.visualstudio.com/items?itemName=Plastic.vscode-plasticscm)
+[plasticscm](https://marketplace.visualstudio.com/items?itemName=plasticscm.plasticscm-vscode)
 is a Visual Studio Code extension that integrates [Plastic SCM](https://www.plasticscm.com/).
 With this plugin, you can use Plastic SCM as your SCM tool. It is powered by
 [Codice Software](https://www.plasticscm.com/).
