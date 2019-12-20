@@ -1,6 +1,7 @@
 {
   "name": "plastic-scm",
   "displayName": "Plastic SCM",
+  "publisher": "plasticscm",
   "description": "",
   "license": "MIT",
   "version": "0.0.1",
