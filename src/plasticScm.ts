@@ -45,19 +45,19 @@ export class PlasticScm implements Disposable {
 
     for (const folder of workspace.workspaceFolders) {
       try{
-          const workspaceRoot : GetWorkspaceFromPathResult | undefined =
+          const plasticWorkspace : GetWorkspaceFromPathResult | undefined =
             await GetWorkspaceFromPath.run(folder.uri.fsPath, shell);
 
-          if (!workspaceRoot || this.mWorkspaces.has(workspaceRoot.id)) {
+          if (!plasticWorkspace || this.mWorkspaces.has(plasticWorkspace.id)) {
             continue;
           }
 
-          this.mWorkspaces.set(workspaceRoot.id,
+          this.mWorkspaces.set(plasticWorkspace.id,
             new Workspace(
-              workspaceRoot.path,
-              workspaceRoot.name,
-              workspaceRoot.id,
-            new CmShell(workspaceRoot.path, this.mChannel)));
+              plasticWorkspace.path,
+              plasticWorkspace.name,
+              plasticWorkspace.id,
+            new CmShell(plasticWorkspace.path, this.mChannel)));
 
         } catch (error) {
           console.error(`Unable to find workspace in ${folder.uri.fsPath}`, error);
