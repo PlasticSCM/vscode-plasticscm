@@ -5,9 +5,12 @@ import { Configuration, configuration } from './configuration';
 export function activate(context: ExtensionContext) {
   Configuration.configureEvents(context);
   const plasticScmChannel: OutputChannel = window.createOutputChannel('Plastic SCM');
+  const plasticScm = new PlasticScm(plasticScmChannel);
 
   context.subscriptions.push(Disposable.from(
-    plasticScmChannel, new PlasticScm(plasticScmChannel)));
+    plasticScmChannel, plasticScm));
+
+  plasticScm.initialize();
 }
 
 export function deactivate() {}
