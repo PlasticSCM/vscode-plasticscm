@@ -1,7 +1,8 @@
 import { ICmdParser, ICmdResult, ICmShell } from '../cmShell';
 
 export class GetWorkspaceFromPath {
-  static async  run(path: string, shell: ICmShell) : Promise<GetWorkspaceFromPathResult | undefined> {
+  static async  run(path: string, shell: ICmShell) :
+    Promise<GetWorkspaceFromPathResult | undefined> {
     const parser = new Parser();
 
     const cmdResult : ICmdResult<GetWorkspaceFromPathResult | undefined> =
@@ -51,7 +52,8 @@ class Parser implements ICmdParser<GetWorkspaceFromPathResult | undefined> {
   parse(): GetWorkspaceFromPathResult | undefined {
     const chunks = this.mOutputBuffer.join().split('\t');
     if (chunks.length === 3) {
-      return new GetWorkspaceFromPathResult(chunks[1], chunks[0], chunks[2]);
+      return new GetWorkspaceFromPathResult(
+        chunks[1], chunks[0], chunks[2]);
     }
 
     return undefined;
