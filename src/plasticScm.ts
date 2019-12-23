@@ -1,6 +1,6 @@
 
 import { workspace, Disposable, OutputChannel } from 'vscode';
-import { ICmShell, CmShell } from './cmShell';
+import { ICmShell, CmShell } from './cmShell/cmShell';
 import * as os from 'os';
 
 class Workspace implements Disposable {
@@ -50,7 +50,7 @@ export class PlasticScm implements Disposable {
 
         } catch (error) {
           console.error(`Unable to find workspace in ${folder.uri.fsPath}`, error);
-          
+
         }
     }
   }

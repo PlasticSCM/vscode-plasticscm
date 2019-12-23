@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { IMock, Mock, MockBehavior, It, Times } from 'typemoq';
 
-import { CmShell, ICmdParser } from '../../cmShell';
+import { CmShell, ICmdParser } from '../../cmShell/cmShell';
 import { OutputChannel } from 'vscode';
 
 describe('CmShell', () => {
