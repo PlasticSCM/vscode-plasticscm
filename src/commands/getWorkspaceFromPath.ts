@@ -9,7 +9,7 @@ export class GetWorkspaceFromPath {
 
     return new Promise<GetWorkspaceFromPathResult>((resolve, reject) => {
       if (cmdResult.success) {
-        resolve(cmdResult.result ? cmdResult.result : undefined);
+        resolve(cmdResult.result);
       }
       reject(new Error(`gwp: ${cmdResult.error}`));
     });
