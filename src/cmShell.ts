@@ -9,7 +9,7 @@ import { Disposable, OutputChannel } from 'vscode';
 
 export interface ICmdResult<T> {
   result?: T;
-  error?: Error | null;
+  error?: Error | undefined;
   success: boolean;
 }
 
@@ -17,7 +17,7 @@ export interface ICmdParser<T> {
   readLineOut(line: string): void;
   readLineErr(line: string): void;
   parse(): T;
-  getError(): Error | null;
+  getError(): Error | undefined;
 }
 
 export interface ICmShell extends Disposable {

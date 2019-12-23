@@ -45,7 +45,7 @@ export class PlasticScm implements Disposable {
 
     for (const folder of workspace.workspaceFolders) {
       try{
-          const workspaceRoot : GetWorkspaceFromPathResult | null =
+          const workspaceRoot : GetWorkspaceFromPathResult | undefined =
             await GetWorkspaceFromPath.run(folder.uri.fsPath, shell);
 
           if (!workspaceRoot || this.mWorkspaces.has(workspaceRoot.id)) {
