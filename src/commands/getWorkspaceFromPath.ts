@@ -12,7 +12,7 @@ export class GetWorkspaceFromPath {
       if (cmdResult.success) {
         resolve(cmdResult.result);
       }
-      reject(new Error(`gwp: ${cmdResult.error}`));
+      reject(cmdResult.error);
     });
   }
 }
@@ -56,6 +56,7 @@ class Parser implements ICmdParser<GetWorkspaceFromPathResult | undefined> {
         chunks[1], chunks[0], chunks[2]);
     }
 
+    this.mErrorBuffer = this.mErrorBuffer.concat(this.mOutputBuffer);
     return undefined;
   }
 
