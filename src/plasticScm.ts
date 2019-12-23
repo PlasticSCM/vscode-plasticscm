@@ -1,6 +1,6 @@
 
 import { workspace, Disposable, OutputChannel } from 'vscode';
-import { ICmShell, CmShell } from './cmShell/cmShell';
+import { ICmShell, CmShell } from './cmShell';
 import * as os from 'os';
 
 class Workspace implements Disposable {
