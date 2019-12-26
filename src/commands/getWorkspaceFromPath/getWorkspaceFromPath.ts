@@ -17,10 +17,6 @@ export class GetWorkspaceFromPath {
           + `{${CommandInfo.fields.wkPath.name}}"`],
         parser);
 
-    if (!cmResult) {
-      throw new Error("Command returned an empty result");
-    }
-
     if (!cmResult.success) {
       throw new Error(`Command failed: ${cmResult.error?.message}`);
     }
