@@ -83,7 +83,7 @@ export class CmShell implements ICmShell {
 
   public stop(): Promise<void> {
     if (!this.isRunning) {
-      return;
+      return Promise.resolve();
     }
 
     this.write("exit");
@@ -111,7 +111,7 @@ export class CmShell implements ICmShell {
       this.mProcess.on("exit", (code, signal) => {
         resolve();
       });
-    })
+    });
   }
 
   public async exec<T>(
