@@ -44,7 +44,6 @@
   "devDependencies": {
     "@types/byline": "^4.2.31",
     "@types/chai": "^4.2.7",
-    "@types/chai-as-promised": "^7.1.2",
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.11.7",
@@ -52,7 +51,6 @@
     "@types/vscode": "^1.41.0",
     "byline": "^5.0.0",
     "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
     "glob": "^7.1.5",
     "mocha": "^6.2.2",
     "nyc": "^14.1.1",
