@@ -72,6 +72,19 @@ export class Configuration {
     return result === undefined ? anotherResult : result;
   }
 
+  changed<S1 extends keyof Config>(e: ConfigurationChangeEvent, s1: S1, resource?: Uri | null): boolean;
+  changed<S1 extends keyof Config, S2 extends keyof Config[S1]>(
+    e: ConfigurationChangeEvent, s1: S1, s2: S2, resource?: Uri | null
+  ): boolean;
+  changed(e: ConfigurationChangeEvent, ...args: any[]): boolean {
+    const section: string = `${extensionId}.${Configuration.buildConfigKey(...args)!}`;
+    const lastKeyIndex: number = Configuration.getLastConfigKeyIndex(...args);
+
+    const resource: Uri | null | undefined = args[lastKeyIndex + 1];
+
+    return e.affectsConfiguration(section, resource!);
+  }
+
   static buildConfigKey(...args: any[]): string | undefined {
     if (args.length === 0 || typeof(args[0]) !== 'string') {
       return undefined;
