@@ -1,31 +1,16 @@
 
-import { workspace, Disposable, OutputChannel } from 'vscode';
-import { ICmShell, CmShell, ICmdResult } from './cmShell';
-import * as os from 'os';
-import { GetWorkspaceFromPathResult, GetWorkspaceFromPath } from './commands/getWorkspaceFromPath';
-import * as vscode from 'vscode';
-
-class Workspace implements Disposable {
-
-  constructor(path: string, name: string, id: string, shell: ICmShell) {
-    this.mPath = path;
-    this.mName = name;
-    this.mId = id;
-    this.mShell = shell;
-  }
-
-  async dispose(): Promise<void> {
-    await this.mShell.stop();
-    this.mShell.dispose();
-  }
-
-  private readonly mPath: string;
-  private readonly mName: string;
-  private readonly mId: string;
-  private readonly mShell: ICmShell;
-}
+import * as os from "os";
+import { Disposable, OutputChannel, workspace } from "vscode";
+import * as vscode from "vscode";
+import { CmShell, ICmResult, ICmShell } from "./cmShell";
+import { GetWorkspaceFromPath } from "./commands";
+import { IWorkspaceInfo } from "./models";
+import { Workspace } from "./workspace";
 
 export class PlasticScm implements Disposable {
+  private readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
+  private readonly mChannel: OutputChannel;
+
   constructor(channel: OutputChannel) {
     this.mChannel = channel;
   }
@@ -44,8 +29,8 @@ export class PlasticScm implements Disposable {
     }
 
     for (const folder of workspace.workspaceFolders) {
-      try{
-          const plasticWorkspace : GetWorkspaceFromPathResult | undefined =
+      try {
+          const plasticWorkspace: IWorkspaceInfo | undefined =
             await GetWorkspaceFromPath.run(folder.uri.fsPath, shell);
 
           if (!plasticWorkspace || this.mWorkspaces.has(plasticWorkspace.id)) {
@@ -54,21 +39,30 @@ export class PlasticScm implements Disposable {
 
           this.mWorkspaces.set(plasticWorkspace.id,
             new Workspace(
-              plasticWorkspace.path,
-              plasticWorkspace.name,
-              plasticWorkspace.id,
-            new CmShell(plasticWorkspace.path, this.mChannel)));
+              plasticWorkspace,
+              new CmShell(plasticWorkspace.path, this.mChannel)));
 
         } catch (error) {
-          console.error(`Unable to find workspace in ${folder.uri.fsPath}`, error);
+          vscode.window.showErrorMessage(error?.message);
+          this.mChannel.appendLine(
+            `Unable to find workspace in ${folder.uri.fsPath}: ${error?.message}`);
         }
     }
   }
 
-  dispose() {
-    Disposable.from(...this.mWorkspaces.values()).dispose();
+  public async stop(): Promise<void> {
+    this.getAllShells().forEach(async shell => await shell.stop());
   }
 
-  private readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
-  private readonly mChannel: OutputChannel;
+  public dispose() {
+    Disposable.from(...this.getAllShells()).dispose();
+  }
+
+  private getAllShells(): ICmShell[] {
+    const shells: ICmShell[] = [];
+    for (const [wkId, wk] of this.mWorkspaces) {
+      shells.push(wk.shell);
+    }
+    return shells;
+  }
 }

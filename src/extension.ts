@@ -1,11 +1,13 @@
-import { PlasticScm } from './plasticScm';
-import { OutputChannel, ExtensionContext, window, Disposable } from 'vscode';
-import { Configuration, configuration } from './configuration';
+import { Disposable, ExtensionContext, OutputChannel, window } from "vscode";
+import { Configuration, configuration } from "./configuration";
+import { PlasticScm } from "./plasticScm";
+
+let plasticScm: PlasticScm;
 
 export function activate(context: ExtensionContext) {
   Configuration.configureEvents(context);
-  const plasticScmChannel: OutputChannel = window.createOutputChannel('Plastic SCM');
-  const plasticScm = new PlasticScm(plasticScmChannel);
+  const plasticScmChannel: OutputChannel = window.createOutputChannel("Plastic SCM");
+  plasticScm = new PlasticScm(plasticScmChannel);
 
   context.subscriptions.push(Disposable.from(
     plasticScmChannel, plasticScm));
@@ -13,4 +15,8 @@ export function activate(context: ExtensionContext) {
   plasticScm.initialize();
 }
 
-export function deactivate() {}
+// No available actions in deactivate yet
+// tslint:disable-next-line: no-empty
+export async function deactivate(): Promise<any> {
+  await plasticScm.stop();
+}
