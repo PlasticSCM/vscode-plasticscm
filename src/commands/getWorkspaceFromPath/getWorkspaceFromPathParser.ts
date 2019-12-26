@@ -2,7 +2,7 @@ import { ICmParser } from "../../cmShell";
 import { IWorkspaceInfo } from "../../models";
 import { CommandInfo } from "./commandInfo";
 
-export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo | undefined> {
+export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {
   private mOutputBuffer: string[];
   private mErrorBuffer: string[];
 
