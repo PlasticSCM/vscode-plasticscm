@@ -14,7 +14,8 @@ export class Workspace implements Disposable {
     this.shell = shell;
     this.mSourceControl = scm.createSourceControl(
       constants.extensionId,
-      constants.extensionDisplayName);
+      constants.extensionDisplayName,
+      Uri.file(workspaceInfo.path));
   }
 
   public dispose() {
