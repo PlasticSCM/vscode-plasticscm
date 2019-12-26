@@ -10,9 +10,9 @@ describe("GetWorkspaceFromPath Command", () => {
       const cmShellMock: IMock<ICmShell> = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
       cmShellMock
         .setup(mock => mock.exec(
-            It.is(path => path === "/foo/bar"),
-            It.is(args => true),
-            It.is<ICmParser<IWorkspaceInfo | undefined>>(parser => true)))
+          It.isAnyString(),
+          It.is(args => true),
+          It.is<ICmParser<IWorkspaceInfo | undefined>>(parser => true)))
         .returns(() => Promise.resolve({
           result: {
             id: "95b0a429-7d9c-48af-8b5b-6f1ced257b20",
@@ -39,7 +39,7 @@ describe("GetWorkspaceFromPath Command", () => {
       const cmShellMock = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
       cmShellMock
       .setup(mock => mock.exec(
-          It.is(path => path === "/foo/bar"),
+          It.isAnyString(),
           It.is(args => true),
           It.is<ICmParser<IWorkspaceInfo | undefined>>(parser => true)))
         .returns(() => Promise.resolve({
@@ -66,12 +66,12 @@ describe("GetWorkspaceFromPath Command", () => {
       const cmShellMock = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
       cmShellMock
         .setup(mock => mock.exec(
-          It.is(path => path === "/foo/bar"),
+          It.isAnyString(),
           It.is(args => true),
           It.is<ICmParser<IWorkspaceInfo>>(parser => true)))
         .returns(() => Promise.resolve({
           error: new Error("Sample error"),
-          success: true,
+          success: false,
         }));
 
       try {
