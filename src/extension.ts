@@ -1,5 +1,5 @@
 import { Disposable, ExtensionContext, OutputChannel, window } from "vscode";
-import { Configuration, configuration } from "./configuration";
+import { Configuration } from "./configuration";
 import { PlasticScm } from "./plasticScm";
 
 let plasticScm: PlasticScm;
