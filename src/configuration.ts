@@ -1,27 +1,17 @@
-export * from './config';
+export * from "./config";
 
 import {
+  ConfigurationChangeEvent,
   Event,
+  EventEmitter,
   ExtensionContext,
   Uri,
   workspace,
-  ConfigurationChangeEvent,
-  WorkspaceConfiguration,
-  EventEmitter } from 'vscode';
-import { Config } from './config';
-import { extensionId } from './constants';
+  WorkspaceConfiguration } from "vscode";
+import { Config } from "./config";
+import { extensionId } from "./constants";
 
 export class Configuration {
-
-  static configureEvents(context: ExtensionContext) {
-    context.subscriptions.push(
-      workspace.onDidChangeConfiguration(e => {
-        configuration.mOnDidChangeAny.fire(e);
-        if (e.affectsConfiguration(extensionId)) {
-          configuration.mOnDidChange.fire(e);
-        }
-      }));
-  }
 
   get onDidChangeAny(): Event<ConfigurationChangeEvent> {
     return this.mOnDidChangeAny.event;
@@ -31,26 +21,60 @@ export class Configuration {
     return this.mOnDidChange.event;
   }
 
-  private onConfigurationChanged(e: ConfigurationChangeEvent) {
-    if (!e.affectsConfiguration(extensionId, null!)) {
-      this.mOnDidChangeAny.fire(e);
-      return;
-    }
-
-    this.mOnDidChangeAny.fire(e);
-    this.mOnDidChange.fire(e);
+  public static configureEvents(context: ExtensionContext) {
+    context.subscriptions.push(
+      workspace.onDidChangeConfiguration(e => {
+        configuration.mOnDidChangeAny.fire(e);
+        if (e.affectsConfiguration(extensionId)) {
+          configuration.mOnDidChange.fire(e);
+        }
+      }));
   }
 
-  get(): Config;
-  get<S1 extends keyof Config>(s1: S1, resource?: Uri | null, defaultValue?: Config[S1]): Config[S1];
-  get<S1 extends keyof Config, S2 extends keyof Config[S1]>(
+  private static buildConfigKey(...args: any[]): string | undefined {
+    if (args.length === 0 || typeof(args[0]) !== "string") {
+      return undefined;
+    }
+
+    let result: string = args[0];
+    let index: number;
+    for (index = 1; index < args.length; index++) {
+      if (typeof(args[index]) !== "string") {
+        return result;
+      }
+
+      result += `.${args[index]}`;
+    }
+
+    return result;
+  }
+
+  private static getLastConfigKeyIndex(...args: any[]): number {
+    for (let i: number = 0; i < args.length; i++) {
+      if (typeof(args[i]) !== "string") {
+        return i;
+      }
+    }
+
+    return args.length;
+  }
+
+  private mOnDidChange: EventEmitter<ConfigurationChangeEvent> =
+    new EventEmitter<ConfigurationChangeEvent>();
+
+  private mOnDidChangeAny: EventEmitter<ConfigurationChangeEvent> =
+    new EventEmitter<ConfigurationChangeEvent>();
+
+  public get(): Config;
+  public get<S1 extends keyof Config>(s1: S1, resource?: Uri | null, defaultValue?: Config[S1]): Config[S1];
+  public get<S1 extends keyof Config, S2 extends keyof Config[S1]>(
     s1: S1,
     s2: S2,
     resource?: Uri | null,
-    defaultValue?: Config[S1][S2]
+    defaultValue?: Config[S1][S2],
   ): Config[S1][S2];
   // Keep adding overloads here if configuration nestiness keeps growing.
-  get<T>(...args: any[]): T {
+  public get<T>(...args: any[]): T {
     const section: string | undefined = Configuration.buildConfigKey(...args);
     const lastKeyIndex: number = Configuration.getLastConfigKeyIndex(...args);
 
@@ -72,39 +96,15 @@ export class Configuration {
     return result === undefined ? anotherResult : result;
   }
 
-  static buildConfigKey(...args: any[]): string | undefined {
-    if (args.length === 0 || typeof(args[0]) !== 'string') {
-      return undefined;
+  private onConfigurationChanged(e: ConfigurationChangeEvent) {
+    if (!e.affectsConfiguration(extensionId, null!)) {
+      this.mOnDidChangeAny.fire(e);
+      return;
     }
 
-    let result: string = args[0];
-    let index: number;
-    for (index = 1; index < args.length; index++) {
-      if (typeof(args[index]) !== 'string') {
-        return result;
-      }
-
-      result += `.${args[index]}`;
-    }
-
-    return result;
+    this.mOnDidChangeAny.fire(e);
+    this.mOnDidChange.fire(e);
   }
-
-  static getLastConfigKeyIndex(...args: any[]): number {
-    for (let i: number = 0; i < args.length; i++) {
-      if (typeof(args[i]) !== 'string') {
-        return i;
-      }
-    }
-
-    return args.length;
-  }
-
-  private mOnDidChange: EventEmitter<ConfigurationChangeEvent> =
-    new EventEmitter<ConfigurationChangeEvent>();
-
-  private mOnDidChangeAny: EventEmitter<ConfigurationChangeEvent> =
-    new EventEmitter<ConfigurationChangeEvent>();
 }
 
 export const configuration = new Configuration();
