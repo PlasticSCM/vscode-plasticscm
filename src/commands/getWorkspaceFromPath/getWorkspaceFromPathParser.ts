@@ -49,4 +49,8 @@ export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {
 
     return new Error(this.mErrorBuffer.join(os.EOL));
   }
+
+  public getOutputLines(): string[] {
+    return this.mOutputBuffer.concat(this.mErrorBuffer);
+  }
 }

@@ -161,8 +161,14 @@ export class CmShell implements ICmShell {
       this.mChannel.appendLine(`ERROR: ${error}`);
     }
 
-    result.result = parser.parse();
-    result.error = parser.getError();
+    if (result.success) {
+      result.result = parser.parse();
+      result.error = parser.getError();
+      return result;
+    }
+
+    result.error = new Error(
+      parser.getOutputLines().join(os.EOL));
     return result;
   }
 

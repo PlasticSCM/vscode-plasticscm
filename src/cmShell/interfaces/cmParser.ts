@@ -3,4 +3,5 @@ export interface ICmParser<T> {
   readLineErr(line: string): void;
   parse(): T | undefined;
   getError(): Error | undefined;
+  getOutputLines(): string[];
 }
