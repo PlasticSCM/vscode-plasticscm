@@ -1,11 +1,11 @@
 import { ICmdParser, ICmdResult, ICmShell } from '../cmShell';
 
 export class GetWorkspaceFromPath {
-  static async  run(path: string, shell: ICmShell) :
+  static async run(path: string, shell: ICmShell):
     Promise<GetWorkspaceFromPathResult | undefined> {
     const parser = new Parser();
 
-    const cmdResult : ICmdResult<GetWorkspaceFromPathResult | undefined> =
+    const cmdResult: ICmdResult<GetWorkspaceFromPathResult | undefined> =
       await shell.exec('gwp', [path, '--format=\"{0}\t{1}\t{4}\"'], parser);
 
     return new Promise<GetWorkspaceFromPathResult>((resolve, reject) => {
@@ -62,12 +62,11 @@ class Parser implements ICmdParser<GetWorkspaceFromPathResult | undefined> {
 
   getError(): Error | undefined {
     if (this.mErrorBuffer.length === 0) {
-      return undefined;
     }
 
     return new Error(this.mErrorBuffer.join());
   }
 
-  private mOutputBuffer : Array<string>;
-  private mErrorBuffer : Array<string>;
+  private mOutputBuffer: Array<string>;
+  private mErrorBuffer: Array<string>;
 }
