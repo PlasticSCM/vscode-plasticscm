@@ -1,3 +1,4 @@
+import * as os from "os";
 import { ICmParser } from "../../cmShell";
 import { IWorkspaceInfo } from "../../models";
 import { CommandInfo } from "./commandInfo";
@@ -21,8 +22,9 @@ export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {
 
   public parse(): IWorkspaceInfo | undefined {
     const nonEmptyLines: string[] = this.mOutputBuffer.filter(line => line.trim());
-    if (nonEmptyLines.length >= 1) {
-      this.mErrorBuffer = this.mErrorBuffer.concat(this.mOutputBuffer);
+    if (nonEmptyLines.length > 1) {
+      this.mErrorBuffer = this.mErrorBuffer.concat(
+        "Unexpected output:", ...this.mOutputBuffer);
       return undefined;
     }
 
@@ -35,16 +37,16 @@ export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {
       };
     }
 
-    this.mErrorBuffer = this.mErrorBuffer.concat(this.mOutputBuffer);
+    this.mErrorBuffer = this.mErrorBuffer.concat(
+      "Parsing failed:", ...this.mOutputBuffer);
     return undefined;
   }
 
   public getError(): Error | undefined {
     if (this.mErrorBuffer.length === 0) {
-      this.mErrorBuffer = this.mErrorBuffer.concat(
-        "Error parsing output: ", ...this.mOutputBuffer);
+      return undefined;
     }
 
-    return new Error(this.mErrorBuffer.join());
+    return new Error(this.mErrorBuffer.join(os.EOL));
   }
 }
