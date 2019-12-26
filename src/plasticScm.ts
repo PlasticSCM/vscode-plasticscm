@@ -56,6 +56,7 @@ export class PlasticScm implements Disposable {
 
   public dispose() {
     Disposable.from(...this.getAllShells()).dispose();
+    this.mWorkspaces.forEach(value => value.dispose());
   }
 
   private getAllShells(): ICmShell[] {
