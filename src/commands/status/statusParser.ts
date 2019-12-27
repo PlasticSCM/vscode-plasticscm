@@ -60,6 +60,7 @@ export class StatusParser implements ICmParser<IPendingChanges> {
     statusOutput.changes.change.forEach(change => {
       const uri: Uri = Uri.file(change.path);
       const newChange: IChangeInfo = {
+        oldPath: change.oldPath ? Uri.file(change.oldPath) : undefined,
         path: uri,
         type: CHANGE_TYPES[change.type] ?? ChangeType.Controlled,
       };
@@ -84,6 +85,7 @@ export class StatusParser implements ICmParser<IPendingChanges> {
     }
 
     return {
+      oldPath: destination.oldPath ?? source.oldPath,
       path: destination!.path,
       type: destination!.type | source.type,
     };

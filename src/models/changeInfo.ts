@@ -8,7 +8,6 @@ export enum WkConfigType {
   Unknown,
 }
 
-// tslint:disable: no-bitwise
 export enum ChangeType {
   Controlled = 0,
   Private    = 1 << 0,
@@ -18,7 +17,6 @@ export enum ChangeType {
   Moved      = 1 << 4,
   Deleted    = 1 << 5,
 }
-// tslint:enable: no-bitwise
 
 export interface IPendingChanges {
   readonly workspaceConfig: IWorkspaceConfig;
@@ -33,5 +31,6 @@ export interface IWorkspaceConfig {
 
 export interface IChangeInfo {
   readonly path: Uri;
+  readonly oldPath?: Uri;
   readonly type: ChangeType;
 }

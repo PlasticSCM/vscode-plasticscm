@@ -10,6 +10,7 @@ import { CmShell, ICmShell } from "./cmShell";
 import { GetWorkspaceFromPath, Status } from "./commands";
 import { IWorkspaceInfo } from "./models";
 import { Workspace } from "./workspace";
+import { WorkspaceOperations } from "./workspaceOperations";
 
 export class PlasticScm implements Disposable {
   private readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
@@ -49,11 +50,9 @@ export class PlasticScm implements Disposable {
           continue;
         }
 
-        const workspace: Workspace = new Workspace(wkInfo, wkShell);
+        const workspace: Workspace = new Workspace(wkInfo, wkShell, new WorkspaceOperations());
         this.mDisposables.push(wkShell, workspace);
         this.mWorkspaces.set(wkInfo.id, workspace);
-
-        const changes = await Status.run(wkInfo.path, wkShell);
       } catch (error) {
         VsCodeWindow.showErrorMessage(error?.message);
         this.mChannel.appendLine(
@@ -65,12 +64,9 @@ export class PlasticScm implements Disposable {
     }
   }
 
-  public async stop(): Promise<void> {
-    const shells: ICmShell[] = [];
-    for (const [wkId, wk] of this.mWorkspaces) {
-      shells.push(wk.shell);
-    }
-    shells.forEach(async shell => await shell.stop());
+  public stop(): Promise<void[]> {
+    return Promise.all(
+      Array.from(this.mWorkspaces.values()).map(wk => wk.shell.stop()));
   }
 
   public dispose() {
