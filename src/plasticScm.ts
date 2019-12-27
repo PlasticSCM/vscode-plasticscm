@@ -52,8 +52,6 @@ export class PlasticScm implements Disposable {
         const workspace: Workspace = new Workspace(wkInfo, wkShell);
         this.mDisposables.push(wkShell, workspace);
         this.mWorkspaces.set(wkInfo.id, workspace);
-
-        const changes = await Status.run(wkInfo.path, wkShell);
       } catch (error) {
         VsCodeWindow.showErrorMessage(error?.message);
         this.mChannel.appendLine(
@@ -65,12 +63,9 @@ export class PlasticScm implements Disposable {
     }
   }
 
-  public async stop(): Promise<void> {
-    const shells: ICmShell[] = [];
-    for (const [wkId, wk] of this.mWorkspaces) {
-      shells.push(wk.shell);
-    }
-    shells.forEach(async shell => await shell.stop());
+  public stop(): Promise<void[]> {
+    return Promise.all(
+      Array.from(this.mWorkspaces.values()).map(wk => wk.shell.stop()));
   }
 
   public dispose() {
