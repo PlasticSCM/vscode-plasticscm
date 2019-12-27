@@ -14,7 +14,14 @@ import { configuration } from "./configuration";
 import * as constants from "./constants";
 import { debounce, throttle } from "./decorators";
 import * as events from "./events";
-import { ChangeType, IChangeInfo, IPendingChanges, IWorkspaceConfig, IWorkspaceInfo } from "./models";
+import {
+  ChangeType,
+  IChangeInfo,
+  IPendingChanges,
+  IWorkspaceConfig,
+  IWorkspaceInfo,
+  WkConfigType,
+} from "./models";
 import * as paths from "./paths";
 import { PlasticScmResource } from "./plasticScmResource";
 import { IWorkspaceOperations } from "./workspaceOperations";
@@ -147,9 +154,49 @@ export class Workspace implements Disposable {
     this.mSourceControl.inputBox.placeholder = "🥺 Checkin changes is not supported yet";
     this.mSourceControl.statusBarCommands = [{
       command: "workbench.view.scm",
-      title: `$(git-branch) ${this.mWorkspaceConfig.location}`,
-      tooltip: `${this.mWorkspaceConfig.location}@${this.mWorkspaceConfig.repSpec}`,
+      title: [
+        "$(",
+        this.getStatusBarIconKey(this.mWorkspaceConfig.configType),
+        ") ",
+        this.getPrefix(this.mWorkspaceConfig.configType),
+        this.mWorkspaceConfig.location,
+      ].join(""),
+      tooltip: [
+        this.getPrefix(this.mWorkspaceConfig.configType),
+        this.mWorkspaceConfig.location,
+        "@",
+        this.mWorkspaceConfig.repSpec,
+      ].join(""),
     }];
+  }
+
+  private getStatusBarIconKey(wkConfigType: WkConfigType) {
+    switch (wkConfigType) {
+      case WkConfigType.Changeset:
+        return "git-commit";
+      case WkConfigType.Label:
+        return "tag";
+      case WkConfigType.Shelve:
+        return "archive";
+      case WkConfigType.Branch:
+      default:
+        return "git-branch";
+    }
+  }
+
+  private getPrefix(wkConfigType: WkConfigType) {
+    switch (wkConfigType) {
+      case WkConfigType.Changeset:
+        return "cs:";
+      case WkConfigType.Label:
+        return "lb:";
+      case WkConfigType.Shelve:
+        return "sh:";
+      case WkConfigType.Branch:
+        return "br:";
+      default:
+        return "";
+    }
   }
 }
 
