@@ -10,6 +10,7 @@
       true,
       "always"
     ],
+    "no-bitwise": false,
     "no-unbound-method": true,
     "typedef-whitespace": [
       true,

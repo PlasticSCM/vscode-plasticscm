@@ -71,6 +71,7 @@ export class CmShell implements ICmShell {
     if (!await this.waitUntilFileDeleted(commFile, 3000)) {
       this.mProcess.stdout!.off("data", readOut);
       this.mProcess.stderr!.off("data", readErr);
+      this.mChannel.appendLine("Cm shell didn't respond after 3 seconds");
 
       if (fs.existsSync(commFile)) {
         await new Promise<void>(resolve => fs.unlink(commFile, () => resolve()));
@@ -162,7 +163,7 @@ export class CmShell implements ICmShell {
     }
 
     if (result.success) {
-      result.result = parser.parse();
+      result.result = await parser.parse();
       result.error = parser.getError();
       return result;
     }

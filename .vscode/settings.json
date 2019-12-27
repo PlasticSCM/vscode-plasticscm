@@ -11,5 +11,8 @@
     "mochaExplorer.files": "out/test/**/*.js",
     "mochaExplorer.require": [
         "vscode-test"
-    ]
+    ],
+    "editor.codeActionsOnSave": {
+      "source.fixAll.tslint": true
+    }
 }
