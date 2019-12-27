@@ -1,13 +1,12 @@
 <p align="center">
-  <img src="images/logo-full.svg" alt="Plastic SCM" width="400" />
+  <img src="images/logo-full.png" alt="Plastic SCM" width="400" />
 </p>
 
 # Plastic SCM integration with VS Code's SCM features
 
-
 ## Intro
 
-[plasticscm](https://marketplace.visualstudio.com/items?itemName=Plastic.vscode-plasticscm)
+[`plastic-scm`](https://marketplace.visualstudio.com/items?itemName=plastic-scm.plastic-scm)
 is a Visual Studio Code extension that integrates [Plastic SCM](https://www.plasticscm.com/).
 With this plugin, you can use Plastic SCM as your SCM tool. It is powered by
 [Codice Software](https://www.plasticscm.com/).
@@ -17,43 +16,32 @@ extend it in the future, and we hope it will be useful and convenient to use.
 
 ## Requirements
 
-* Visual Studio Code v1.5
+* Visual Studio Code v1.19
 * Plastic SCM
 
 ## Features
 
-1. Feature one
-2. Feature two
-3. Feature 3
+1. Lists your pending changes
 
 ## Install
 
-1. Install *Visual Studio Code* (1.5 or higher)
+1. Install *Visual Studio Code* (1.19 or higher)
 2. Launch *Code*
-3. From the command palette `ctrl+shift+p` (Windows, Linux) or `cmd+shift+p`
-  (macOS)
+3. Open the command palette : `Ctrl` `⇧` `P` (Windows, Linux), `⌘` `⇧` `P` (macOS)
 4. Select `Install Extensions`
 5. Choose the extension `Plastic SCM`
 6. Reload *Visual Studio Code*
 
 ## Configure
 
-|Name                               |Type       |Description
-|-----------------------------------|-----------|-----------
-|`plastic.user`                     |`string`   |Use the specified user
-|`plastic.password`                 |`string`   |Use the specified password
-|`plastic.confitem1`                |`string`   |Use item 1
-|`plastic.confitem2`                |`string`   |Use item 2...
+|Name                                             |Type    |Description
+|-------------------------------------------------|--------|-----------
+|`plastic-scm.cmConfiguration.cmPath`             |`string`|Location of the `cm` CLI executable
+|`plastic-scm.cmConfiguration.millisToWaitUntilUp`|`number`|Time to wait for the shell to start
 
 ## Commands
 
-* `workspace` - Create a new workspace
-* `status` -  Get the status of the repository
-* `update` -  Update to the last
-* `branch` - Create a new branch
-* `undo` - Undo all changes
-* `checkin` - Add the changes to the branch
-* `switch` - Switch or move to another branch
+We're working on it! 👷‍♀️👨‍🏭
 
 ## Contribute
 
