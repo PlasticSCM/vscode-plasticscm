@@ -1,9 +1,11 @@
 import * as os from "os";
+import { Uri } from "vscode";
 import * as xml2js from "xml2js";
+import { firstCharLowerCase, parseBooleans, parseNumbers } from "xml2js/lib/processors";
 import { ICmParser } from "../../cmShell";
-import { IChangeInfo } from "../../models";
+import { ChangeType, IChangeInfo, IPendingChanges, WkConfigType } from "../../models";
 
-export class StatusParser implements ICmParser<IChangeInfo[]> {
+export class StatusParser implements ICmParser<IPendingChanges> {
   private readonly mOutputBuffer: string[] = [];
   private readonly mErrorBuffer: string[] = [];
   private mParseError?: Error;
@@ -16,17 +18,22 @@ export class StatusParser implements ICmParser<IChangeInfo[]> {
     this.mErrorBuffer.push(line);
   }
 
-  public parse(): IChangeInfo[] | undefined {
-    let results: IChangeInfo[] = [];
+  public async parse(): Promise<IPendingChanges | undefined> {
+    const options: xml2js.OptionsV2 = {
+      explicitArray: false,
+      explicitRoot: false,
+      tagNameProcessors: [firstCharLowerCase],
+      trim: true,
+      valueProcessors: [parseNumbers, parseBooleans],
+    };
 
-    xml2js.parseString(this.mOutputBuffer.join(""), (error, result) => {
-      if (error) {
-        this.mParseError = error;
-        return;
-      }
-      results = results.concat(this.parseXml(result));
-    });
-    return results;
+    try {
+      return this.parseXml(await xml2js.parseStringPromise(
+        this.mOutputBuffer.join(""), options));
+    } catch (error) {
+      this.mParseError = error;
+      return undefined;
+    }
   }
 
   public getError(): Error | undefined {
@@ -43,8 +50,89 @@ export class StatusParser implements ICmParser<IChangeInfo[]> {
     return this.mOutputBuffer.concat(this.mErrorBuffer);
   }
 
-  private parseXml(result: any): IChangeInfo[] {
-    // TODO implement the actual parsing process
-    return [];
+  private parseXml(statusOutput: IStatusOutput): IPendingChanges {
+    const repSpec: string = [
+      statusOutput.workspaceStatus.status.repSpec.name,
+      statusOutput.workspaceStatus.status.repSpec.server,
+    ].join("@");
+
+    const changes: Map<string, IChangeInfo> = new Map<string, IChangeInfo>();
+    statusOutput.changes.change.forEach(change => {
+      const uri: Uri = Uri.file(change.path);
+      const newChange: IChangeInfo = {
+        path: uri,
+        type: CHANGE_TYPES[change.type] ?? ChangeType.Controlled,
+      };
+
+      changes.set(uri.fsPath, this.mergeChanges(changes.get(uri.fsPath), newChange));
+    });
+
+    return {
+      changes,
+      workspaceConfig: {
+        configType: statusOutput.wkConfigType,
+        location: statusOutput.wkConfigName.replace(`@${repSpec}`, ""),
+        repSpec,
+      },
+    };
   }
+
+  private mergeChanges(
+      destination: IChangeInfo | undefined, source: IChangeInfo): IChangeInfo {
+    if (!destination) {
+      return source;
+    }
+
+    return {
+      path: destination!.path,
+      type: destination!.type | source.type,
+    };
+  }
+}
+
+interface IStatusOutput {
+  workspaceStatus: {
+    status: {
+      repSpec: {
+        server: string;
+        name: string;
+      };
+      changeset: number;
+    };
+  };
+  wkConfigType: WkConfigType;
+  wkConfigName: string;
+  changes: {
+    change: IChange[],
+  };
+}
+
+const CHANGE_TYPES: { [key: string]: ChangeType } = {
+  AD: ChangeType.Added,
+  CH: ChangeType.Changed,
+  CO: ChangeType.Checkedout,
+  CP: ChangeType.Checkedout,
+  DE: ChangeType.Deleted,
+  IG: ChangeType.Private,
+  LD: ChangeType.Deleted,
+  LM: ChangeType.Moved,
+  MV: ChangeType.Moved,
+  PR: ChangeType.Private,
+  RP: ChangeType.Checkedout,
+};
+
+interface IChange {
+  type: string;
+  typeVerbose: string;
+  path: string;
+  oldPath: string;
+  printableMovedPath: string;
+  mergesInfo: string;
+  similarityPerUnit: number;
+  similarity: string;
+  size: number;
+  printableSize: string;
+  printableLastModified: string;
+  revisionType: string;
+  lastModified: Date;
 }
