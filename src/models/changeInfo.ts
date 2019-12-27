@@ -31,5 +31,6 @@ export interface IWorkspaceConfig {
 
 export interface IChangeInfo {
   readonly path: Uri;
+  readonly oldPath?: Uri;
   readonly type: ChangeType;
 }
