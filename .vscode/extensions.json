@@ -5,6 +5,7 @@
     "ms-vscode.vscode-typescript-tslint-plugin",
     "editorconfig.editorconfig",
     "davidanson.vscode-markdownlint",
-    "hbenl.vscode-mocha-test-adapter"
+    "hbenl.vscode-mocha-test-adapter",
+    "aaron-bond.better-comments"
   ]
 }

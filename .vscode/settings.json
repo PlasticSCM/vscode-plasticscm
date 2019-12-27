@@ -14,5 +14,43 @@
     ],
     "editor.codeActionsOnSave": {
       "source.fixAll.tslint": true
-    }
+    },
+    "better-comments.tags": [
+      {
+        "tag": "!",
+        "color": "#FF2D00",
+        "strikethrough": false,
+        "backgroundColor": "transparent"
+      },
+      {
+        "tag": "?",
+        "color": "#3498DB",
+        "strikethrough": false,
+        "backgroundColor": "transparent"
+      },
+      {
+        "tag": "//",
+        "color": "#474747",
+        "strikethrough": true,
+        "backgroundColor": "transparent"
+      },
+      {
+        "tag": "todo",
+        "color": "#FF8C00",
+        "strikethrough": false,
+        "backgroundColor": "transparent"
+      },
+      {
+        "tag": "*",
+        "color": "#98C379",
+        "strikethrough": false,
+        "backgroundColor": "transparent"
+      },
+      {
+        "tag": "improvement",
+        "color": "#DD3D84",
+        "strikethrough": false,
+        "backgroundColor": "transparent"
+      }
+    ]
 }
