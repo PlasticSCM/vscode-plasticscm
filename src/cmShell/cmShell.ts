@@ -163,7 +163,7 @@ export class CmShell implements ICmShell {
     }
 
     if (result.success) {
-      result.result = parser.parse();
+      result.result = await parser.parse();
       result.error = parser.getError();
       return result;
     }

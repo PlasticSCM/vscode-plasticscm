@@ -10,7 +10,7 @@ describe("GetWorkspaceFromPath Parser", () => {
     const line: string = "a@#@b@#@c";
     parser.readLineOut(line);
 
-    const result: IWorkspaceInfo | undefined = parser.parse();
+    const result: IWorkspaceInfo | undefined = await parser.parse();
     expect(result).to.be.not.undefined;
     expect(result!.id).to.be.equal("a");
     expect(result!.name).to.be.equal("b");
@@ -32,7 +32,7 @@ describe("GetWorkspaceFromPath Parser", () => {
 
     expect(parser.getOutputLines()).to.eql(stdout);
 
-    const result: IWorkspaceInfo | undefined = parser.parse();
+    const result: IWorkspaceInfo | undefined = await parser.parse();
     expect(result).to.be.not.undefined;
     expect(result!.id).to.be.equal("a");
     expect(result!.name).to.be.equal("b");
@@ -70,7 +70,7 @@ describe("GetWorkspaceFromPath Parser", () => {
     expect(error!.message).to.be.equal(["Parsing failed:", "a@#@b"].join(os.EOL));
   });
 
-  it("receives stderr lines", () => {
+  it("receives stderr lines", async () => {
     const parser: ICmParser<IWorkspaceInfo> = new GetWorkspaceFromPathParser();
 
     const stdout: string = "a@#@b@#@c";
@@ -85,7 +85,7 @@ describe("GetWorkspaceFromPath Parser", () => {
 
     expect(parser.getOutputLines()).to.eql([stdout, ...stderr]);
 
-    const result: IWorkspaceInfo | undefined = parser.parse();
+    const result: IWorkspaceInfo | undefined = await parser.parse();
     expect(result).to.be.not.undefined;
     expect(result!.id).to.be.equal("a");
     expect(result!.name).to.be.equal("b");
