@@ -50,7 +50,7 @@ describe("GetWorkspaceFromPath Parser", () => {
     stdout.forEach(line => parser.readLineOut(line));
 
     expect(parser.getOutputLines()).to.eql(stdout);
-    expect(parser.parse()).to.be.undefined;
+    expect(await parser.parse()).to.be.undefined;
 
     const error: Error | undefined = parser.getError();
     expect(error).to.be.not.undefined;
@@ -63,7 +63,7 @@ describe("GetWorkspaceFromPath Parser", () => {
     parser.readLineOut(line);
 
     expect(parser.getOutputLines()).to.eql([line]);
-    expect(parser.parse()).to.be.undefined;
+    expect(await parser.parse()).to.be.undefined;
 
     const error: Error | undefined = parser.getError();
     expect(error).to.be.not.undefined;
