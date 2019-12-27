@@ -1,12 +1,22 @@
+import { Uri } from "vscode";
 import { ICmParser, ICmResult, ICmShell } from "../../cmShell";
-import { IChangeInfo } from "../../models";
+import { IChangeInfo, IPendingChanges, WkConfigType } from "../../models";
 import { StatusParser } from "./statusParser";
 
 export class Status {
-  public static async run(rootDir: string, shell: ICmShell): Promise<IChangeInfo[]> {
-    const parser: ICmParser<IChangeInfo[]> = new StatusParser();
+  public static readonly EmptyChanges: IPendingChanges = {
+    changes: new Map<string, IChangeInfo>(),
+    workspaceConfig: {
+      configType: WkConfigType.Unknown,
+      location: "unknown",
+      repSpec: "unknown@unknown",
+    },
+  };
 
-    const result: ICmResult<IChangeInfo[]> = await shell.exec(
+  public static async run(rootDir: string, shell: ICmShell): Promise<IPendingChanges> {
+    const parser: ICmParser<IPendingChanges> = new StatusParser();
+
+    const result: ICmResult<IPendingChanges> = await shell.exec(
       "status",
       [rootDir, "--xml", "--encoding=utf-8", "--fp"],
       parser);
@@ -19,6 +29,6 @@ export class Status {
       throw result.error;
     }
 
-    return result.result ?? [];
+    return result.result ?? Status.EmptyChanges;
   }
 }
