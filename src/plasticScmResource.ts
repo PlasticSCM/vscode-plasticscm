@@ -86,7 +86,7 @@ export class PlasticScmResource implements SourceControlResourceState {
 
   private get tooltip(): string {
     if (this.mChangeInfo.type & ChangeType.Moved) {
-      return `Moved from ${this.mChangeInfo.oldPath}`;
+      return `Moved from ${this.mChangeInfo.oldPath?.fsPath}`;
     }
 
     if (this.mChangeInfo.type & ChangeType.Private) {
