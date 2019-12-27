@@ -163,7 +163,7 @@ export class PlasticScmResource implements SourceControlResourceState {
     throw new Error(`Unknown ChangeType: ${changeType}`);
   }
 
-  public command?: Command | undefined = undefined;
+  public command?: Command;
 
   private mChangeInfo: IChangeInfo;
 
