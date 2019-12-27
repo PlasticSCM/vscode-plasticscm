@@ -71,9 +71,8 @@ export class Workspace implements Disposable {
       this.mSourceControl,
       this.mStatusResourceGroup,
       fsWatcher,
+      onWorkspaceFileChangeEvent(uri => this.onFileChanged(uri), this),
     );
-
-    onWorkspaceFileChangeEvent(uri => this.onFileChanged(uri), this);
 
     this.updateWorkspaceStatus();
   }
