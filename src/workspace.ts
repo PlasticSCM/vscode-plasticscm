@@ -37,6 +37,7 @@ export class Workspace implements Disposable {
   }
   public readonly shell: ICmShell;
 
+  private readonly mWorkingDir: string;
   private readonly mWkInfo: IWorkspaceInfo;
   private readonly mSourceControl: SourceControl;
   private readonly mStatusResourceGroup: SourceControlResourceGroup;
@@ -49,10 +50,12 @@ export class Workspace implements Disposable {
   private mbIsStatusSlow: boolean = false;
 
   constructor(
+    workingDir: string,
     workspaceInfo: IWorkspaceInfo,
     shell: ICmShell,
     workspaceOperations: IWorkspaceOperations) {
 
+    this.mWorkingDir = workingDir;
     this.mWkInfo = workspaceInfo;
     this.shell = shell;
     this.mSourceControl = scm.createSourceControl(
@@ -138,7 +141,7 @@ export class Workspace implements Disposable {
     // Improvement: measure status time and update the 'this.mbIsStatusSlow' flag.
     // ! Status XML output does not print performance warnings!
     const pendingChanges: IPendingChanges =
-      await Status.run(this.mWkInfo.path, this.shell);
+      await Status.run(this.mWorkingDir, this.shell);
 
     this.mWorkspaceConfig = pendingChanges.workspaceConfig;
 

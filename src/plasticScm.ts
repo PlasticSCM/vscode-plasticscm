@@ -35,9 +35,11 @@ export class PlasticScm implements Disposable {
     }
 
     for (const folder of VsCodeWorkspace.workspaceFolders) {
+      const workingDir: string = folder.uri.fsPath;
+
       try {
         const wkInfo: IWorkspaceInfo | undefined =
-          await GetWorkspaceFromPath.run(folder.uri.fsPath, globalShell);
+          await GetWorkspaceFromPath.run(workingDir, globalShell);
 
         if (!wkInfo || this.mWorkspaces.has(wkInfo.id)) {
           continue;
@@ -50,13 +52,14 @@ export class PlasticScm implements Disposable {
           continue;
         }
 
-        const workspace: Workspace = new Workspace(wkInfo, wkShell, new WorkspaceOperations());
+        const workspace: Workspace = new Workspace(
+          workingDir, wkInfo, wkShell, new WorkspaceOperations());
         this.mDisposables.push(wkShell, workspace);
         this.mWorkspaces.set(wkInfo.id, workspace);
       } catch (error) {
         VsCodeWindow.showErrorMessage(error?.message);
         this.mChannel.appendLine(
-          `Unable to find workspace in ${folder.uri.fsPath}: ${error?.message}`);
+          `Unable to find workspace in ${workingDir}: ${error?.message}`);
       } finally {
         await globalShell.stop();
         globalShell.dispose();
