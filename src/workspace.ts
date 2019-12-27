@@ -146,6 +146,11 @@ export class Workspace implements Disposable {
       changeInfo => changeInfo.type !== ChangeType.Private).length;
 
     this.mSourceControl.inputBox.placeholder = "🥺 Checkin changes is not supported yet";
+    this.mSourceControl.statusBarCommands = [{
+      command: "workbench.view.scm",
+      title: `$(git-branch) ${this.mWorkspaceConfig.location}`,
+      tooltip: `${this.mWorkspaceConfig.location}@${this.mWorkspaceConfig.repSpec}`,
+    }];
   }
 }
 
