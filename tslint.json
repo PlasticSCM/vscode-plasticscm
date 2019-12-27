@@ -1,17 +1,34 @@
 {
+  "extends": ["tslint:recommended"],
   "rules": {
-    "no-string-throw": true,
-    "no-unused-expression": true,
-    "no-duplicate-variable": true,
+    "arrow-parens": [
+      true,
+      "ban-single-arg-parens"
+    ],
     "curly": true,
-    "class-name": true,
     "semicolon": [
       true,
       "always"
     ],
-    "triple-equals": true,
-    "only-arrow-functions": [true, "allow-named-functions"],
-    "no-unbound-method": true
+    "no-bitwise": false,
+    "no-unbound-method": true,
+    "typedef-whitespace": [
+      true,
+      {
+        "call-signature": "nospace",
+        "index-signature": "nospace",
+        "parameter": "nospace",
+        "property-declaration": "nospace",
+        "variable-declaration": "nospace"
+      },
+      {
+        "call-signature": "onespace",
+        "index-signature": "onespace",
+        "parameter": "onespace",
+        "property-declaration": "onespace",
+        "variable-declaration": "onespace"
+      }
+    ]
   },
   "defaultSeverity": "warning"
 }

@@ -1,8 +1,8 @@
 {
-  "name": "vscode-plasticscm",
-  "displayName": "Plastic SCM for VS Code",
-  "description": "Plastic SCM integration with VS Code's SCM features",
-  "publisher": "plasticscm",
+  "name": "plastic-scm",
+  "displayName": "Plastic SCM",
+  "description": "Plastic SCM integration",
+  "publisher": "plastic-scm",
   "license": "MIT",
   "version": "0.0.1",
   "icon": "images/logo.png",
@@ -11,25 +11,45 @@
     "url": "https://github.com/mig42/vscode-plasticscm/issues"
   },
   "engines": {
-    "vscode": "^1.41.0"
+    "vscode": "^1.19.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/mig42/vscode-plasticscm"
   },
-    "categories": [
+  "categories": [
     "Other",
     "SCM Providers"
   ],
   "keywords": [
     "scm",
+    "plastic-scm",
     "plasticscm"
   ],
   "activationEvents": [
     "*"
   ],
   "main": "./out/extension.js",
-  "contributes": {},
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Plastic SCM",
+      "properties": {
+        "plastic-scm.cmConfiguration.cmPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Specifies a given `cm` executable that is not in your `PATH` environment variable",
+          "scope": "window"
+        },
+        "plastic-scm.cmConfiguration.millisToWaitUntilUp": {
+          "type": "number",
+          "default": 5000,
+          "markdownDescription": "Milliseconds to wait for the `cm shell` to be up before disabling the extension. In some systems, shell initialization might be slow.",
+          "scope": "window"
+        }
+      }
+    }
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
@@ -45,6 +65,7 @@
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.11.7",
     "@types/uuid": "^3.4.6",
+    "@types/xml2js": "^0.4.5",
     "@types/vscode": "^1.41.0",
     "byline": "^5.0.0",
     "chai": "^4.2.0",
@@ -52,10 +73,11 @@
     "mocha": "^6.2.2",
     "nyc": "^14.1.1",
     "tslint": "^5.20.1",
+    "typemoq": "^2.1.0",
     "typescript": "^3.6.4",
     "uuid": "^3.3.3",
-    "typemoq": "^2.1.0",
+    "vsce": "^1.71.0",
     "vscode-test": "^1.2.2",
-    "vsce": "^1.71.0"
+    "xml2js": "^0.4.23"
   }
 }

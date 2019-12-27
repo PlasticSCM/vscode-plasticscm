@@ -1,70 +1,79 @@
 
-import { workspace, Disposable, OutputChannel } from 'vscode';
-import { ICmShell, CmShell } from './cmShell';
-import * as os from 'os';
-
-class Workspace implements Disposable {
-  constructor(path: string, name: string, shell: ICmShell) {
-    this.mPath = path;
-    this.mName = name;
-    this.mShell = shell;
-  }
-
-  async dispose(): Promise<void> {
-    await this.mShell.stop();
-    this.mShell.dispose();
-  }
-
-  private readonly mPath: string;
-  private readonly mName: string;
-  private readonly mShell: ICmShell;
-}
+import * as os from "os";
+import {
+  Disposable,
+  OutputChannel,
+  window as VsCodeWindow,
+  workspace as VsCodeWorkspace,
+} from "vscode";
+import { CmShell, ICmShell } from "./cmShell";
+import { GetWorkspaceFromPath, Status } from "./commands";
+import { IWorkspaceInfo } from "./models";
+import { Workspace } from "./workspace";
 
 export class PlasticScm implements Disposable {
+  private readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
+  private readonly mChannel: OutputChannel;
+  private readonly mDisposables: Disposable[] = [];
+
   constructor(channel: OutputChannel) {
     this.mChannel = channel;
   }
 
   public async initialize() {
-    if (!workspace.workspaceFolders) {
+    if (!VsCodeWorkspace.workspaceFolders) {
       return;
     }
 
-    const shell: ICmShell = new CmShell(os.tmpdir(), this.mChannel);
-    if (!await shell.start()) {
-      this.mChannel.appendLine(
-        "Plastic SCM extension can't start: unable to start `cm shell'");
+    const globalShell: ICmShell = new CmShell(os.tmpdir(), this.mChannel);
+    if (!await globalShell.start()) {
+      const errorMessage = 'Plastic SCM extension can\'t start: unable to start "cm shell"';
+      VsCodeWindow.showErrorMessage(errorMessage);
+      this.mChannel.appendLine(errorMessage);
       return;
     }
 
-    for (const folder of workspace.workspaceFolders) {
-      try{
-          const workspaceRoot: string = this.findWorkspaceRoot(shell, folder.uri.fsPath);
+    for (const folder of VsCodeWorkspace.workspaceFolders) {
+      try {
+        const wkInfo: IWorkspaceInfo | undefined =
+          await GetWorkspaceFromPath.run(folder.uri.fsPath, globalShell);
 
-          if (this.mWorkspaces.has(workspaceRoot)) {
-            continue;
-          }
-
-          this.mWorkspaces.set(workspaceRoot, new Workspace(
-            workspaceRoot, '', new CmShell(workspaceRoot, this.mChannel)));
-
-        } catch (error) {
-          console.error(`Unable to find workspace in ${folder.uri.fsPath}`, error);
-          
+        if (!wkInfo || this.mWorkspaces.has(wkInfo.id)) {
+          continue;
         }
+
+        const wkShell: ICmShell = new CmShell(wkInfo.path, this.mChannel);
+        if (!await wkShell.start()) {
+          this.mChannel.appendLine(`Unable to start shell for workspace "${wkInfo.path}"`);
+          wkShell.dispose();
+          continue;
+        }
+
+        const workspace: Workspace = new Workspace(wkInfo, wkShell);
+        this.mDisposables.push(wkShell, workspace);
+        this.mWorkspaces.set(wkInfo.id, workspace);
+
+        const changes = await Status.run(wkInfo.path, wkShell);
+      } catch (error) {
+        VsCodeWindow.showErrorMessage(error?.message);
+        this.mChannel.appendLine(
+          `Unable to find workspace in ${folder.uri.fsPath}: ${error?.message}`);
+      } finally {
+        await globalShell.stop();
+        globalShell.dispose();
+      }
     }
   }
 
-  dispose() {
-    Disposable.from(...this.mWorkspaces.values()).dispose();
+  public async stop(): Promise<void> {
+    const shells: ICmShell[] = [];
+    for (const [wkId, wk] of this.mWorkspaces) {
+      shells.push(wk.shell);
+    }
+    shells.forEach(async shell => await shell.stop());
   }
 
-  private findWorkspaceRoot(shell: ICmShell, workspaceDir: string): string {
-    // TODO use the shell here
-    // const result: ICmdResult = shell.exec('gwp', [workspaceDir]);
-    return '';
+  public dispose() {
+    this.mDisposables.forEach(disposable => disposable.dispose());
   }
-
-  private readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
-  private readonly mChannel: OutputChannel;
 }
