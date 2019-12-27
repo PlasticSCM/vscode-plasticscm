@@ -15,8 +15,6 @@ export function activate(context: ExtensionContext) {
   plasticScm.initialize();
 }
 
-// No available actions in deactivate yet
-// tslint:disable-next-line: no-empty
-export async function deactivate(): Promise<any> {
-  await plasticScm.stop();
+export function deactivate(): Promise<any> {
+  return plasticScm.stop();
 }
