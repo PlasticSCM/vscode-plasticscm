@@ -10,6 +10,7 @@ import { CmShell, ICmShell } from "./cmShell";
 import { GetWorkspaceFromPath, Status } from "./commands";
 import { IWorkspaceInfo } from "./models";
 import { Workspace } from "./workspace";
+import { WorkspaceOperations } from "./workspaceOperations";
 
 export class PlasticScm implements Disposable {
   private readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
@@ -49,7 +50,7 @@ export class PlasticScm implements Disposable {
           continue;
         }
 
-        const workspace: Workspace = new Workspace(wkInfo, wkShell);
+        const workspace: Workspace = new Workspace(wkInfo, wkShell, new WorkspaceOperations());
         this.mDisposables.push(wkShell, workspace);
         this.mWorkspaces.set(wkInfo.id, workspace);
       } catch (error) {
