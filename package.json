@@ -1,8 +1,8 @@
 {
-  "name": "vscode-plasticscm",
-  "displayName": "Plastic SCM for VS Code",
-  "description": "Plastic SCM integration with VS Code's SCM features",
-  "publisher": "plasticscm",
+  "name": "plastic-scm",
+  "displayName": "Plastic SCM",
+  "description": "Plastic SCM integration",
+  "publisher": "plastic-scm",
   "license": "MIT",
   "version": "0.0.1",
   "icon": "images/logo.png",
@@ -11,18 +11,19 @@
     "url": "https://github.com/mig42/vscode-plasticscm/issues"
   },
   "engines": {
-    "vscode": "^1.41.0"
+    "vscode": "^1.19.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/mig42/vscode-plasticscm"
   },
-    "categories": [
+  "categories": [
     "Other",
     "SCM Providers"
   ],
   "keywords": [
     "scm",
+    "plastic-scm",
     "plasticscm"
   ],
   "activationEvents": [
