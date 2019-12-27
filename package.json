@@ -30,6 +30,11 @@
           "default": 5000,
           "markdownDescription": "Milliseconds to wait for the `cm shell` to be up before disabling the extension. In some systems, shell initialization might be slow.",
           "scope": "window"
+        },
+        "plastic-scm.autorefresh": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Autorefresh workspace status when something changes."
         }
       }
     }
