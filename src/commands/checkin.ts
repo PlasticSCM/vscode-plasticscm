@@ -24,7 +24,12 @@ export class CheckinCommand implements Disposable {
       return;
     }
 
-    window.showInformationMessage(`Checkin to ${workspace.info.name} successful!`);
+    const comment: string | undefined = await this.getComment(workspace);
+    if (comment === undefined) {
+      return;
+    }
+
+    workspace.sourceControl.inputBox.value = "";
   }
 
   private async getWorkspace(args: any[]): Promise<Workspace | undefined> {
@@ -51,5 +56,24 @@ export class CheckinCommand implements Disposable {
       });
 
     return choice?.workspace;
+  }
+
+  private async getComment(workspace: Workspace): Promise<string | undefined> {
+    if (workspace.sourceControl.inputBox.value) {
+      return workspace.sourceControl.inputBox.value;
+    }
+
+    const yes = "Yes, go ahead!";
+    const no = "No, let me write something first...";
+    const allowEmpty: string | undefined = await window.showWarningMessage(
+      "Do you really want to checkin with an empty comment?", { modal: true }, yes, no);
+
+    if (allowEmpty === yes) {
+      return "";
+    }
+
+    return await window.showInputBox({
+      placeHolder: "Type here your checkin comment...",
+    });
   }
 }
