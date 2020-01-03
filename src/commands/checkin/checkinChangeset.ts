@@ -26,7 +26,7 @@ const checkinCsetSpecPattern: RegExp = new RegExp([
   "@",
   `(?<${patternGroups.serverName}>[^ ]+)`,
   " ",
-  `\\(mount:'(?<${patternGroups.mountPath}>[^']*)'\\)`,
+  `\\(mount:'(?<${patternGroups.mountPath}>[^']+)'\\)`,
   "$",
 ].join(""), "u");
 
