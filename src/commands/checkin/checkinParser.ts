@@ -70,6 +70,7 @@ export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
       .reduce<ICheckinChangeset[]>((csets, checkinCsetSpec) => {
         const checkinCset: ICheckinChangeset | null = checkinChangeset.parse(checkinCsetSpec);
         return checkinCset ? csets.concat(checkinCset) : csets;
-      }, []);
+      }, [])
+      .reverse();
   }
 }
