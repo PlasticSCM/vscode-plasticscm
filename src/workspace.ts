@@ -8,7 +8,7 @@ import {
   window as VsCodeWindow,
   workspace as VsCodeWorkspace,
 } from "vscode";
-import { Status } from "./cm/commands";
+import { Status as CmStatusCommand } from "./cm/commands";
 import { ICmShell } from "./cm/shell";
 import { configuration } from "./configuration";
 import * as constants from "./constants";
@@ -28,15 +28,23 @@ import { IWorkspaceOperations } from "./workspaceOperations";
 
 export class Workspace implements Disposable {
 
-  public get StatusResourceGroup(): IPlasticScmResourceGroup {
+  public get statusResourceGroup(): IPlasticScmResourceGroup {
     return this.mStatusResourceGroup as IPlasticScmResourceGroup;
   }
 
-  public get WorkspaceConfig(): IWorkspaceConfig | undefined {
+  public get workspaceConfig(): IWorkspaceConfig | undefined {
     return this.mWorkspaceConfig;
   }
-  public readonly shell: ICmShell;
 
+  public get info(): IWorkspaceInfo {
+    return this.mWkInfo;
+  }
+
+  public get shell(): ICmShell {
+    return this.mShell;
+  }
+
+  private readonly mShell: ICmShell;
   private readonly mWorkingDir: string;
   private readonly mWkInfo: IWorkspaceInfo;
   private readonly mSourceControl: SourceControl;
@@ -57,7 +65,7 @@ export class Workspace implements Disposable {
 
     this.mWorkingDir = workingDir;
     this.mWkInfo = workspaceInfo;
-    this.shell = shell;
+    this.mShell = shell;
     this.mSourceControl = scm.createSourceControl(
       constants.extensionId,
       constants.extensionDisplayName,
@@ -84,6 +92,11 @@ export class Workspace implements Disposable {
       onWorkspaceFileChangeEvent(uri => this.onFileChanged(uri), this),
     );
 
+    this.mSourceControl.acceptInputCommand = {
+      arguments: [this],
+      command: "plastic-scm.checkin",
+      title: "checkin",
+    };
     this.updateWorkspaceStatus();
   }
 
@@ -141,7 +154,7 @@ export class Workspace implements Disposable {
     // Improvement: measure status time and update the 'this.mbIsStatusSlow' flag.
     // ! Status XML output does not print performance warnings!
     const pendingChanges: IPendingChanges =
-      await Status.run(this.mWorkingDir, this.shell);
+      await CmStatusCommand.run(this.mWorkingDir, this.mShell);
 
     this.mWorkspaceConfig = pendingChanges.workspaceConfig;
 
