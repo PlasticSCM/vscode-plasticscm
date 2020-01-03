@@ -1,7 +1,7 @@
 import { assert, expect } from "chai";
 import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
-import { ICmParser, ICmShell } from "../../../../cmShell";
-import { GetWorkspaceFromPath } from "../../../../commands";
+import { GetWorkspaceFromPath } from "../../../../cm/commands";
+import { ICmParser, ICmShell } from "../../../../cm/shell";
 import { IWorkspaceInfo } from "../../../../models";
 
 describe("GetWorkspaceFromPath Command", () => {

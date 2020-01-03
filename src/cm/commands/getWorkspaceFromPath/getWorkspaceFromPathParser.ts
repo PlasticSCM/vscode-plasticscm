@@ -1,6 +1,6 @@
 import * as os from "os";
-import { ICmParser } from "../../cmShell";
-import { IWorkspaceInfo } from "../../models";
+import { IWorkspaceInfo } from "../../../models";
+import { ICmParser } from "../../shell";
 import { CommandInfo } from "./commandInfo";
 
 export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {

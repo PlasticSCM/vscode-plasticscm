@@ -1,5 +1,5 @@
-import { ICmParser, ICmResult, ICmShell } from "../../cmShell";
-import { IChangeInfo, IPendingChanges, WkConfigType } from "../../models";
+import { IChangeInfo, IPendingChanges, WkConfigType } from "../../../models";
+import { ICmParser, ICmResult, ICmShell } from "../../shell";
 import { StatusParser } from "./statusParser";
 
 export class Status {

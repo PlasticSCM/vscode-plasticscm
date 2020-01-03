@@ -1,5 +1,5 @@
-import { ICmParser, ICmResult, ICmShell } from "../../cmShell";
-import { ICheckinChangeset } from "../../models";
+import { ICheckinChangeset } from "../../../models";
+import { ICmParser, ICmResult, ICmShell } from "../../shell";
 import { CheckinParser } from "./checkinParser";
 
 export class Checkin {

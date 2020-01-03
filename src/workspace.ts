@@ -8,8 +8,8 @@ import {
   window as VsCodeWindow,
   workspace as VsCodeWorkspace,
 } from "vscode";
-import { ICmShell } from "./cmShell";
-import { Status } from "./commands";
+import { Status } from "./cm/commands";
+import { ICmShell } from "./cm/shell";
 import { configuration } from "./configuration";
 import * as constants from "./constants";
 import { debounce, throttle } from "./decorators";

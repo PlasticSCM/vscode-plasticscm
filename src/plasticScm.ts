@@ -6,8 +6,8 @@ import {
   window as VsCodeWindow,
   workspace as VsCodeWorkspace,
 } from "vscode";
-import { CmShell, ICmShell } from "./cmShell";
-import { GetWorkspaceFromPath, Status } from "./commands";
+import { GetWorkspaceFromPath, Status } from "./cm/commands";
+import { CmShell, ICmShell } from "./cm/shell";
 import { IWorkspaceInfo } from "./models";
 import { Workspace } from "./workspace";
 import { WorkspaceOperations } from "./workspaceOperations";

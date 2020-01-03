@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
-import { ICmParser, ICmShell } from "../../../../cmShell";
-import { Checkin } from "../../../../commands";
+import { Checkin } from "../../../../cm/commands";
+import { ICmParser, ICmShell } from "../../../../cm/shell";
 import { ICheckinChangeset } from "../../../../models";
 
 describe("Checkin Command", () => {

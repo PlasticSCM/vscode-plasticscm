@@ -2,8 +2,8 @@ import * as os from "os";
 import { Uri } from "vscode";
 import * as xml2js from "xml2js";
 import { firstCharLowerCase, parseBooleans, parseNumbers } from "xml2js/lib/processors";
-import { ICmParser } from "../../cmShell";
-import { ChangeType, IChangeInfo, IPendingChanges, WkConfigType } from "../../models";
+import { ChangeType, IChangeInfo, IPendingChanges, WkConfigType } from "../../../models";
+import { ICmParser } from "../../shell";
 
 export class StatusParser implements ICmParser<IPendingChanges> {
   private readonly mOutputBuffer: string[] = [];

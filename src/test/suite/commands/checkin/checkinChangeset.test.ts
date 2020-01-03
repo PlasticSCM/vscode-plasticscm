@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import * as checkinChangeset from "../../../../commands/checkin/checkinChangeset";
+import * as checkinChangeset from "../../../../cm/commands/checkin/checkinChangeset";
 import { ICheckinChangeset } from "../../../../models";
 
 describe("checkinChangeset", () => {

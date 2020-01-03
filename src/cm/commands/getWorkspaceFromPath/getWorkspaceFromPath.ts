@@ -1,5 +1,5 @@
-import { ICmParser, ICmResult, ICmShell } from "../../cmShell";
-import { IWorkspaceInfo } from "../../models";
+import { IWorkspaceInfo } from "../../../models";
+import { ICmParser, ICmResult, ICmShell } from "../../shell";
 import { CommandInfo } from "./commandInfo";
 import { GetWorkspaceFromPathParser } from "./getWorkspaceFromPathParser";
 
