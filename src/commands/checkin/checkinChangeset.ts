@@ -38,6 +38,7 @@ export function parse(checkinCsetSpec: string): ICheckinChangeset | null {
 
   return {
     changesetInfo: {
+      branch: matches!.groups[patternGroups.branchName] ?? "",
       changesetId: parseInt(matches!.groups[patternGroups.changesetId] ?? "-1", 10),
       repository: matches!.groups[patternGroups.repositoryName] ?? "",
       server: matches!.groups[patternGroups.serverName] ?? "",
