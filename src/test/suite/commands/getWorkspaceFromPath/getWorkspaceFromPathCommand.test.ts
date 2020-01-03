@@ -5,9 +5,11 @@ import { GetWorkspaceFromPath } from "../../../../commands";
 import { IWorkspaceInfo } from "../../../../models";
 
 describe("GetWorkspaceFromPath Command", () => {
-  context("Successfully executes the command", () => {
-    it("receives correct output", async () => {
+  context("When the command runs successfully", () => {
+    context("When output is correct", () => {
       const cmShellMock: IMock<ICmShell> = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
+      let cmdResult: IWorkspaceInfo | undefined;
+
       cmShellMock
         .setup(mock => mock.exec(
           It.isAnyString(),
@@ -22,21 +24,38 @@ describe("GetWorkspaceFromPath Command", () => {
           success: true,
         }));
 
-      const cmdResult: IWorkspaceInfo | undefined =
-        await GetWorkspaceFromPath.run("/foo/bar", cmShellMock.object);
+      before(async () => {
+        cmdResult = await GetWorkspaceFromPath.run(
+          "/foo/bar", cmShellMock.object);
+      });
 
-      expect(cmdResult).to.be.not.undefined;
-      expect(cmdResult!.path).to.be.equal("/path/to/wk");
-      expect(cmdResult!.name).to.be.equal("wkname");
-      expect(cmdResult!.id).to.be.string("95b0a429-7d9c-48af-8b5b-6f1ced257b20");
+      it("produces a result", () => {
+        expect(cmdResult).to.be.not.undefined;
+      });
 
-      cmShellMock.verify(
-        mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
-        Times.once());
+      it("contains the correct workspace path", () => {
+        expect(cmdResult!.path).to.be.equal("/path/to/wk");
+      });
+
+      it("contains the correct workspace name", () => {
+        expect(cmdResult!.name).to.be.equal("wkname");
+      });
+
+      it("contains the correct workspace ID", () => {
+        expect(cmdResult!.id).to.be.string("95b0a429-7d9c-48af-8b5b-6f1ced257b20");
+      });
+
+      it("calls the expected shell methods", () => {
+        cmShellMock.verify(
+          mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
+          Times.once());
+      });
     });
 
-    it("receives incorrect output", async () => {
+    context("When output is incorrect", () => {
       const cmShellMock = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
+      let error: Error | undefined;
+
       cmShellMock
       .setup(mock => mock.exec(
           It.isAnyString(),
@@ -47,42 +66,54 @@ describe("GetWorkspaceFromPath Command", () => {
           success: true,
         }));
 
-      try {
-        const result: IWorkspaceInfo | undefined = await GetWorkspaceFromPath.run(
-          "/foo/bar", cmShellMock.object);
-        assert.fail("Command should have thrown an error");
-      } catch (error) {
-        expect(error).to.be.not.undefined.and.property("error", "Sample error");
-      }
+      before(async () => {
+        try {
+          await GetWorkspaceFromPath.run("/foo/bar", cmShellMock.object);
+        } catch (e) {
+          error = e;
+        }
+      });
 
-      cmShellMock.verify(
-        mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
-        Times.once());
+      it("produces the expected error", () => {
+        expect(error).to.be.not.undefined.and.property("error", "Sample error");
+      });
+
+      it("calls the expected shell methods", () => {
+        cmShellMock.verify(
+          mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
+          Times.once());
+      });
     });
   });
 
-  context("An error occured", () => {
-    it("receives an unsuccessful result", async () => {
-      const cmShellMock = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
-      cmShellMock
-        .setup(mock => mock.exec(
-          It.isAnyString(),
-          It.is(args => true),
-          It.is<ICmParser<IWorkspaceInfo>>(parser => true)))
-        .returns(() => Promise.resolve({
-          error: new Error("Sample error"),
-          success: false,
-        }));
+  context("When the command fails", () => {
+    const cmShellMock = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
+    let error: Error | undefined;
 
+    cmShellMock
+      .setup(mock => mock.exec(
+        It.isAnyString(),
+        It.is(args => true),
+        It.is<ICmParser<IWorkspaceInfo>>(parser => true)))
+      .returns(() => Promise.resolve({
+        error: new Error("Sample error"),
+        success: false,
+      }));
+
+    before(async () => {
       try {
-        const result: IWorkspaceInfo | undefined = await GetWorkspaceFromPath.run(
-          "/foo/bar", cmShellMock.object);
-        assert.fail("Command should have thrown an error");
-      } catch (error) {
+        await GetWorkspaceFromPath.run("/foo/bar", cmShellMock.object);
+      } catch (e) {
+        error = e;
+      }
+    });
+
+    it("produces the expected error", () => {
         expect(error).to.be.not.undefined.and.property(
           "error", "Command failed: Sample error");
-      }
+    });
 
+    it("calls the expected shell methods", async () => {
       cmShellMock.verify(
         mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
         Times.once());
