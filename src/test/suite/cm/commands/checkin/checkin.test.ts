@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
-import { Checkin } from "../../../../cm/commands";
-import { ICmParser, ICmShell } from "../../../../cm/shell";
-import { ICheckinChangeset } from "../../../../models";
+import { Checkin } from "../../../../../cm/commands";
+import { ICmParser, ICmShell } from "../../../../../cm/shell";
+import { ICheckinChangeset } from "../../../../../models";
 
 describe("Checkin Command", () => {
   context("When the command runs successfully", () => {
