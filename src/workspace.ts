@@ -28,6 +28,10 @@ import { IWorkspaceOperations } from "./workspaceOperations";
 
 export class Workspace implements Disposable {
 
+  public get sourceControl(): SourceControl {
+    return this.mSourceControl;
+  }
+
   public get statusResourceGroup(): IPlasticScmResourceGroup {
     return this.mStatusResourceGroup as IPlasticScmResourceGroup;
   }
