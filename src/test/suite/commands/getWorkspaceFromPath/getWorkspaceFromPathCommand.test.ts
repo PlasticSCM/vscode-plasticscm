@@ -75,7 +75,8 @@ describe("GetWorkspaceFromPath Command", () => {
       });
 
       it("produces the expected error", () => {
-        expect(error).to.be.not.undefined.and.property("error", "Sample error");
+        expect(error).to.be.not.undefined;
+        expect(error!.message).to.equal("Sample error");
       });
 
       it("calls the expected shell methods", () => {
@@ -109,8 +110,8 @@ describe("GetWorkspaceFromPath Command", () => {
     });
 
     it("produces the expected error", () => {
-        expect(error).to.be.not.undefined.and.property(
-          "error", "Command failed: Sample error");
+        expect(error).to.be.not.undefined;
+        expect(error!.message).to.equal("Command failed: Sample error");
     });
 
     it("calls the expected shell methods", async () => {
