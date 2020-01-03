@@ -1,5 +1,7 @@
-import { commands, Disposable, window } from "vscode";
+import { commands, Disposable, SourceControlResourceGroup, window } from "vscode";
+import { Checkin as CmCheckinCommand } from "../cm/commands";
 import { PlasticScm } from "../plasticScm";
+import { PlasticScmResource } from "../plasticScmResource";
 import { Workspace } from "../workspace";
 
 export class CheckinCommand implements Disposable {
@@ -29,7 +31,16 @@ export class CheckinCommand implements Disposable {
       return;
     }
 
-    workspace.sourceControl.inputBox.value = "";
+    try {
+      const ciResult = await CmCheckinCommand.run(
+        workspace.shell, comment, ...this.getCheckinPaths(workspace.statusResourceGroup));
+
+      ciResult.forEach(cset => window.showInformationMessage(
+        `Created changeset cs:${cset.changesetInfo.changesetId}`));
+      workspace.sourceControl.inputBox.value = "";
+    } catch (e) {
+      window.showErrorMessage("Plastic SCM Checkin failed.");
+    }
   }
 
   private async getWorkspace(args: any[]): Promise<Workspace | undefined> {
@@ -75,5 +86,13 @@ export class CheckinCommand implements Disposable {
     return await window.showInputBox({
       placeHolder: "Type here your checkin comment...",
     });
+  }
+
+  private getCheckinPaths(group: SourceControlResourceGroup): string[] {
+    const results = group.resourceStates.map(entry => {
+      const change = entry as PlasticScmResource;
+      return change.isPrivate ? null : change.resourceUri.fsPath;
+    });
+    return results.filter(path => path !== null) as string[];
   }
 }
