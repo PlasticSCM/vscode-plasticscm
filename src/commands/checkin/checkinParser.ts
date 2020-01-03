@@ -1,10 +1,21 @@
 import * as os from "os";
 import { ICmParser } from "../../cmShell";
-import { IChangesetInfo } from "../../models";
+import { ICheckinChangeset } from "../../models";
+import * as checkinChangeset from "./checkinChangeset";
 
-export class CheckinParser implements ICmParser<IChangesetInfo> {
+export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
   public static readonly SEPARATOR: string = "@#@";
   private static readonly CHANGESET_LINE_START: string = "CHANGESET";
+  private static readonly CHANGESET_SEPARATOR: string = ",";
+
+  private static readonly InvalidCheckin: ICheckinChangeset = {
+    changesetInfo: {
+      changesetId: -1,
+      repository: "invalid",
+      server: "invalid",
+    },
+    mountPath: "invalid",
+  };
 
   private readonly mOutputBuffer: string[] = [];
   private readonly mErrorBuffer: string[] = [];
@@ -18,15 +29,15 @@ export class CheckinParser implements ICmParser<IChangesetInfo> {
     this.mErrorBuffer.push(line);
   }
 
-  public async parse(): Promise<IChangesetInfo | undefined> {
-    return this.mOutputBuffer.reduce<IChangesetInfo | undefined>(
-      (previous: IChangesetInfo | undefined, line: string) => {
-        if (previous) {
+  public async parse(): Promise<ICheckinChangeset[]> {
+    return this.mOutputBuffer.reduce<ICheckinChangeset[]>(
+      (previous: ICheckinChangeset[], line: string) => {
+        if (previous && previous.length) {
           return previous;
         }
 
         return this.parseLine(line);
-    }, undefined);
+    }, []);
   }
 
   public getError(): Error | undefined {
@@ -43,22 +54,22 @@ export class CheckinParser implements ICmParser<IChangesetInfo> {
     return this.mOutputBuffer.concat(this.mErrorBuffer);
   }
 
-  private parseLine(line: string): IChangesetInfo | undefined {
+  private parseLine(line: string): ICheckinChangeset[] {
     if (!line) {
-      return undefined;
+      return [];
     }
 
     const params: string[] = line.trim().split(CheckinParser.SEPARATOR);
     if (!params || !params.length || params[0] !== CheckinParser.CHANGESET_LINE_START) {
-      return undefined;
+      return [];
     }
 
-    const csetValues: string[] = params[1].trim().replace(/ \(mount:.*/, "").split("@");
-    return {
-      branch: csetValues[1],
-      changesetId: parseInt(csetValues[0], 10),
-      repository: csetValues[2],
-      server: csetValues[3],
-    };
+    return params[1]
+      .trim()
+      .split(CheckinParser.CHANGESET_SEPARATOR)
+      .reduce<ICheckinChangeset[]>((csets, checkinCsetSpec) => {
+        const checkinCset: ICheckinChangeset | null = checkinChangeset.parse(checkinCsetSpec);
+        return checkinCset ? csets.concat(checkinCset) : csets;
+      }, []);
   }
 }

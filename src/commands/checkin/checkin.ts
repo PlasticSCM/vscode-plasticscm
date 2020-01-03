@@ -1,19 +1,13 @@
 import { ICmParser, ICmResult, ICmShell } from "../../cmShell";
-import { IChangesetInfo } from "../../models";
+import { ICheckinChangeset } from "../../models";
 import { CheckinParser } from "./checkinParser";
 
 export class Checkin {
-  public static readonly InvalidChangeset: IChangesetInfo = {
-    changesetId: -1,
-    repository: "invalid",
-    server: "invalid",
-  };
-
   public static async run(
-      shell: ICmShell, message: string, ...paths: string[]): Promise<IChangesetInfo> {
-    const parser: ICmParser<IChangesetInfo> = new CheckinParser();
+      shell: ICmShell, message: string, ...paths: string[]): Promise<ICheckinChangeset[]> {
+    const parser: ICmParser<ICheckinChangeset[]> = new CheckinParser();
 
-    const result: ICmResult<IChangesetInfo> = await shell.exec(
+    const result: ICmResult<ICheckinChangeset[]> = await shell.exec(
       "checkin",
       [
         `-c=${message}`,
@@ -31,6 +25,6 @@ export class Checkin {
       throw result.error;
     }
 
-    return result.result ?? Checkin.InvalidChangeset;
+    return result.result ?? [];
   }
 }

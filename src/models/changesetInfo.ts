@@ -4,3 +4,8 @@ export interface IChangesetInfo {
   repository: string;
   server: string;
 }
+
+export interface ICheckinChangeset {
+  changesetInfo: IChangesetInfo;
+  mountPath: string;
+}
