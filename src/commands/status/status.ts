@@ -1,4 +1,3 @@
-import { Uri } from "vscode";
 import { ICmParser, ICmResult, ICmShell } from "../../cmShell";
 import { IChangeInfo, IPendingChanges, WkConfigType } from "../../models";
 import { StatusParser } from "./statusParser";
