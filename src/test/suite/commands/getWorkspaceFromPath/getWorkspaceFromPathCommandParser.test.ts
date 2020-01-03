@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import * as os from "os";
-import { ICmParser } from "../../../cmShell";
-import { GetWorkspaceFromPathParser } from "../../../commands/getWorkspaceFromPath/getWorkspaceFromPathParser";
-import { IWorkspaceInfo } from "../../../models";
+import { ICmParser } from "../../../../cmShell";
+import { GetWorkspaceFromPathParser } from "../../../../commands/getWorkspaceFromPath/getWorkspaceFromPathParser";
+import { IWorkspaceInfo } from "../../../../models";
 
 describe("GetWorkspaceFromPath Parser", () => {
   it("receives correct input", async () => {
