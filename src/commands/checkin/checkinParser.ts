@@ -71,6 +71,6 @@ export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
         const checkinCset: ICheckinChangeset | null = checkinChangeset.parse(checkinCsetSpec);
         return checkinCset ? csets.concat(checkinCset) : csets;
       }, [])
-      .reverse();
+      .sort((x, y) => x.mountPath.localeCompare(y.mountPath));
   }
 }
