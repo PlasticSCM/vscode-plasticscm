@@ -154,7 +154,7 @@ export class Workspace implements Disposable {
     this.mSourceControl.count = changeInfos.filter(
       changeInfo => changeInfo.type !== ChangeType.Private).length;
 
-    this.mSourceControl.inputBox.placeholder = "🥺 Checkin changes is not supported yet";
+    this.mSourceControl.inputBox.placeholder = this.getCheckinPlaceholder(this.mWorkspaceConfig);
     this.mSourceControl.statusBarCommands = [{
       command: "workbench.view.scm",
       title: [
@@ -171,6 +171,18 @@ export class Workspace implements Disposable {
         this.mWorkspaceConfig.repSpec,
       ].join(""),
     }];
+  }
+
+  private getCheckinPlaceholder(wkConfig: IWorkspaceConfig) {
+    if (wkConfig.configType === WkConfigType.Branch) {
+      return `Message (Ctrl+Enter to checkin in '${wkConfig.location}')`;
+    }
+
+    if (wkConfig.configType === WkConfigType.Changeset) {
+      return `Message (Ctrl+Enter to checkin after '${wkConfig.location}')`;
+    }
+
+    return `Sorry, you can't checkin in ${wkConfig.configType} ${wkConfig.location} 🥺`;
   }
 
   private getStatusBarIconKey(wkConfigType: WkConfigType) {
