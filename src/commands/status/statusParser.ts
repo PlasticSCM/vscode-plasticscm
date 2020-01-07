@@ -57,7 +57,10 @@ export class StatusParser implements ICmParser<IPendingChanges> {
     ].join("@");
 
     const changes: Map<string, IChangeInfo> = new Map<string, IChangeInfo>();
-    statusOutput.changes.change.forEach(change => {
+    let pendingChanges: IChange[] = [];
+    pendingChanges = pendingChanges.concat(statusOutput.changes.change);
+
+    pendingChanges.forEach(change => {
       const uri: Uri = Uri.file(change.path);
       const newChange: IChangeInfo = {
         oldPath: change.oldPath ? Uri.file(change.oldPath) : undefined,

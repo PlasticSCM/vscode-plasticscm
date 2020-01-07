@@ -1,11 +1,11 @@
 import { Uri } from "vscode";
 
 export enum WkConfigType {
-  Changeset,
-  Branch,
-  Label,
-  Shelve,
-  Unknown,
+  Changeset = "Changeset",
+  Branch = "Branch",
+  Label = "Label",
+  Shelve = "Shelve",
+  Unknown = "Unknown",
 }
 
 export enum ChangeType {
