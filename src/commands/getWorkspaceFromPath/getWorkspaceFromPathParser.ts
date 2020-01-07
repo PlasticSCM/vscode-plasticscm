@@ -6,6 +6,7 @@ import { CommandInfo } from "./commandInfo";
 export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {
   private mOutputBuffer: string[];
   private mErrorBuffer: string[];
+  private mError: Error | undefined;
 
   constructor() {
     this.mOutputBuffer = [];
@@ -23,8 +24,8 @@ export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {
   public parse(): Promise<IWorkspaceInfo | undefined> {
     const nonEmptyLines: string[] = this.mOutputBuffer.filter(line => line.trim());
     if (nonEmptyLines.length > 1) {
-      this.mErrorBuffer = this.mErrorBuffer.concat(
-        "Unexpected output:", ...this.mOutputBuffer);
+      this.mError = new Error(this.mErrorBuffer.concat(
+        "Unexpected output:", ...this.mOutputBuffer).join(os.EOL));
       return Promise.resolve(undefined);
     }
 
@@ -37,12 +38,16 @@ export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {
       });
     }
 
-    this.mErrorBuffer = this.mErrorBuffer.concat(
-      "Parsing failed:", ...this.mOutputBuffer);
+    this.mError = new Error(this.mErrorBuffer.concat(
+      ["Parsing failed:", ...this.mOutputBuffer]).join(os.EOL));
     return Promise.resolve(undefined);
   }
 
   public getError(): Error | undefined {
+    if (this.mError) {
+      return this.mError;
+    }
+
     if (this.mErrorBuffer.length === 0) {
       return undefined;
     }

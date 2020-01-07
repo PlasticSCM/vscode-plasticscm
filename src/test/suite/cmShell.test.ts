@@ -5,29 +5,58 @@ import { OutputChannel } from "vscode";
 import { CmShell, ICmParser } from "../../cmShell";
 
 describe("CmShell", () => {
-  context("not running", () => {
+  context("When shell isn't running", () => {
     const channel: IMock<OutputChannel> = Mock.ofType<OutputChannel>(
       undefined, MockBehavior.Strict);
-    channel.setup(ch => ch.appendLine(It.isAnyString()));
 
     const parser: IMock<ICmParser<any>> = Mock.ofType<ICmParser<any>>(
       undefined, MockBehavior.Strict);
 
-    const cmShell: CmShell = new CmShell("mydir", channel.object);
+    let cmShell: CmShell;
+    let response: any;
 
-    it("shouldn't run commands", async () => {
-      const result = await cmShell.exec("location", [], parser.object);
+    channel.setup(ch => ch.appendLine(It.isAnyString()));
+
+    before(async () => {
+      cmShell = new CmShell("mydir", channel.object);
+      response = await cmShell.exec("location", [], parser.object);
+    });
+
+    after(() => {
+      if (cmShell) {
+        cmShell.dispose();
+      }
+    });
+
+    it("isn't running (duh)", () => {
       expect(cmShell.isRunning).to.be.false;
-      expect(result).to.be.not.null.and.not.undefined;
-      expect(result.success).to.be.false;
-      expect(result.error).to.be.not.undefined;
-      expect(result.error).to.have.property("message", "Shell wasn't running");
-      expect(result.result).to.be.undefined;
+    });
 
+    it("produced a response", () => {
+      expect(response).to.be.not.null.and.not.undefined;
+    });
+
+    it("didn't succeed", () => {
+      expect(response.success).to.be.false;
+    });
+
+    it("produced the expected error", () => {
+      expect(response.error).to.be.not.undefined;
+      expect(response.error!.message).to.equal("Shell wasn't running");
+    });
+
+    it("didn't produce a result", () => {
+      expect(response.result).to.be.undefined;
+    });
+
+    it("called the expected channel methods", () => {
       channel.verify(
         ch => ch.appendLine(It.is(
           message => message.includes("unable to run command 'location'"))),
         Times.once());
+    });
+
+    it("called the expected parser methods", () => {
       parser.verify(
         p => p.readLineErr(It.isAnyString()),
         Times.never());
