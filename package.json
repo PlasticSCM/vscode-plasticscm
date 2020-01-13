@@ -60,7 +60,8 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "deploy": "vsce publish"
   },
   "devDependencies": {
     "@types/byline": "^4.2.31",
@@ -80,6 +81,7 @@
     "typemoq": "^2.1.0",
     "typescript": "^3.6.4",
     "uuid": "^3.3.3",
+    "vsce": "^1.71.0",
     "vscode-test": "^1.2.2",
     "xml2js": "^0.4.23"
   }
