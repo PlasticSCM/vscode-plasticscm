@@ -52,5 +52,6 @@
         "strikethrough": false,
         "backgroundColor": "transparent"
       }
-    ]
+    ],
+    "git.alwaysSignOff": true
 }
