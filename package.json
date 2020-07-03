@@ -83,7 +83,7 @@
     "test": "node ./out/test/runTest.js",
     "deploy": "vsce publish"
   },
-  "dependencies":{
+  "dependencies": {
     "uuid": "^3.3.3",
     "byline": "^5.0.0",
     "xml2js": "^0.4.23"
