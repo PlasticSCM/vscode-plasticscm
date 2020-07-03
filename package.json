@@ -6,16 +6,16 @@
   "license": "MIT",
   "version": "0.0.1",
   "icon": "images/logo.png",
-  "homepage": "https://github.com/mig42/vscode-plasticscm/blob/master/README.md",
+  "homepage": "https://github.com/PlasticSCM/vscode-plasticscm/blob/master/README.md",
   "bugs": {
-    "url": "https://github.com/mig42/vscode-plasticscm/issues"
+    "url": "https://github.com/PlasticSCM/vscode-plasticscm/issues"
   },
   "engines": {
     "vscode": "^1.19.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mig42/vscode-plasticscm"
+    "url": "https://github.com/PlasticSCM/vscode-plasticscm"
   },
   "categories": [
     "Other",
@@ -80,7 +80,13 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "deploy": "vsce publish"
+  },
+  "dependencies":{
+    "uuid": "^3.3.3",
+    "byline": "^5.0.0",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "@types/byline": "^4.2.31",
@@ -90,8 +96,7 @@
     "@types/node": "^12.11.7",
     "@types/uuid": "^3.4.6",
     "@types/xml2js": "^0.4.5",
-    "@types/vscode": "^1.41.0",
-    "byline": "^5.0.0",
+    "@types/vscode": "^1.19.0",
     "chai": "^4.2.0",
     "glob": "^7.1.5",
     "mocha": "^6.2.2",
@@ -99,8 +104,7 @@
     "tslint": "^5.20.1",
     "typemoq": "^2.1.0",
     "typescript": "^3.6.4",
-    "uuid": "^3.3.3",
-    "vscode-test": "^1.2.2",
-    "xml2js": "^0.4.23"
+    "vsce": "^1.71.0",
+    "vscode-test": "^1.2.2"
   }
 }
