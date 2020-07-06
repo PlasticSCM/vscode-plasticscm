@@ -18,6 +18,10 @@ export class PlasticScm implements Disposable {
     return this.mWorkspaces;
   }
 
+  public get channel(): OutputChannel {
+    return this.mChannel;
+  }
+
   private readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
   private readonly mChannel: OutputChannel;
   private readonly mDisposables: Disposable[] = [];
