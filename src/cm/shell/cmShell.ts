@@ -175,7 +175,7 @@ export class CmShell implements ICmShell {
 
   private write(commandLine: string) {
     this.mChannel.appendLine(`${this.mStartDir}> ${commandLine}`);
-    this.mProcess?.stdin?.write(commandLine + "\n");
+    this.mProcess?.stdin?.write(commandLine + os.EOL);
   }
 
   private async waitUntilFileDeleted(filePath: string, timeout: number): Promise<boolean> {
@@ -200,7 +200,7 @@ export class CmShell implements ICmShell {
   private async runInfoCommand(command: string): Promise<any> {
     const listenResult: Promise<void> = new Promise<void>(resolve => {
       const parserOutRead: (line: string) => void = line => {
-        this.mChannel.append(line + "\n");
+        this.mChannel.append(line + os.EOL);
         this.mOutStream.off("data", parserOutRead);
         resolve();
       };
@@ -208,7 +208,7 @@ export class CmShell implements ICmShell {
       this.mOutStream.on("data", parserOutRead);
     });
 
-    this.mProcess!.stdin!.write(command + "\n");
+    this.mProcess!.stdin!.write(command + os.EOL);
     try {
       await listenResult;
     } catch (error) {
