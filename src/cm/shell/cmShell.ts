@@ -79,6 +79,8 @@ export class CmShell implements ICmShell {
       return false;
     }
     this.mbIsRunning = true;
+    await this.runInfoCommand("version");
+    await this.runInfoCommand("location");
     return true;
   }
 
@@ -195,5 +197,24 @@ export class CmShell implements ICmShell {
       waitTime += intervalTime;
     }
     return false;
+  }
+
+  private async runInfoCommand(command: string): Promise<any> {
+    const listenResult: Promise<void> = new Promise<void>(resolve => {
+      const parserOutRead: (line: string) => void = line => {
+        this.mChannel.append(line + "\n");
+        this.mOutStream.off("data", parserOutRead);
+        resolve();
+      };
+
+      this.mOutStream.on("data", parserOutRead);
+    });
+
+    this.mProcess!.stdin!.write(command + "\n");
+    try {
+      await listenResult;
+    } catch (error) {
+      this.mChannel.appendLine(`ERROR: ${error}`);
+    }
   }
 }
