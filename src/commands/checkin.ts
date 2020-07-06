@@ -3,6 +3,7 @@ import { Checkin as CmCheckinCommand } from "../cm/commands";
 import { PlasticScm } from "../plasticScm";
 import { PlasticScmResource } from "../plasticScmResource";
 import { Workspace } from "../workspace";
+import { WorkspaceOperation } from "../workspaceOperations";
 
 export class CheckinCommand implements Disposable {
   private readonly mPlasticScm: PlasticScm;
@@ -31,20 +32,26 @@ export class CheckinCommand implements Disposable {
       return;
     }
 
-    try {
-      const ciResult = await CmCheckinCommand.run(
-        workspace.shell, comment, ...this.getCheckinPaths(workspace.statusResourceGroup));
-
-      ciResult.forEach(cset => window.showInformationMessage(
-        `Created changeset cs:${cset.changesetInfo.changesetId}`));
-      workspace.sourceControl.inputBox.value = "";
-    } catch (e) {
-      const error = e as Error;
-      const token = "Error: ";
-      const message = error.message.substring(error.message.lastIndexOf(token) + token.length);
-      window.showErrorMessage(`Plastic SCM Checkin failed: ${message}`);
-      this.mPlasticScm.channel.appendLine(`ERROR: ${message}`);
+    if (workspace.operations.isRunning(WorkspaceOperation.Checkin)) {
+      return;
     }
+
+    workspace.operations.run(WorkspaceOperation.Checkin, async () => {
+      try {
+        const ciResult = await CmCheckinCommand.run(
+          workspace.shell, comment, ...this.getCheckinPaths(workspace.statusResourceGroup));
+
+        ciResult.forEach(cset => window.showInformationMessage(
+          `Created changeset cs:${cset.changesetInfo.changesetId}`));
+        workspace.sourceControl.inputBox.value = "";
+      } catch (e) {
+        const error = e as Error;
+        const token = "Error: ";
+        const message = error.message.substring(error.message.lastIndexOf(token) + token.length);
+        window.showErrorMessage(`Plastic SCM Checkin failed: ${message}`);
+        this.mPlasticScm.channel.appendLine(`ERROR: ${message}`);
+      }
+    });
   }
 
   private async getWorkspace(args: any[]): Promise<Workspace | undefined> {
