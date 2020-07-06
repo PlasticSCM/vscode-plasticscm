@@ -14,6 +14,10 @@ export class CmShell implements ICmShell {
     return this.mbIsRunning;
   }
 
+  public get isBusy(): boolean {
+    return this.mbIsBusy;
+  }
+
   private static buildCommandLine(command: string, ...args: string[]) {
     if (!args || args.length === 0) {
       return command;
@@ -27,6 +31,7 @@ export class CmShell implements ICmShell {
   private mbIsRunning: boolean = false;
   private readonly mOutStream: LineStream;
   private readonly mErrStream: LineStream;
+  private mbIsBusy: boolean = true;
 
   constructor(startDir: string, channel: OutputChannel) {
     this.mStartDir = startDir;
@@ -49,7 +54,7 @@ export class CmShell implements ICmShell {
       fs.writeFile(commFile, "", () => resolve());
     });
 
-    this.mProcess = spawn("cm",
+    this.mProcess = spawn("C:\\Users\\miguel\\wkspaces\\codice-wrk\\01plastic\\bin\\client\\cm.exe",
       [
         "shell", "--encoding=UTF-8", `--commfile=${commFile}`, this.mStartDir,
       ], {
@@ -77,6 +82,7 @@ export class CmShell implements ICmShell {
       return false;
     }
     this.mbIsRunning = true;
+    this.mbIsBusy = false;
     await this.runInfoCommand("version");
     await this.runInfoCommand("location");
     return true;
@@ -89,6 +95,7 @@ export class CmShell implements ICmShell {
 
     this.write("exit");
     this.mbIsRunning = false;
+    this.mbIsBusy = true;
     this.mProcess?.stdin?.end();
 
     return new Promise(resolve => {
@@ -131,6 +138,16 @@ export class CmShell implements ICmShell {
       };
     }
 
+    if (this.isBusy) {
+      this.mChannel.appendLine(
+        `Warning: unable to run command '${command}' because the shell is busy!`);
+      return {
+        error: new Error("Shell was busy"),
+        success: false,
+      };
+    }
+    this.mbIsBusy = true;
+
     const commandResultToken = "CommandResult ";
     const result: ICmResult<T> = {
       success: false,
@@ -160,6 +177,8 @@ export class CmShell implements ICmShell {
       await listenResult;
     } catch (error) {
       this.mChannel.appendLine(`ERROR: ${error}`);
+    } finally {
+      this.mbIsBusy = false;
     }
 
     if (result.success) {

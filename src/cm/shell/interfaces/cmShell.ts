@@ -4,6 +4,7 @@ import { ICmResult } from "./cmResult";
 
 export interface ICmShell extends Disposable {
   readonly isRunning: boolean;
+  readonly isBusy: boolean;
 
   start(): Promise<boolean>;
   exec<T>(
