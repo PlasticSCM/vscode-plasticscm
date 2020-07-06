@@ -39,7 +39,10 @@ export class CheckinCommand implements Disposable {
     workspace.operations.run(WorkspaceOperation.Checkin, async () => {
       try {
         const ciResult = await CmCheckinCommand.run(
-          workspace.shell, comment, ...this.getCheckinPaths(workspace.statusResourceGroup));
+          workspace.shell,
+          this.mPlasticScm.channel,
+          comment,
+          ...this.getCheckinPaths(workspace.statusResourceGroup));
 
         ciResult.forEach(cset => window.showInformationMessage(
           `Created changeset cs:${cset.changesetInfo.changesetId}`));

@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
+import { OutputChannel } from "vscode";
 import { Checkin } from "../../../../../cm/commands";
 import { ICmParser, ICmShell } from "../../../../../cm/shell";
 import { ICheckinChangeset } from "../../../../../models";
@@ -8,6 +9,7 @@ describe("Checkin Command", () => {
   context("When the command runs successfully", () => {
     context("When output is correct", () => {
       const cmShellMock: IMock<ICmShell> = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
+      const channelMock: IMock<OutputChannel> = Mock.ofType<OutputChannel>();
       const result: ICheckinChangeset[] = [
         {
           changesetInfo: {
@@ -34,7 +36,11 @@ describe("Checkin Command", () => {
 
       before(async () => {
         cmdResult = await Checkin.run(
-          cmShellMock.object, "ci message", "/path/to/wk/foo.c", "/path/to/wk/bar.c");
+          cmShellMock.object,
+          channelMock.object,
+          "ci message",
+          "/path/to/wk/foo.c",
+          "/path/to/wk/bar.c");
       });
 
       it("produces a result", () => {
@@ -54,6 +60,7 @@ describe("Checkin Command", () => {
 
     context("When output is incorrect", () => {
       const cmShellMock = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
+      const channelMock: IMock<OutputChannel> = Mock.ofType<OutputChannel>();
       let error: Error | undefined;
 
       cmShellMock
@@ -69,7 +76,11 @@ describe("Checkin Command", () => {
       before(async () => {
         try {
           await Checkin.run(
-            cmShellMock.object, "ci message", "/path/to/wk/foo.c", "/path/to/wk/bar.c");
+            cmShellMock.object,
+            channelMock.object,
+            "ci message",
+            "/path/to/wk/foo.c",
+            "/path/to/wk/bar.c");
         } catch (e) {
           error = e;
         }
@@ -90,6 +101,7 @@ describe("Checkin Command", () => {
 
   context("When the command fails", () => {
     const cmShellMock = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
+    const channelMock: IMock<OutputChannel> = Mock.ofType<OutputChannel>();
     let error: Error | undefined;
 
     cmShellMock
@@ -105,7 +117,11 @@ describe("Checkin Command", () => {
     before(async () => {
       try {
         await Checkin.run(
-          cmShellMock.object, "ci message", "/path/to/wk/foo.c", "/path/to/wk/bar.c");
+          cmShellMock.object,
+          channelMock.object,
+          "ci message",
+          "/path/to/wk/foo.c",
+          "/path/to/wk/bar.c");
       } catch (e) {
         error = e;
       }
