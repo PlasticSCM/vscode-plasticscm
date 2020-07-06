@@ -47,6 +47,7 @@ export class PlasticScm implements Disposable {
           await GetWorkspaceFromPath.run(workingDir, globalShell);
 
         if (!wkInfo || this.mWorkspaces.has(wkInfo.id)) {
+          this.mChannel.appendLine(`No workspace found at '${workingDir}'`);
           continue;
         }
 
