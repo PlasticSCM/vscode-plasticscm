@@ -6,7 +6,7 @@ import {
   window as VsCodeWindow,
   workspace as VsCodeWorkspace,
 } from "vscode";
-import { GetWorkspaceFromPath, Status } from "./cm/commands";
+import { GetWorkspaceFromPath } from "./cm/commands";
 import { CmShell, ICmShell } from "./cm/shell";
 import { CheckinCommand } from "./commands";
 import { IWorkspaceInfo } from "./models";
