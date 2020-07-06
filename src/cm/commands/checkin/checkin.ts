@@ -1,26 +1,66 @@
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import * as uuid from "uuid";
+import { OutputChannel } from "vscode";
 import { ICheckinChangeset } from "../../../models";
 import { ICmParser, ICmResult, ICmShell } from "../../shell";
 import { CheckinParser } from "./checkinParser";
 
 export class Checkin {
   public static async run(
-      shell: ICmShell, message: string, ...paths: string[]): Promise<ICheckinChangeset[]> {
+      shell: ICmShell,
+      channel: OutputChannel,
+      message: string,
+      ...paths: string[]): Promise<ICheckinChangeset[]> {
     const parser: ICmParser<ICheckinChangeset[]> = new CheckinParser();
 
-    const result: ICmResult<ICheckinChangeset[]> = await shell.exec(
-      "checkin",
-      [
-        `-c=${message}`,
-        "--all",
-        "--machinereadable",
-        ...paths,
-      ],
-      parser);
+    const args: string[] = [
+      "--all",
+      "--machinereadable",
+      ...paths,
+    ];
 
-    if (!result.success || result.error) {
-      throw result.error;
+    const checkinCommentsFile = Checkin.writeCheckinMessageToFile(message, channel);
+    if (checkinCommentsFile) {
+      args.push(`-commentsfile=${checkinCommentsFile}`);
     }
 
-    return result.result ?? [];
+    try {
+      const result: ICmResult<ICheckinChangeset[]> = await shell.exec("checkin", args, parser);
+
+      if (!result.success || result.error) {
+        throw result.error;
+      }
+
+      return result.result ?? [];
+    } finally {
+      Checkin.deleteCheckinMessageFile(checkinCommentsFile, channel);
+    }
+  }
+
+  private static writeCheckinMessageToFile(message: string, channel: OutputChannel): string | null {
+    const commentsFile = path.join(os.tmpdir(), uuid.v4());
+    try {
+      fs.writeFileSync(commentsFile, message);
+      return commentsFile;
+    } catch (error) {
+      channel.appendLine(
+        `Unable to create comments file for checkin: ${(error as Error).message}`);
+      return null;
+    }
+  }
+
+  private static deleteCheckinMessageFile(commentsFile: string | null, channel: OutputChannel): void {
+    if (!commentsFile) {
+      return;
+    }
+
+    try {
+      fs.unlinkSync(commentsFile);
+    } catch (error) {
+      channel.appendLine(
+        `Unable to remove comments file '${commentsFile}: ${(error as Error).message}`);
+    }
   }
 }
