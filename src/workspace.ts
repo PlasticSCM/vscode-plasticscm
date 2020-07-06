@@ -48,6 +48,10 @@ export class Workspace implements Disposable {
     return this.mShell;
   }
 
+  public get operations(): IWorkspaceOperations {
+    return this.mOperations;
+  }
+
   private readonly mShell: ICmShell;
   private readonly mWorkingDir: string;
   private readonly mWkInfo: IWorkspaceInfo;
