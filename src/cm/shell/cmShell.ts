@@ -1,11 +1,9 @@
-import * as byline from "byline";
 import { ChildProcess, spawn } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import { StringDecoder } from "string_decoder";
 import * as uuid from "uuid";
-import { Disposable, OutputChannel } from "vscode";
+import { OutputChannel } from "vscode";
 import { ICmParser, ICmResult, ICmShell } from "./interfaces";
 import { LineStream } from "./lineStream";
 
