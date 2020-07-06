@@ -200,7 +200,7 @@ export class CmShell implements ICmShell {
   private async runInfoCommand(command: string): Promise<any> {
     const listenResult: Promise<void> = new Promise<void>(resolve => {
       const parserOutRead: (line: string) => void = line => {
-        this.mChannel.append(line + os.EOL);
+        this.mChannel.appendLine(line);
         this.mOutStream.off("data", parserOutRead);
         resolve();
       };
