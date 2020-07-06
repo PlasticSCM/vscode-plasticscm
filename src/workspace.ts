@@ -24,7 +24,7 @@ import {
 } from "./models";
 import * as paths from "./paths";
 import { PlasticScmResource } from "./plasticScmResource";
-import { IWorkspaceOperations } from "./workspaceOperations";
+import { IWorkspaceOperations, WorkspaceOperation } from "./workspaceOperations";
 
 export class Workspace implements Disposable {
 
@@ -108,7 +108,8 @@ export class Workspace implements Disposable {
     this.mDisposables.dispose();
   }
 
-  private onFileChanged(uri: Uri): void {
+  @throttle(1000)
+  private async onFileChanged(uri: Uri): Promise<any> {
     if (!configuration.get("autorefresh")) {
       return;
     }
@@ -117,41 +118,16 @@ export class Workspace implements Disposable {
       // IMPROVEMENT: ask the user if they want to keep calculating status on this workspace automatically.
     }
 
-    if (!this.mOperations.isIdle()) {
+    if (this.mOperations.isRunning(WorkspaceOperation.Status)) {
       return;
     }
 
-    this.eventuallyUpdateWorkspaceStatusWhenIdleAndWait();
-  }
-
-  @debounce(2500)
-  private eventuallyUpdateWorkspaceStatusWhenIdleAndWait(): void {
-    this.updateWorkspaceStatusWhenIdleAndWait();
-  }
-
-  @throttle
-  private async updateWorkspaceStatusWhenIdleAndWait(): Promise<void> {
-    await this.idleAndFocused();
-    await this.updateWorkspaceStatus();
-    await new Promise(resolve => setTimeout(resolve, 5000));
-  }
-
-  private async idleAndFocused(): Promise<void> {
-    while (true) {
-      if (!this.mOperations.isIdle()) {
-        // Improvement: listen to event that indicates an operation finished.
-        continue;
+    await this.mOperations.run(WorkspaceOperation.Status, async () => {
+      while (this.mShell.isBusy) {
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
-
-      if (!VsCodeWindow.state.focused) {
-        const onDidFocusWindow = events.filterEvent(
-          VsCodeWindow.onDidChangeWindowState, e => e.focused);
-        await events.eventToPromise(onDidFocusWindow);
-        continue;
-      }
-
-      return;
-    }
+      await this.updateWorkspaceStatus();
+    });
   }
 
   private async updateWorkspaceStatus(): Promise<void> {
