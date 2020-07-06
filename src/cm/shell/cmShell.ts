@@ -8,6 +8,7 @@ import { ICmParser, ICmResult, ICmShell } from "./interfaces";
 import { LineStream } from "./lineStream";
 
 const UTF8 = "utf8";
+const COMMAND_RESULT_TOKEN = "CommandResult ";
 
 export class CmShell implements ICmShell {
   public get isRunning(): boolean {
@@ -38,6 +39,9 @@ export class CmShell implements ICmShell {
     this.mChannel = channel;
     this.mOutStream = new LineStream(UTF8);
     this.mErrStream = new LineStream(UTF8);
+    this.mOutStream.on("data", line => {
+      this.mChannel.appendLine(`DEBUG: ${line}`);
+    });
   }
 
   public dispose() {
@@ -148,7 +152,6 @@ export class CmShell implements ICmShell {
     }
     this.mbIsBusy = true;
 
-    const commandResultToken = "CommandResult ";
     const result: ICmResult<T> = {
       success: false,
     };
@@ -158,12 +161,12 @@ export class CmShell implements ICmShell {
 
     const listenResult: Promise<void> = new Promise<void>(resolve => {
       const parserOutRead: (line: string) => void = line => {
-        if (!line.startsWith(commandResultToken)) {
+        if (!line.startsWith(COMMAND_RESULT_TOKEN)) {
           parser.readLineOut(line);
           return;
         }
 
-        result.success = parseInt(line.substr(commandResultToken.length), 10) === 0;
+        result.success = parseInt(line.substr(COMMAND_RESULT_TOKEN.length), 10) === 0;
         this.mOutStream.off("data", parserOutRead);
         this.mErrStream.off("data", parserErrorRead);
         resolve();
@@ -220,6 +223,9 @@ export class CmShell implements ICmShell {
     const listenResult: Promise<void> = new Promise<void>(resolve => {
       const parserOutRead: (line: string) => void = line => {
         this.mChannel.appendLine(line);
+        if (!line.startsWith(COMMAND_RESULT_TOKEN)) {
+          return;
+        }
         this.mOutStream.off("data", parserOutRead);
         resolve();
       };
