@@ -1,3 +1,3 @@
-export * as GetWorkspaceFromPath from "./getWorkspacefrompath/getWorkspaceFromPath";
-export * as Status from "./status/status";
-export * as Checkin from "./checkin/checkin";
+export { GetWorkspaceFromPath } from "./getWorkspacefrompath/getWorkspaceFromPath";
+export { Status } from "./status/status";
+export { Checkin } from "./checkin/checkin";
