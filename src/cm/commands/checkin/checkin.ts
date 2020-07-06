@@ -17,11 +17,7 @@ export class Checkin {
       ],
       parser);
 
-    if (!result.success) {
-      throw new Error("Command execution failed.");
-    }
-
-    if (result.error) {
+    if (!result.success || result.error) {
       throw result.error;
     }
 
