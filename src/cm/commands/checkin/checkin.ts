@@ -11,7 +11,7 @@ export class Checkin {
       "checkin",
       [
         `-c=${message}`,
-        "--applychanged",
+        "--all",
         "--machinereadable",
         ...paths,
       ],
