@@ -39,7 +39,11 @@ export class CheckinCommand implements Disposable {
         `Created changeset cs:${cset.changesetInfo.changesetId}`));
       workspace.sourceControl.inputBox.value = "";
     } catch (e) {
-      window.showErrorMessage("Plastic SCM Checkin failed.");
+      const error = e as Error;
+      const token = "Error: ";
+      const message = error.message.substring(error.message.lastIndexOf(token) + token.length);
+      window.showErrorMessage(`Plastic SCM Checkin failed: ${message}`);
+      this.mPlasticScm.channel.appendLine(`ERROR: ${message}`);
     }
   }
 
