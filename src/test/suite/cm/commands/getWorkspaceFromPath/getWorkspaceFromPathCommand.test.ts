@@ -89,6 +89,7 @@ describe("GetWorkspaceFromPath Command", () => {
 
   context("When the command fails", () => {
     const cmShellMock = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
+    let workspace: IWorkspaceInfo | undefined;
     let error: Error | undefined;
 
     cmShellMock
@@ -103,15 +104,18 @@ describe("GetWorkspaceFromPath Command", () => {
 
     before(async () => {
       try {
-        await GetWorkspaceFromPath.run("/foo/bar", cmShellMock.object);
+        workspace = await GetWorkspaceFromPath.run("/foo/bar", cmShellMock.object);
       } catch (e) {
         error = e as Error;
       }
     });
 
-    it("produces the expected error", () => {
-      expect(error).to.be.not.undefined;
-      expect(error!.message).to.equal("Command failed: Sample error");
+    it("Doesn't return error", () => {
+      expect(error).to.be.undefined;
+    });
+
+    it("Returns an empty workspace", () => {
+      expect(workspace).to.be.undefined;
     });
 
     it("calls the expected shell methods", () => {
