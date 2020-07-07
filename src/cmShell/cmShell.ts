@@ -26,7 +26,7 @@ export class CmShell implements ICmShell {
   private readonly mStartDir: string;
   private readonly mChannel: OutputChannel;
   private mProcess?: ChildProcess;
-  private mbIsRunning: boolean = false;
+  private mbIsRunning = false;
   private readonly mOutStream: LineStream;
   private readonly mErrStream: LineStream;
 
@@ -55,10 +55,10 @@ export class CmShell implements ICmShell {
       [
         "shell", "--encoding=UTF-8", `--commfile=${commFile}`, this.mStartDir,
       ], {
-      cwd: this.mStartDir,
-      env: process.env,
-      stdio: ["pipe", "pipe", "pipe"],
-    });
+        cwd: this.mStartDir,
+        env: process.env,
+        stdio: ["pipe", "pipe", "pipe"],
+      });
 
     const logError = (err: Error) => this.mChannel.appendLine(`ERROR: ${err}`);
     this.mProcess.on("error", logError);
@@ -116,10 +116,9 @@ export class CmShell implements ICmShell {
   }
 
   public async exec<T>(
-      command: string,
-      args: string[],
-      parser: ICmParser<T>)
-      : Promise<ICmResult<T>> {
+    command: string,
+    args: string[],
+    parser: ICmParser<T>): Promise<ICmResult<T>> {
     const commandLine = CmShell.buildCommandLine(command, ...args);
 
     if (!this.isRunning) {
@@ -182,9 +181,7 @@ export class CmShell implements ICmShell {
     const intervalTime = 50;
     let waitTime = 0;
 
-    const delay: (ms: number) => Promise<void> = ms => {
-      return new Promise<void>(resolve => setTimeout(resolve, ms));
-    };
+    const delay: (ms: number) => Promise<void> = ms => new Promise<void>(resolve => setTimeout(resolve, ms));
 
     while (waitTime < timeout) {
       if (!fs.existsSync(filePath)) {

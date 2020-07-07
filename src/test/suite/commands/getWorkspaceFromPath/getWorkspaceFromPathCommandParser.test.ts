@@ -6,7 +6,7 @@ import { IWorkspaceInfo } from "../../../../models";
 
 describe("GetWorkspaceFromPath Parser", () => {
   context("when input is correct", () => {
-    const line: string = "a@#@b@#@c";
+    const line = "a@#@b@#@c";
 
     let error: Error | undefined;
     let result: IWorkspaceInfo | undefined;
@@ -129,7 +129,7 @@ describe("GetWorkspaceFromPath Parser", () => {
   });
 
   context("when single line with parsing errors", () => {
-    const line: string = "a@#@b";
+    const line = "a@#@b";
 
     let error: Error | undefined;
     let result: IWorkspaceInfo | undefined;
@@ -162,7 +162,7 @@ describe("GetWorkspaceFromPath Parser", () => {
   });
 
   context("when there are stderr lines", () => {
-    const stdout: string = "a@#@b@#@c";
+    const stdout = "a@#@b@#@c";
     const stderr: string[] = [
       "error1",
       "error2",

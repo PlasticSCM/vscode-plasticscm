@@ -50,7 +50,7 @@ export class Configuration {
   }
 
   private static getLastConfigKeyIndex(...args: any[]): number {
-    for (let i: number = 0; i < args.length; i++) {
+    for (let i = 0; i < args.length; i++) {
       if (typeof(args[i]) !== "string") {
         return i;
       }
@@ -60,10 +60,10 @@ export class Configuration {
   }
 
   private mOnDidChange: EventEmitter<ConfigurationChangeEvent> =
-    new EventEmitter<ConfigurationChangeEvent>();
+  new EventEmitter<ConfigurationChangeEvent>();
 
   private mOnDidChangeAny: EventEmitter<ConfigurationChangeEvent> =
-    new EventEmitter<ConfigurationChangeEvent>();
+  new EventEmitter<ConfigurationChangeEvent>();
 
   public get(): Config;
   public get<S1 extends keyof Config>(s1: S1, resource?: Uri | null, defaultValue?: Config[S1]): Config[S1];
@@ -90,8 +90,8 @@ export class Configuration {
       : wkConfig.get<T>(section === undefined ? extensionId : section, defaultValue);
 
     const anotherResult: any = defaultValue === undefined
-        ? wkConfig.get(section === undefined ? extensionId : section)!
-        : wkConfig.get(section === undefined ? extensionId : section, defaultValue);
+      ? wkConfig.get(section === undefined ? extensionId : section)!
+      : wkConfig.get(section === undefined ? extensionId : section, defaultValue);
 
     return result === undefined ? anotherResult : result;
   }

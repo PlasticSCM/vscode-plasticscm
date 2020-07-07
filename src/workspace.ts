@@ -47,7 +47,7 @@ export class Workspace implements Disposable {
   private readonly mDisposables: Disposable;
 
   private mWorkspaceConfig?: IWorkspaceConfig;
-  private mbIsStatusSlow: boolean = false;
+  private mbIsStatusSlow = false;
 
   constructor(
     workingDir: string,
@@ -175,30 +175,30 @@ export class Workspace implements Disposable {
 
   private getStatusBarIconKey(wkConfigType: WkConfigType) {
     switch (wkConfigType) {
-      case WkConfigType.Changeset:
-        return "git-commit";
-      case WkConfigType.Label:
-        return "tag";
-      case WkConfigType.Shelve:
-        return "archive";
-      case WkConfigType.Branch:
-      default:
-        return "git-branch";
+    case WkConfigType.Changeset:
+      return "git-commit";
+    case WkConfigType.Label:
+      return "tag";
+    case WkConfigType.Shelve:
+      return "archive";
+    case WkConfigType.Branch:
+    default:
+      return "git-branch";
     }
   }
 
   private getPrefix(wkConfigType: WkConfigType) {
     switch (wkConfigType) {
-      case WkConfigType.Changeset:
-        return "cs:";
-      case WkConfigType.Label:
-        return "lb:";
-      case WkConfigType.Shelve:
-        return "sh:";
-      case WkConfigType.Branch:
-        return "br:";
-      default:
-        return "";
+    case WkConfigType.Changeset:
+      return "cs:";
+    case WkConfigType.Label:
+      return "lb:";
+    case WkConfigType.Shelve:
+      return "sh:";
+    case WkConfigType.Branch:
+      return "br:";
+    default:
+      return "";
     }
   }
 }

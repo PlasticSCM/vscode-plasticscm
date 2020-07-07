@@ -82,15 +82,15 @@ export class StatusParser implements ICmParser<IPendingChanges> {
   }
 
   private mergeChanges(
-      destination: IChangeInfo | undefined, source: IChangeInfo): IChangeInfo {
+    destination: IChangeInfo | undefined, source: IChangeInfo): IChangeInfo {
     if (!destination) {
       return source;
     }
 
     return {
       oldPath: destination.oldPath ?? source.oldPath,
-      path: destination!.path,
-      type: destination!.type | source.type,
+      path: destination.path,
+      type: destination.type | source.type,
     };
   }
 }
@@ -108,7 +108,7 @@ interface IStatusOutput {
   wkConfigType: WkConfigType;
   wkConfigName: string;
   changes: {
-    change: IChange[],
+    change: IChange[];
   };
 }
 

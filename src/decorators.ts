@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
@@ -107,14 +107,12 @@ export function debounce(delay: number): Function {
 const _seqList: { [key: string]: any } = {};
 
 export function globalSequentialize(name: string): Function {
-  return decorate((fn, _key) => {
-    return function(this: any, ...args: any[]) {
-      const currentPromise =
+  return decorate((fn, _key) => function(this: any, ...args: any[]) {
+    const currentPromise =
         (_seqList[name] as Promise<any>) || Promise.resolve(null);
-      const run = async () => fn.apply(this, args);
-      _seqList[name] = currentPromise.then(run, run);
-      return _seqList[name];
-    };
+    const run = async () => fn.apply(this, args);
+    _seqList[name] = currentPromise.then(run, run);
+    return _seqList[name];
   });
 }
 

@@ -16,7 +16,7 @@ const patternGroups: IPatternGroups = {
   serverName: "server",
 };
 
-const checkinCsetSpecPattern: RegExp = new RegExp([
+const checkinCsetSpecPattern = new RegExp([
   "^",
   `cs:(?<${patternGroups.changesetId}>[0-9]+)`,
   "@",
@@ -38,11 +38,11 @@ export function parse(checkinCsetSpec: string): ICheckinChangeset | null {
 
   return {
     changesetInfo: {
-      branch: matches!.groups[patternGroups.branchName] ?? "",
-      changesetId: parseInt(matches!.groups[patternGroups.changesetId] ?? "-1", 10),
-      repository: matches!.groups[patternGroups.repositoryName] ?? "",
-      server: matches!.groups[patternGroups.serverName] ?? "",
+      branch: matches.groups[patternGroups.branchName] ?? "",
+      changesetId: parseInt(matches.groups[patternGroups.changesetId] ?? "-1", 10),
+      repository: matches.groups[patternGroups.repositoryName] ?? "",
+      server: matches.groups[patternGroups.serverName] ?? "",
     },
-    mountPath: matches!.groups[patternGroups.mountPath] ?? "",
+    mountPath: matches.groups[patternGroups.mountPath] ?? "",
   };
 }
