@@ -1,27 +1,16 @@
-import * as byline from "byline";
-import { ChildProcess, spawn } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import { StringDecoder } from "string_decoder";
 import * as uuid from "uuid";
-import { Disposable, OutputChannel } from "vscode";
+import { ChildProcess, spawn } from "child_process";
 import { ICmParser, ICmResult, ICmShell } from "./interfaces";
 import { LineStream } from "./lineStream";
+import { OutputChannel } from "vscode";
+import { Readable } from "stream";
 
 const UTF8 = "utf8";
 
 export class CmShell implements ICmShell {
-  public get isRunning(): boolean {
-    return this.mbIsRunning;
-  }
-
-  private static buildCommandLine(command: string, ...args: string[]) {
-    if (!args || args.length === 0) {
-      return command;
-    }
-    return `${command} ${args.map(arg => `"${arg}"`).join(" ")}`;
-  }
 
   private readonly mStartDir: string;
   private readonly mChannel: OutputChannel;
@@ -30,14 +19,18 @@ export class CmShell implements ICmShell {
   private readonly mOutStream: LineStream;
   private readonly mErrStream: LineStream;
 
-  constructor(startDir: string, channel: OutputChannel) {
+  public get isRunning(): boolean {
+    return this.mbIsRunning;
+  }
+
+  public constructor(startDir: string, channel: OutputChannel) {
     this.mStartDir = startDir;
     this.mChannel = channel;
     this.mOutStream = new LineStream(UTF8);
     this.mErrStream = new LineStream(UTF8);
   }
 
-  public dispose() {
+  public dispose(): void {
     this.mErrStream.dispose();
     this.mOutStream.dispose();
     if (this.mProcess && this.isRunning) {
@@ -60,17 +53,17 @@ export class CmShell implements ICmShell {
         stdio: [ "pipe", "pipe", "pipe" ],
       });
 
-    const logError = (err: Error) => this.mChannel.appendLine(`ERROR: ${err}`);
+    const logError = (err: Error) => this.mChannel.appendLine(`ERROR: ${err.message}`);
     this.mProcess.on("error", logError);
 
     const readOut: (chunk: any) => void = chunk => this.mOutStream.write(chunk);
     const readErr: (chunk: any) => void = chunk => this.mErrStream.write(chunk);
-    this.mProcess.stdout!.on("data", readOut);
-    this.mProcess.stderr!.on("data", readErr);
+    CmShell.bindProcessStream(this.mProcess.stdout, readOut);
+    CmShell.bindProcessStream(this.mProcess.stderr, readErr);
 
     if (!await this.waitUntilFileDeleted(commFile, 3000)) {
-      this.mProcess.stdout!.off("data", readOut);
-      this.mProcess.stderr!.off("data", readErr);
+      CmShell.unbindProcessStream(this.mProcess.stdout, readOut);
+      CmShell.unbindProcessStream(this.mProcess.stderr, readErr);
       this.mChannel.appendLine("Cm shell didn't respond after 3 seconds");
 
       if (fs.existsSync(commFile)) {
@@ -103,13 +96,13 @@ export class CmShell implements ICmShell {
           try {
             this.mProcess.kill();
           } catch (error) {
-            this.mChannel.appendLine(`Error killing the process: ${error?.message}`);
+            this.mChannel.appendLine(`Error killing the process: ${(error as Error).message}`);
           }
         }
         resolve();
       }, 500);
 
-      this.mProcess.on("exit", (code, signal) => {
+      this.mProcess.on("exit", () => {
         resolve();
       });
     });
@@ -158,7 +151,7 @@ export class CmShell implements ICmShell {
     try {
       await listenResult;
     } catch (error) {
-      this.mChannel.appendLine(`ERROR: ${error}`);
+      this.mChannel.appendLine(`ERROR: ${(error as Error).message}`);
     }
 
     if (result.success) {
@@ -170,6 +163,25 @@ export class CmShell implements ICmShell {
     result.error = new Error(
       parser.getOutputLines().join(os.EOL));
     return result;
+  }
+
+  private static bindProcessStream(stream: Readable | null, handler: (chunk: any) => void): void {
+    if (stream) {
+      stream.on("data", handler);
+    }
+  }
+
+  private static unbindProcessStream(stream: Readable | null, handler: (chunk: any) => void): void {
+    if (stream) {
+      stream.off("data", handler);
+    }
+  }
+
+  private static buildCommandLine(command: string, ...args: string[]) {
+    if (!args || args.length === 0) {
+      return command;
+    }
+    return `${command} ${args.map(arg => `"${arg}"`).join(" ")}`;
   }
 
   private write(commandLine: string) {
