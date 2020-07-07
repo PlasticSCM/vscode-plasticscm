@@ -1,6 +1,6 @@
-import { assert, expect } from "chai";
-import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
 import { ICmParser, ICmShell } from "../../../../cmShell";
+import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
+import { expect } from "chai";
 import { GetWorkspaceFromPath } from "../../../../commands";
 import { IWorkspaceInfo } from "../../../../models";
 
@@ -57,7 +57,7 @@ describe("GetWorkspaceFromPath Command", () => {
       let error: Error | undefined;
 
       cmShellMock
-      .setup(mock => mock.exec(
+        .setup(mock => mock.exec(
           It.isAnyString(),
           It.is(args => true),
           It.is<ICmParser<IWorkspaceInfo | undefined>>(parser => true)))
@@ -110,8 +110,8 @@ describe("GetWorkspaceFromPath Command", () => {
     });
 
     it("produces the expected error", () => {
-        expect(error).to.be.not.undefined;
-        expect(error!.message).to.equal("Command failed: Sample error");
+      expect(error).to.be.not.undefined;
+      expect(error!.message).to.equal("Command failed: Sample error");
     });
 
     it("calls the expected shell methods", async () => {

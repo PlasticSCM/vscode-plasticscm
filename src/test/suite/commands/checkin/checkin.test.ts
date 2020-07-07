@@ -1,7 +1,7 @@
-import { expect } from "chai";
-import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
 import { ICmParser, ICmShell } from "../../../../cmShell";
+import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
 import { Checkin } from "../../../../commands";
+import { expect } from "chai";
 import { ICheckinChangeset } from "../../../../models";
 
 describe("Checkin Command", () => {
@@ -112,8 +112,8 @@ describe("Checkin Command", () => {
     });
 
     it("produces the expected error", () => {
-        expect(error).to.be.not.undefined;
-        expect(error!.message).to.equal("Command execution failed.");
+      expect(error).to.be.not.undefined;
+      expect(error!.message).to.equal("Command execution failed.");
     });
 
     it("calls the expected shell methods", async () => {
