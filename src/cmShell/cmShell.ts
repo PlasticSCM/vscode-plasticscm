@@ -57,7 +57,7 @@ export class CmShell implements ICmShell {
       ], {
         cwd: this.mStartDir,
         env: process.env,
-        stdio: ["pipe", "pipe", "pipe"],
+        stdio: [ "pipe", "pipe", "pipe" ],
       });
 
     const logError = (err: Error) => this.mChannel.appendLine(`ERROR: ${err}`);
