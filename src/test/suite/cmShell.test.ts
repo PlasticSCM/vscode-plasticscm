@@ -1,8 +1,9 @@
-import { expect } from "chai";
+import { CmShell, ICmParser } from "../../cmShell";
 import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
 
+import { expect } from "chai";
+import { fail } from "assert";
 import { OutputChannel } from "vscode";
-import { CmShell, ICmParser } from "../../cmShell";
 
 describe("CmShell", () => {
   context("When shell isn't running", () => {
@@ -37,15 +38,24 @@ describe("CmShell", () => {
     });
 
     it("didn't succeed", () => {
+      if (!response) {
+        fail("Invalid response");
+      }
       expect(response.success).to.be.false;
     });
 
     it("produced the expected error", () => {
+      if (!response) {
+        fail("Invalid response");
+      }
       expect(response.error).to.be.not.undefined;
-      expect(response.error!.message).to.equal("Shell wasn't running");
+      expect(response.error.message).to.equal("Shell wasn't running");
     });
 
     it("didn't produce a result", () => {
+      if (!response) {
+        fail("Invalid response");
+      }
       expect(response.result).to.be.undefined;
     });
 
