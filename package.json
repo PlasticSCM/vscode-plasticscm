@@ -62,7 +62,7 @@
     "pretest": "npm run compile",
     "test": "node ./out/test/runTest.js",
     "deploy": "vsce publish",
-    "lint": "eslint -c .eslintrc.js --ext .ts src --fix"
+    "lint": "eslint --ext .ts src --fix"
   },
   "dependencies": {
     "byline": "^5.0.0",

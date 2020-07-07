@@ -21,7 +21,7 @@
       "script": "lint",
       "problemMatcher": ["$eslint-stylish"],
       "label": "npm: lint",
-      "detail": "eslint -c .eslintrc.js --fix --ext .ts src"
+      "detail": "eslint --fix --ext .ts src"
     }
   ]
 }
