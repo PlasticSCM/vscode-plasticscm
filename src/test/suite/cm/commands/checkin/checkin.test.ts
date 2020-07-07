@@ -129,7 +129,7 @@ describe("Checkin Command", () => {
 
     it("produces the expected error", () => {
       expect(error).to.be.not.undefined;
-      expect(error!.message).to.equal("Command execution failed.");
+      expect(error!.message).to.equal("Sample error");
     });
 
     it("calls the expected shell methods", () => {
