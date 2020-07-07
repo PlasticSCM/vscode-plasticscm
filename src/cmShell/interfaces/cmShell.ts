@@ -10,5 +10,5 @@ export interface ICmShell extends Disposable {
     command: string,
     args: string[],
     parser: ICmParser<T>): Promise<ICmResult<T>>;
-  stop(): void;
+  stop(): Promise<void>;
 }

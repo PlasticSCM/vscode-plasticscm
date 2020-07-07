@@ -1,13 +1,13 @@
 
 import * as os from "os";
+import { CmShell, ICmShell } from "./cmShell";
 import {
   Disposable,
   OutputChannel,
   window as VsCodeWindow,
   workspace as VsCodeWorkspace,
 } from "vscode";
-import { CmShell, ICmShell } from "./cmShell";
-import { GetWorkspaceFromPath, Status } from "./commands";
+import { GetWorkspaceFromPath } from "./commands";
 import { IWorkspaceInfo } from "./models";
 import { Workspace } from "./workspace";
 import { WorkspaceOperations } from "./workspaceOperations";
@@ -17,11 +17,11 @@ export class PlasticScm implements Disposable {
   private readonly mChannel: OutputChannel;
   private readonly mDisposables: Disposable[] = [];
 
-  constructor(channel: OutputChannel) {
+  public constructor(channel: OutputChannel) {
     this.mChannel = channel;
   }
 
-  public async initialize() {
+  public async initialize(): Promise<void> {
     if (!VsCodeWorkspace.workspaceFolders) {
       return;
     }
@@ -29,8 +29,8 @@ export class PlasticScm implements Disposable {
     const globalShell: ICmShell = new CmShell(os.tmpdir(), this.mChannel);
     if (!await globalShell.start()) {
       const errorMessage = 'Plastic SCM extension can\'t start: unable to start "cm shell"';
-      VsCodeWindow.showErrorMessage(errorMessage);
       this.mChannel.appendLine(errorMessage);
+      await VsCodeWindow.showErrorMessage(errorMessage);
       return;
     }
 
@@ -56,10 +56,11 @@ export class PlasticScm implements Disposable {
           workingDir, wkInfo, wkShell, new WorkspaceOperations());
         this.mDisposables.push(wkShell, workspace);
         this.mWorkspaces.set(wkInfo.id, workspace);
-      } catch (error) {
-        VsCodeWindow.showErrorMessage(error?.message);
+      } catch (e) {
+        const error = e as Error;
         this.mChannel.appendLine(
           `Unable to find workspace in ${workingDir}: ${error?.message}`);
+        await VsCodeWindow.showErrorMessage(error?.message);
       } finally {
         await globalShell.stop();
         globalShell.dispose();
@@ -72,7 +73,9 @@ export class PlasticScm implements Disposable {
       Array.from(this.mWorkspaces.values()).map(wk => wk.shell.stop()));
   }
 
-  public dispose() {
-    this.mDisposables.forEach(disposable => disposable.dispose());
+  public dispose(): void {
+    this.mDisposables.forEach(disposable => {
+      disposable.dispose();
+    });
   }
 }
