@@ -29,8 +29,8 @@ export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
     this.mErrorBuffer.push(line);
   }
 
-  public async parse(): Promise<ICheckinChangeset[]> {
-    return this.mOutputBuffer.reduce<ICheckinChangeset[]>(
+  public parse(): Promise<ICheckinChangeset[]> {
+    const result = this.mOutputBuffer.reduce<ICheckinChangeset[]>(
       (previous: ICheckinChangeset[], line: string) => {
         if (previous && previous.length) {
           return previous;
@@ -38,6 +38,8 @@ export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
 
         return this.parseLine(line);
       }, []);
+
+    return Promise.resolve(result);
   }
 
   public getError(): Error | undefined {
