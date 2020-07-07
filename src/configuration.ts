@@ -8,8 +8,8 @@ import {
   Uri,
   workspace,
   WorkspaceConfiguration } from "vscode";
-import { Config } from "./config";
 import { extensionId } from "./constants";
+import { IConfig } from "./config";
 
 export class Configuration {
 
@@ -32,14 +32,14 @@ export class Configuration {
   }
 
   private static buildConfigKey(...args: any[]): string | undefined {
-    if (args.length === 0 || typeof(args[0]) !== "string") {
+    if (args.length === 0 || typeof (args[0]) !== "string") {
       return undefined;
     }
 
     let result: string = args[0];
     let index: number;
     for (index = 1; index < args.length; index++) {
-      if (typeof(args[index]) !== "string") {
+      if (typeof (args[index]) !== "string") {
         return result;
       }
 
@@ -51,7 +51,7 @@ export class Configuration {
 
   private static getLastConfigKeyIndex(...args: any[]): number {
     for (let i = 0; i < args.length; i++) {
-      if (typeof(args[i]) !== "string") {
+      if (typeof (args[i]) !== "string") {
         return i;
       }
     }
@@ -65,14 +65,14 @@ export class Configuration {
   private mOnDidChangeAny: EventEmitter<ConfigurationChangeEvent> =
   new EventEmitter<ConfigurationChangeEvent>();
 
-  public get(): Config;
-  public get<S1 extends keyof Config>(s1: S1, resource?: Uri | null, defaultValue?: Config[S1]): Config[S1];
-  public get<S1 extends keyof Config, S2 extends keyof Config[S1]>(
+  public get(): IConfig;
+  public get<S1 extends keyof IConfig>(s1: S1, resource?: Uri | null, defaultValue?: IConfig[S1]): IConfig[S1];
+  public get<S1 extends keyof IConfig, S2 extends keyof IConfig[S1]>(
     s1: S1,
     s2: S2,
     resource?: Uri | null,
-    defaultValue?: Config[S1][S2],
-  ): Config[S1][S2];
+    defaultValue?: IConfig[S1][S2],
+  ): IConfig[S1][S2];
   // Keep adding overloads here if configuration nestiness keeps growing.
   public get<T>(...args: any[]): T {
     const section: string | undefined = Configuration.buildConfigKey(...args);
