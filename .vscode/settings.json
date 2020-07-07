@@ -1,54 +1,57 @@
+// Place your settings in this file to overwrite default and user settings.
 {
-    "better-comments.tags": [
-        {
-            "tag": "!",
-            "color": "#FF2D00",
-            "strikethrough": false,
-            "backgroundColor": "transparent"
-        },
-        {
-            "tag": "?",
-            "color": "#3498DB",
-            "strikethrough": false,
-            "backgroundColor": "transparent"
-        },
-        {
-            "tag": "//",
-            "color": "#474747",
-            "strikethrough": true,
-            "backgroundColor": "transparent"
-        },
-        {
-            "tag": "todo",
-            "color": "#FF8C00",
-            "strikethrough": false,
-            "backgroundColor": "transparent"
-        },
-        {
-            "tag": "*",
-            "color": "#98C379",
-            "strikethrough": false,
-            "backgroundColor": "transparent"
-        },
-        {
-            "tag": "improvement",
-            "color": "#DD3D84",
-            "strikethrough": false,
-            "backgroundColor": "transparent"
-        }
-    ],
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-    },
     "files.exclude": {
-        "out": false
+        "out": false // set this to true to hide the "out" folder with the compiled JS files
     },
+    "search.exclude": {
+        "out": true // set this to false to include "out" folder in search results
+    },
+    // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
+    "typescript.tsc.autoDetect": "off",
     "mochaExplorer.files": "out/test/**/*.js",
     "mochaExplorer.require": [
         "vscode-test"
     ],
-    "search.exclude": {
-        "out": true
+    "editor.codeActionsOnSave": {
+      "source.fixAll.tslint": true
     },
-    "typescript.tsc.autoDetect": "off"
+    "better-comments.tags": [
+      {
+        "tag": "!",
+        "color": "#FF2D00",
+        "strikethrough": false,
+        "backgroundColor": "transparent"
+      },
+      {
+        "tag": "?",
+        "color": "#3498DB",
+        "strikethrough": false,
+        "backgroundColor": "transparent"
+      },
+      {
+        "tag": "//",
+        "color": "#474747",
+        "strikethrough": true,
+        "backgroundColor": "transparent"
+      },
+      {
+        "tag": "todo",
+        "color": "#FF8C00",
+        "strikethrough": false,
+        "backgroundColor": "transparent"
+      },
+      {
+        "tag": "*",
+        "color": "#98C379",
+        "strikethrough": false,
+        "backgroundColor": "transparent"
+      },
+      {
+        "tag": "improvement",
+        "color": "#DD3D84",
+        "strikethrough": false,
+        "backgroundColor": "transparent"
+      }
+    ],
+    "git.alwaysSignOff": true
 }

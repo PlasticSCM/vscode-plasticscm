@@ -1,4 +1,4 @@
-import { CmShell, ICmParser } from "../../cmShell";
+import { CmShell, ICmParser } from "../../../cm/shell";
 import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
 
 import { expect } from "chai";

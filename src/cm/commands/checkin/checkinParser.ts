@@ -1,7 +1,7 @@
 import * as checkinChangeset from "./checkinChangeset";
 import * as os from "os";
-import { ICheckinChangeset } from "../../models";
-import { ICmParser } from "../../cmShell";
+import { ICheckinChangeset } from "../../../models";
+import { ICmParser } from "../../shell";
 
 export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
   public static readonly SEPARATOR: string = "@#@";

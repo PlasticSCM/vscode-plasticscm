@@ -1,9 +1,13 @@
 import * as os from "os";
 import * as xml2js from "xml2js";
-import { ChangeType, IChangeInfo, IPendingChanges, WkConfigType } from "../../models";
+import { ChangeType, IChangeInfo, IPendingChanges, WkConfigType } from "../../../models";
 import { firstCharLowerCase, parseBooleans, parseNumbers } from "xml2js/lib/processors";
-import { ICmParser } from "../../cmShell";
+import { ICmParser } from "../../shell";
 import { Uri } from "vscode";
+
+function normalizePath(path: string): string {
+  return path.replace(/\\/g, "/");
+}
 
 export class StatusParser implements ICmParser<IPendingChanges> {
   private readonly mOutputBuffer: string[] = [];
@@ -58,17 +62,19 @@ export class StatusParser implements ICmParser<IPendingChanges> {
 
     const changes: Map<string, IChangeInfo> = new Map<string, IChangeInfo>();
     let pendingChanges: IChange[] = [];
-    pendingChanges = pendingChanges.concat(statusOutput.changes.change);
+    if (statusOutput.changes) {
+      pendingChanges = pendingChanges.concat(statusOutput.changes.change);
+    }
 
     pendingChanges.forEach(change => {
-      const uri: Uri = Uri.file(change.path);
+      const uri: Uri = Uri.file(normalizePath(change.path));
       const newChange: IChangeInfo = {
-        oldPath: change.oldPath ? Uri.file(change.oldPath) : undefined,
+        oldPath: change.oldPath ? Uri.file(normalizePath(change.oldPath)) : undefined,
         path: uri,
         type: CHANGE_TYPES[change.type] ?? ChangeType.Controlled,
       };
 
-      changes.set(uri.fsPath, this.mergeChanges(changes.get(uri.fsPath), newChange));
+      changes.set(uri.path, this.mergeChanges(changes.get(uri.fsPath), newChange));
     });
 
     return {

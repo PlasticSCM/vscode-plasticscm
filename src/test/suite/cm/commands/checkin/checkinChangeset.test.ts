@@ -1,6 +1,6 @@
-import * as checkinChangeset from "../../../../commands/checkin/checkinChangeset";
+import * as checkinChangeset from "../../../../../cm/commands/checkin/checkinChangeset";
 import { expect } from "chai";
-import { ICheckinChangeset } from "../../../../models";
+import { ICheckinChangeset } from "../../../../../models";
 
 describe("checkinChangeset", () => {
   context("#parse()", () => {

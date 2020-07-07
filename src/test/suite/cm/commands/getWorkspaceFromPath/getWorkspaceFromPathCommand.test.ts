@@ -1,8 +1,8 @@
-import { ICmParser, ICmShell } from "../../../../cmShell";
+import { ICmParser, ICmShell } from "../../../../../cm/shell";
 import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
 import { expect } from "chai";
-import { GetWorkspaceFromPath } from "../../../../commands";
-import { IWorkspaceInfo } from "../../../../models";
+import { GetWorkspaceFromPath } from "../../../../../cm/commands";
+import { IWorkspaceInfo } from "../../../../../models";
 
 describe("GetWorkspaceFromPath Command", () => {
   context("When the command runs successfully", () => {

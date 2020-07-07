@@ -53,6 +53,26 @@
           "markdownDescription": "Autorefresh workspace status when something changes."
         }
       }
+    },
+    "commands": [
+      {
+        "command": "plastic-scm.checkin",
+        "category": "Plastic SCM",
+        "title": "Checkin",
+        "icon": {
+          "light": "images/icons/light/commit.svg",
+          "dark": "images/icons/dark/commit.svg"
+        }
+      }
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "plastic-scm.checkin",
+          "group": "navigation",
+          "when": "scmProvider == plastic-scm"
+        }
+      ]
     }
   },
   "scripts": {

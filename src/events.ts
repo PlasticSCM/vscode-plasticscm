@@ -31,8 +31,8 @@ export function anyEvent<T>(...events: Array<Event<T>>): Event<T> {
 }
 
 export function filterEvent<T>(event: Event<T>, filter: (e: T) => boolean): Event<T> {
-  return (listener, thisArgs = null, disposables?) =>
-    event(e => filter(e) && listener.call(thisArgs, e), null, disposables);
+  return (listener, thisArg = null, disposables?) =>
+    event(e => filter(e) && listener(e), thisArg, disposables);
 }
 
 export function onceEvent<T>(event: Event<T>): Event<T> {

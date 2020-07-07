@@ -1,4 +1,4 @@
-import { ICheckinChangeset } from "../../models";
+import { ICheckinChangeset } from "../../../models";
 
 interface IPatternGroups {
   branchName: string;
