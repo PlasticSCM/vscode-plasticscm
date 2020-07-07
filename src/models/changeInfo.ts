@@ -10,12 +10,12 @@ export enum WkConfigType {
 
 export enum ChangeType {
   Controlled = 0,
-  Private    = 1 << 0,
-  Added      = 1 << 1,
-  Changed    = 1 << 2,
+  Private = 1 << 0,
+  Added = 1 << 1,
+  Changed = 1 << 2,
   Checkedout = 1 << 3,
-  Moved      = 1 << 4,
-  Deleted    = 1 << 5,
+  Moved = 1 << 4,
+  Deleted = 1 << 5,
 }
 
 export interface IPendingChanges {
