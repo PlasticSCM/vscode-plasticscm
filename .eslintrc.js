@@ -72,7 +72,6 @@ module.exports = {
                 }
             }
         ],
-        "@typescript-eslint/interface-name-prefix": "warn",
         "@typescript-eslint/member-delimiter-style": [
             "warn",
             {
@@ -214,10 +213,6 @@ module.exports = {
             "undefined"
         ],
         "id-match": "warn",
-        "import/order": "warn",
-        "jsdoc/check-alignment": "warn",
-        "jsdoc/check-indentation": "warn",
-        "jsdoc/newline-after-description": "warn",
         "key-spacing": "error",
         "keyword-spacing": "error",
         "max-classes-per-file": [
@@ -268,7 +263,7 @@ module.exports = {
             "warn",
             "never"
         ],
-        "prefer-arrow/prefer-arrow-functions": "warn",
+        "prefer-arrow-callback": "warn",
         "prefer-const": "warn",
         "quote-props": [
             "warn",
@@ -276,6 +271,7 @@ module.exports = {
         ],
         "radix": "warn",
         "semi-spacing": "error",
+        "sort-imports": "error",
         "sort-keys": [
           "warn",
           "asc",
@@ -310,20 +306,6 @@ module.exports = {
         ],
         "switch-colon-spacing": "error",
         "use-isnan": "warn",
-        "valid-typeof": "off",
-        "@typescript-eslint/tslint/config": [
-            "error",
-            {
-                "rules": {
-                    "whitespace": [
-                        true,
-                        "check-operator",
-                        "check-separator",
-                        "check-type",
-                        "check-typecast"
-                    ]
-                }
-            }
-        ]
+        "valid-typeof": "off"
     }
 };
