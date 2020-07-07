@@ -1,3 +1,18 @@
+import * as constants from "./constants";
+import * as events from "./events";
+import * as paths from "./paths";
+import {
+  ChangeType,
+  IChangeInfo,
+  IPendingChanges,
+  IWorkspaceConfig,
+  IWorkspaceInfo,
+  WkConfigType,
+} from "./models";
+import {
+  debounce,
+  throttle,
+} from "./decorators";
 import {
   Disposable,
   Event,
@@ -8,23 +23,11 @@ import {
   window as VsCodeWindow,
   workspace as VsCodeWorkspace,
 } from "vscode";
-import { ICmShell } from "./cmShell";
-import { Status } from "./commands";
 import { configuration } from "./configuration";
-import * as constants from "./constants";
-import { debounce, throttle } from "./decorators";
-import * as events from "./events";
-import {
-  ChangeType,
-  IChangeInfo,
-  IPendingChanges,
-  IWorkspaceConfig,
-  IWorkspaceInfo,
-  WkConfigType,
-} from "./models";
-import * as paths from "./paths";
-import { PlasticScmResource } from "./plasticScmResource";
+import { ICmShell } from "./cmShell";
 import { IWorkspaceOperations } from "./workspaceOperations";
+import { PlasticScmResource } from "./plasticScmResource";
+import { Status } from "./commands";
 
 export class Workspace implements Disposable {
 
@@ -49,7 +52,7 @@ export class Workspace implements Disposable {
   private mWorkspaceConfig?: IWorkspaceConfig;
   private mbIsStatusSlow = false;
 
-  constructor(
+  public constructor(
     workingDir: string,
     workspaceInfo: IWorkspaceInfo,
     shell: ICmShell,
@@ -87,7 +90,7 @@ export class Workspace implements Disposable {
     this.updateWorkspaceStatus();
   }
 
-  public dispose() {
+  public dispose(): void {
     this.mDisposables.dispose();
   }
 
@@ -132,7 +135,6 @@ export class Workspace implements Disposable {
         await events.eventToPromise(onDidFocusWindow);
         continue;
       }
-
       return;
     }
   }

@@ -271,7 +271,12 @@ module.exports = {
         ],
         "radix": "warn",
         "semi-spacing": "error",
-        "sort-imports": "error",
+        "sort-imports": [
+          "error",
+          {
+            "ignoreCase": true,
+          }
+        ],
         "sort-keys": [
           "warn",
           "asc",
