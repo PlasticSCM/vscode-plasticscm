@@ -1,5 +1,6 @@
 module.exports = {
   "rules": {
-    "@typescript-eslint/no-unused-expressions": 0,
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-unused-expressions": "off",
   }
 };

@@ -13,8 +13,8 @@ describe("GetWorkspaceFromPath Command", () => {
       cmShellMock
         .setup(mock => mock.exec(
           It.isAnyString(),
-          It.is(args => true),
-          It.is<ICmParser<IWorkspaceInfo | undefined>>(parser => true)))
+          It.is(() => true),
+          It.is<ICmParser<IWorkspaceInfo | undefined>>(() => true)))
         .returns(() => Promise.resolve({
           result: {
             id: "95b0a429-7d9c-48af-8b5b-6f1ced257b20",
@@ -59,8 +59,8 @@ describe("GetWorkspaceFromPath Command", () => {
       cmShellMock
         .setup(mock => mock.exec(
           It.isAnyString(),
-          It.is(args => true),
-          It.is<ICmParser<IWorkspaceInfo | undefined>>(parser => true)))
+          It.is(() => true),
+          It.is<ICmParser<IWorkspaceInfo | undefined>>(() => true)))
         .returns(() => Promise.resolve({
           error: new Error("Sample error"),
           success: true,
@@ -70,7 +70,7 @@ describe("GetWorkspaceFromPath Command", () => {
         try {
           await GetWorkspaceFromPath.run("/foo/bar", cmShellMock.object);
         } catch (e) {
-          error = e;
+          error = e as Error;
         }
       });
 
@@ -94,8 +94,8 @@ describe("GetWorkspaceFromPath Command", () => {
     cmShellMock
       .setup(mock => mock.exec(
         It.isAnyString(),
-        It.is(args => true),
-        It.is<ICmParser<IWorkspaceInfo>>(parser => true)))
+        It.is(() => true),
+        It.is<ICmParser<IWorkspaceInfo>>(() => true)))
       .returns(() => Promise.resolve({
         error: new Error("Sample error"),
         success: false,
@@ -105,7 +105,7 @@ describe("GetWorkspaceFromPath Command", () => {
       try {
         await GetWorkspaceFromPath.run("/foo/bar", cmShellMock.object);
       } catch (e) {
-        error = e;
+        error = e as Error;
       }
     });
 
@@ -114,7 +114,7 @@ describe("GetWorkspaceFromPath Command", () => {
       expect(error!.message).to.equal("Command failed: Sample error");
     });
 
-    it("calls the expected shell methods", async () => {
+    it("calls the expected shell methods", () => {
       cmShellMock.verify(
         mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
         Times.once());

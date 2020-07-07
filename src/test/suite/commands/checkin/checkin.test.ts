@@ -25,8 +25,8 @@ describe("Checkin Command", () => {
       cmShellMock
         .setup(mock => mock.exec(
           It.isAnyString(),
-          It.is(args => true),
-          It.is<ICmParser<ICheckinChangeset[]>>(parser => true)))
+          It.is(() => true),
+          It.is<ICmParser<ICheckinChangeset[]>>(() => true)))
         .returns(() => Promise.resolve({
           result,
           success: true,
@@ -59,8 +59,8 @@ describe("Checkin Command", () => {
       cmShellMock
         .setup(mock => mock.exec(
           It.isAnyString(),
-          It.is(args => true),
-          It.is<ICmParser<ICheckinChangeset[]>>(parser => true)))
+          It.is(() => true),
+          It.is<ICmParser<ICheckinChangeset[]>>(() => true)))
         .returns(() => Promise.resolve({
           error: new Error("Sample error"),
           success: true,
@@ -71,7 +71,7 @@ describe("Checkin Command", () => {
           await Checkin.run(
             cmShellMock.object, "ci message", "/path/to/wk/foo.c", "/path/to/wk/bar.c");
         } catch (e) {
-          error = e;
+          error = e as Error;
         }
       });
 
@@ -95,8 +95,8 @@ describe("Checkin Command", () => {
     cmShellMock
       .setup(mock => mock.exec(
         It.isAnyString(),
-        It.is(args => true),
-        It.is<ICmParser<ICheckinChangeset[]>>(parser => true)))
+        It.is(() => true),
+        It.is<ICmParser<ICheckinChangeset[]>>(() => true)))
       .returns(() => Promise.resolve({
         error: new Error("Sample error"),
         success: false,
@@ -107,7 +107,7 @@ describe("Checkin Command", () => {
         await Checkin.run(
           cmShellMock.object, "ci message", "/path/to/wk/foo.c", "/path/to/wk/bar.c");
       } catch (e) {
-        error = e;
+        error = e as Error;
       }
     });
 
@@ -116,7 +116,7 @@ describe("Checkin Command", () => {
       expect(error!.message).to.equal("Command execution failed.");
     });
 
-    it("calls the expected shell methods", async () => {
+    it("calls the expected shell methods", () => {
       cmShellMock.verify(
         mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
         Times.once());

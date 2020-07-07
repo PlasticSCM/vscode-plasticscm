@@ -1,12 +1,12 @@
-import { expect } from "chai";
 import * as os from "os";
-import { ICmParser } from "../../../../cmShell";
 import { CheckinParser } from "../../../../commands/checkin/checkinParser";
+import { expect } from "chai";
 import { ICheckinChangeset } from "../../../../models";
+import { ICmParser } from "../../../../cmShell";
 
 describe("Checkin Parser", () => {
   const toSpec: (cset: ICheckinChangeset) => string = cset =>
-    `cs:${cset.changesetInfo.changesetId}@br:${cset.changesetInfo.branch}@`
+    `cs:${cset.changesetInfo.changesetId}@br:${cset.changesetInfo.branch || ""}@`
     + `${cset.changesetInfo.repository}@${cset.changesetInfo.server} (mount:'${cset.mountPath}')`;
 
   context("When there is no input", () => {
