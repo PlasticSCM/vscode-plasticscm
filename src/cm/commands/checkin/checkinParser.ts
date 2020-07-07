@@ -1,6 +1,6 @@
 import * as os from "os";
-import { ICmParser } from "../../cmShell";
-import { ICheckinChangeset } from "../../models";
+import { ICheckinChangeset } from "../../../models";
+import { ICmParser } from "../../shell";
 import * as checkinChangeset from "./checkinChangeset";
 
 export class CheckinParser implements ICmParser<ICheckinChangeset[]> {

@@ -16,6 +16,10 @@ export class PlasticScmResource implements SourceControlResourceState {
     return this.mChangeInfo.path;
   }
 
+  public get isPrivate(): boolean {
+    return this.mChangeInfo.type === ChangeType.Private;
+  }
+
   public get decorations(): SourceControlResourceDecorations {
     return {
       dark: { iconPath: PlasticScmResource.getIconPath(this.mChangeInfo.type, "dark") },

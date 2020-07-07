@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import * as os from "os";
-import { ICmParser } from "../../../../cmShell";
-import { CheckinParser } from "../../../../commands/checkin/checkinParser";
-import { ICheckinChangeset } from "../../../../models";
+import { CheckinParser } from "../../../../../cm/commands/checkin/checkinParser";
+import { ICmParser } from "../../../../../cm/shell";
+import { ICheckinChangeset } from "../../../../../models";
 
 describe("Checkin Parser", () => {
   const toSpec: (cset: ICheckinChangeset) => string = cset =>

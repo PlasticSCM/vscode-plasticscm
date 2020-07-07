@@ -1,5 +1,5 @@
-import { ICmParser, ICmResult, ICmShell } from "../../cmShell";
-import { IWorkspaceInfo } from "../../models";
+import { IWorkspaceInfo } from "../../../models";
+import { ICmResult, ICmShell } from "../../shell";
 import { CommandInfo } from "./commandInfo";
 import { GetWorkspaceFromPathParser } from "./getWorkspaceFromPathParser";
 
@@ -18,7 +18,7 @@ export class GetWorkspaceFromPath {
         parser);
 
     if (!cmResult.success) {
-      throw new Error(`Command failed: ${cmResult.error?.message}`);
+      return undefined;
     }
 
     if (cmResult.error) {

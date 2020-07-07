@@ -1,19 +1,22 @@
-import * as byline from "byline";
 import { ChildProcess, spawn } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import { StringDecoder } from "string_decoder";
 import * as uuid from "uuid";
-import { Disposable, OutputChannel } from "vscode";
+import { OutputChannel } from "vscode";
 import { ICmParser, ICmResult, ICmShell } from "./interfaces";
 import { LineStream } from "./lineStream";
 
 const UTF8 = "utf8";
+const COMMAND_RESULT_TOKEN = "CommandResult ";
 
 export class CmShell implements ICmShell {
   public get isRunning(): boolean {
     return this.mbIsRunning;
+  }
+
+  public get isBusy(): boolean {
+    return this.mbIsBusy;
   }
 
   private static buildCommandLine(command: string, ...args: string[]) {
@@ -29,12 +32,16 @@ export class CmShell implements ICmShell {
   private mbIsRunning: boolean = false;
   private readonly mOutStream: LineStream;
   private readonly mErrStream: LineStream;
+  private mbIsBusy: boolean = true;
 
   constructor(startDir: string, channel: OutputChannel) {
     this.mStartDir = startDir;
     this.mChannel = channel;
     this.mOutStream = new LineStream(UTF8);
     this.mErrStream = new LineStream(UTF8);
+    this.mOutStream.on("data", line => {
+      this.mChannel.appendLine(`DEBUG: ${line}`);
+    });
   }
 
   public dispose() {
@@ -79,6 +86,9 @@ export class CmShell implements ICmShell {
       return false;
     }
     this.mbIsRunning = true;
+    this.mbIsBusy = false;
+    await this.runInfoCommand("version");
+    await this.runInfoCommand("location");
     return true;
   }
 
@@ -89,6 +99,7 @@ export class CmShell implements ICmShell {
 
     this.write("exit");
     this.mbIsRunning = false;
+    this.mbIsBusy = true;
     this.mProcess?.stdin?.end();
 
     return new Promise(resolve => {
@@ -131,7 +142,16 @@ export class CmShell implements ICmShell {
       };
     }
 
-    const commandResultToken = "CommandResult ";
+    if (this.isBusy) {
+      this.mChannel.appendLine(
+        `Warning: unable to run command '${command}' because the shell is busy!`);
+      return {
+        error: new Error("Shell was busy"),
+        success: false,
+      };
+    }
+    this.mbIsBusy = true;
+
     const result: ICmResult<T> = {
       success: false,
     };
@@ -141,12 +161,12 @@ export class CmShell implements ICmShell {
 
     const listenResult: Promise<void> = new Promise<void>(resolve => {
       const parserOutRead: (line: string) => void = line => {
-        if (!line.startsWith(commandResultToken)) {
+        if (!line.startsWith(COMMAND_RESULT_TOKEN)) {
           parser.readLineOut(line);
           return;
         }
 
-        result.success = parseInt(line.substr(commandResultToken.length), 10) === 0;
+        result.success = parseInt(line.substr(COMMAND_RESULT_TOKEN.length), 10) === 0;
         this.mOutStream.off("data", parserOutRead);
         this.mErrStream.off("data", parserErrorRead);
         resolve();
@@ -160,6 +180,8 @@ export class CmShell implements ICmShell {
       await listenResult;
     } catch (error) {
       this.mChannel.appendLine(`ERROR: ${error}`);
+    } finally {
+      this.mbIsBusy = false;
     }
 
     if (result.success) {
@@ -175,7 +197,7 @@ export class CmShell implements ICmShell {
 
   private write(commandLine: string) {
     this.mChannel.appendLine(`${this.mStartDir}> ${commandLine}`);
-    this.mProcess?.stdin?.write(commandLine + "\n");
+    this.mProcess?.stdin?.write(commandLine + os.EOL);
   }
 
   private async waitUntilFileDeleted(filePath: string, timeout: number): Promise<boolean> {
@@ -195,5 +217,27 @@ export class CmShell implements ICmShell {
       waitTime += intervalTime;
     }
     return false;
+  }
+
+  private async runInfoCommand(command: string): Promise<any> {
+    const listenResult: Promise<void> = new Promise<void>(resolve => {
+      const parserOutRead: (line: string) => void = line => {
+        this.mChannel.appendLine(line);
+        if (!line.startsWith(COMMAND_RESULT_TOKEN)) {
+          return;
+        }
+        this.mOutStream.off("data", parserOutRead);
+        resolve();
+      };
+
+      this.mOutStream.on("data", parserOutRead);
+    });
+
+    this.mProcess!.stdin!.write(command + os.EOL);
+    try {
+      await listenResult;
+    } catch (error) {
+      this.mChannel.appendLine(`ERROR: ${error}`);
+    }
   }
 }

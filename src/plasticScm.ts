@@ -6,13 +6,22 @@ import {
   window as VsCodeWindow,
   workspace as VsCodeWorkspace,
 } from "vscode";
-import { CmShell, ICmShell } from "./cmShell";
-import { GetWorkspaceFromPath, Status } from "./commands";
+import { GetWorkspaceFromPath } from "./cm/commands";
+import { CmShell, ICmShell } from "./cm/shell";
+import { CheckinCommand } from "./commands";
 import { IWorkspaceInfo } from "./models";
 import { Workspace } from "./workspace";
 import { WorkspaceOperations } from "./workspaceOperations";
 
 export class PlasticScm implements Disposable {
+  public get workspaces(): Map<string, Workspace> {
+    return this.mWorkspaces;
+  }
+
+  public get channel(): OutputChannel {
+    return this.mChannel;
+  }
+
   private readonly mWorkspaces: Map<string, Workspace> = new Map<string, Workspace>();
   private readonly mChannel: OutputChannel;
   private readonly mDisposables: Disposable[] = [];
@@ -42,6 +51,7 @@ export class PlasticScm implements Disposable {
           await GetWorkspaceFromPath.run(workingDir, globalShell);
 
         if (!wkInfo || this.mWorkspaces.has(wkInfo.id)) {
+          this.mChannel.appendLine(`No workspace found at '${workingDir}'`);
           continue;
         }
 
@@ -64,6 +74,10 @@ export class PlasticScm implements Disposable {
         await globalShell.stop();
         globalShell.dispose();
       }
+    }
+
+    if (this.mWorkspaces.size) {
+      this.mDisposables.push(new CheckinCommand(this));
     }
   }
 

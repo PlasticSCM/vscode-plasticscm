@@ -1,40 +1,44 @@
 import { expect } from "chai";
 import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
-import { ICmParser, ICmShell } from "../../../../cmShell";
-import { Checkin } from "../../../../commands";
-import { ICheckinChangeset } from "../../../../models";
+import { Uri } from "vscode";
+import { Status } from "../../../../../cm/commands";
+import { ICmParser, ICmShell } from "../../../../../cm/shell";
+import { ChangeType, IChangeInfo, IPendingChanges, WkConfigType } from "../../../../../models";
 
-describe("Checkin Command", () => {
+describe("Status command", () => {
   context("When the command runs successfully", () => {
     context("When output is correct", () => {
       const cmShellMock: IMock<ICmShell> = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
-      const result: ICheckinChangeset[] = [
-        {
-          changesetInfo: {
-            branch: "wkname",
-            changesetId: 20,
-            repository: "/path/to/wk",
-            server: "",
-          },
-          mountPath: "",
+      const result: IPendingChanges = {
+        changes: new Map<string, IChangeInfo>([
+          [
+            "/foo.c", {
+              path: Uri.file("/foo.c"),
+              type: ChangeType.Changed,
+            },
+          ],
+        ]),
+        workspaceConfig: {
+          configType: WkConfigType.Branch,
+          location: "/main/task001",
+          repSpec: "repo@server:8087",
         },
-      ];
+      };
 
-      let cmdResult: ICheckinChangeset[];
+      let cmdResult: IPendingChanges;
 
       cmShellMock
         .setup(mock => mock.exec(
           It.isAnyString(),
           It.is(args => true),
-          It.is<ICmParser<ICheckinChangeset[]>>(parser => true)))
+          It.is<ICmParser<IPendingChanges>>(parser => true)))
         .returns(() => Promise.resolve({
           result,
           success: true,
         }));
 
       before(async () => {
-        cmdResult = await Checkin.run(
-          cmShellMock.object, "ci message", "/path/to/wk/foo.c", "/path/to/wk/bar.c");
+        cmdResult = await Status.run("/path/to/wk", cmShellMock.object);
       });
 
       it("produces a result", () => {
@@ -60,7 +64,7 @@ describe("Checkin Command", () => {
         .setup(mock => mock.exec(
           It.isAnyString(),
           It.is(args => true),
-          It.is<ICmParser<ICheckinChangeset[]>>(parser => true)))
+          It.is<ICmParser<IPendingChanges>>(parser => true)))
         .returns(() => Promise.resolve({
           error: new Error("Sample error"),
           success: true,
@@ -68,8 +72,7 @@ describe("Checkin Command", () => {
 
       before(async () => {
         try {
-          await Checkin.run(
-            cmShellMock.object, "ci message", "/path/to/wk/foo.c", "/path/to/wk/bar.c");
+          await Status.run("/path/to/wk", cmShellMock.object);
         } catch (e) {
           error = e;
         }
@@ -96,7 +99,7 @@ describe("Checkin Command", () => {
       .setup(mock => mock.exec(
         It.isAnyString(),
         It.is(args => true),
-        It.is<ICmParser<ICheckinChangeset[]>>(parser => true)))
+        It.is<ICmParser<IPendingChanges>>(parser => true)))
       .returns(() => Promise.resolve({
         error: new Error("Sample error"),
         success: false,
@@ -104,8 +107,7 @@ describe("Checkin Command", () => {
 
     before(async () => {
       try {
-        await Checkin.run(
-          cmShellMock.object, "ci message", "/path/to/wk/foo.c", "/path/to/wk/bar.c");
+          await Status.run("/path/to/wk", cmShellMock.object);
       } catch (e) {
         error = e;
       }

@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
 
 import { OutputChannel } from "vscode";
-import { CmShell, ICmParser } from "../../cmShell";
+import { CmShell, ICmParser } from "../../../cm/shell";
 
 describe("CmShell", () => {
   context("When shell isn't running", () => {

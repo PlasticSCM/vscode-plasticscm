@@ -8,8 +8,8 @@ import {
   window as VsCodeWindow,
   workspace as VsCodeWorkspace,
 } from "vscode";
-import { ICmShell } from "./cmShell";
-import { Status } from "./commands";
+import { Status as CmStatusCommand } from "./cm/commands";
+import { ICmShell } from "./cm/shell";
 import { configuration } from "./configuration";
 import * as constants from "./constants";
 import { debounce, throttle } from "./decorators";
@@ -24,19 +24,35 @@ import {
 } from "./models";
 import * as paths from "./paths";
 import { PlasticScmResource } from "./plasticScmResource";
-import { IWorkspaceOperations } from "./workspaceOperations";
+import { IWorkspaceOperations, WorkspaceOperation } from "./workspaceOperations";
 
 export class Workspace implements Disposable {
 
-  public get StatusResourceGroup(): IPlasticScmResourceGroup {
+  public get sourceControl(): SourceControl {
+    return this.mSourceControl;
+  }
+
+  public get statusResourceGroup(): IPlasticScmResourceGroup {
     return this.mStatusResourceGroup as IPlasticScmResourceGroup;
   }
 
-  public get WorkspaceConfig(): IWorkspaceConfig | undefined {
+  public get workspaceConfig(): IWorkspaceConfig | undefined {
     return this.mWorkspaceConfig;
   }
-  public readonly shell: ICmShell;
 
+  public get info(): IWorkspaceInfo {
+    return this.mWkInfo;
+  }
+
+  public get shell(): ICmShell {
+    return this.mShell;
+  }
+
+  public get operations(): IWorkspaceOperations {
+    return this.mOperations;
+  }
+
+  private readonly mShell: ICmShell;
   private readonly mWorkingDir: string;
   private readonly mWkInfo: IWorkspaceInfo;
   private readonly mSourceControl: SourceControl;
@@ -57,7 +73,7 @@ export class Workspace implements Disposable {
 
     this.mWorkingDir = workingDir;
     this.mWkInfo = workspaceInfo;
-    this.shell = shell;
+    this.mShell = shell;
     this.mSourceControl = scm.createSourceControl(
       constants.extensionId,
       constants.extensionDisplayName,
@@ -84,6 +100,11 @@ export class Workspace implements Disposable {
       onWorkspaceFileChangeEvent(uri => this.onFileChanged(uri), this),
     );
 
+    this.mSourceControl.acceptInputCommand = {
+      arguments: [this],
+      command: "plastic-scm.checkin",
+      title: "checkin",
+    };
     this.updateWorkspaceStatus();
   }
 
@@ -91,7 +112,8 @@ export class Workspace implements Disposable {
     this.mDisposables.dispose();
   }
 
-  private onFileChanged(uri: Uri): void {
+  @throttle(1000)
+  private async onFileChanged(uri: Uri): Promise<any> {
     if (!configuration.get("autorefresh")) {
       return;
     }
@@ -100,48 +122,23 @@ export class Workspace implements Disposable {
       // IMPROVEMENT: ask the user if they want to keep calculating status on this workspace automatically.
     }
 
-    if (!this.mOperations.isIdle()) {
+    if (this.mOperations.isRunning(WorkspaceOperation.Status)) {
       return;
     }
 
-    this.eventuallyUpdateWorkspaceStatusWhenIdleAndWait();
-  }
-
-  @debounce(2500)
-  private eventuallyUpdateWorkspaceStatusWhenIdleAndWait(): void {
-    this.updateWorkspaceStatusWhenIdleAndWait();
-  }
-
-  @throttle
-  private async updateWorkspaceStatusWhenIdleAndWait(): Promise<void> {
-    await this.idleAndFocused();
-    await this.updateWorkspaceStatus();
-    await new Promise(resolve => setTimeout(resolve, 5000));
-  }
-
-  private async idleAndFocused(): Promise<void> {
-    while (true) {
-      if (!this.mOperations.isIdle()) {
-        // Improvement: listen to event that indicates an operation finished.
-        continue;
+    await this.mOperations.run(WorkspaceOperation.Status, async () => {
+      while (this.mShell.isBusy) {
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
-
-      if (!VsCodeWindow.state.focused) {
-        const onDidFocusWindow = events.filterEvent(
-          VsCodeWindow.onDidChangeWindowState, e => e.focused);
-        await events.eventToPromise(onDidFocusWindow);
-        continue;
-      }
-
-      return;
-    }
+      await this.updateWorkspaceStatus();
+    });
   }
 
   private async updateWorkspaceStatus(): Promise<void> {
     // Improvement: measure status time and update the 'this.mbIsStatusSlow' flag.
     // ! Status XML output does not print performance warnings!
     const pendingChanges: IPendingChanges =
-      await Status.run(this.mWorkingDir, this.shell);
+      await CmStatusCommand.run(this.mWorkingDir, this.mShell);
 
     this.mWorkspaceConfig = pendingChanges.workspaceConfig;
 
@@ -154,7 +151,7 @@ export class Workspace implements Disposable {
     this.mSourceControl.count = changeInfos.filter(
       changeInfo => changeInfo.type !== ChangeType.Private).length;
 
-    this.mSourceControl.inputBox.placeholder = "🥺 Checkin changes is not supported yet";
+    this.mSourceControl.inputBox.placeholder = this.getCheckinPlaceholder(this.mWorkspaceConfig);
     this.mSourceControl.statusBarCommands = [{
       command: "workbench.view.scm",
       title: [
@@ -171,6 +168,18 @@ export class Workspace implements Disposable {
         this.mWorkspaceConfig.repSpec,
       ].join(""),
     }];
+  }
+
+  private getCheckinPlaceholder(wkConfig: IWorkspaceConfig) {
+    if (wkConfig.configType === WkConfigType.Branch) {
+      return `Message (Ctrl+Enter to checkin in '${wkConfig.location}')`;
+    }
+
+    if (wkConfig.configType === WkConfigType.Changeset) {
+      return `Message (Ctrl+Enter to checkin after '${wkConfig.location}')`;
+    }
+
+    return `Sorry, you can't checkin in ${wkConfig.configType} ${wkConfig.location} 🥺`;
   }
 
   private getStatusBarIconKey(wkConfigType: WkConfigType) {
