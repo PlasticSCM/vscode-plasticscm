@@ -52,7 +52,18 @@ export class Workspace implements Disposable {
   private mWorkspaceConfig?: IWorkspaceConfig;
   private mbIsStatusSlow = false;
 
-  public constructor(
+  public static async build(
+    workingDir: string,
+    workspaceInfo: IWorkspaceInfo,
+    shell: ICmShell,
+    workspaceOperations: IWorkspaceOperations): Promise<Workspace> {
+
+    const result = new Workspace(workingDir, workspaceInfo, shell, workspaceOperations);
+    await result.updateWorkspaceStatus();
+    return result;
+  }
+
+  private constructor(
     workingDir: string,
     workspaceInfo: IWorkspaceInfo,
     shell: ICmShell,
@@ -84,17 +95,15 @@ export class Workspace implements Disposable {
       this.mSourceControl,
       this.mStatusResourceGroup,
       fsWatcher,
-      onWorkspaceFileChangeEvent(() => this.onFileChanged(), this),
+      onWorkspaceFileChangeEvent(async () => this.onFileChanged(), this),
     );
-
-    this.updateWorkspaceStatus();
   }
 
   public dispose(): void {
     this.mDisposables.dispose();
   }
 
-  private onFileChanged(): void {
+  private async onFileChanged(): Promise<void> {
     if (!configuration.get().autorefresh) {
       return;
     }
@@ -107,12 +116,12 @@ export class Workspace implements Disposable {
       return;
     }
 
-    this.eventuallyUpdateWorkspaceStatusWhenIdleAndWait();
+    await this.eventuallyUpdateWorkspaceStatusWhenIdleAndWait();
   }
 
   @debounce(2500)
-  private eventuallyUpdateWorkspaceStatusWhenIdleAndWait(): void {
-    this.updateWorkspaceStatusWhenIdleAndWait();
+  private async eventuallyUpdateWorkspaceStatusWhenIdleAndWait(): Promise<void> {
+    await this.updateWorkspaceStatusWhenIdleAndWait();
   }
 
   @throttle

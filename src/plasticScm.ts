@@ -52,7 +52,7 @@ export class PlasticScm implements Disposable {
           continue;
         }
 
-        const workspace: Workspace = new Workspace(
+        const workspace: Workspace = await Workspace.build(
           workingDir, wkInfo, wkShell, new WorkspaceOperations());
         this.mDisposables.push(wkShell, workspace);
         this.mWorkspaces.set(wkInfo.id, workspace);
