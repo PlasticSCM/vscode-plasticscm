@@ -5,9 +5,8 @@ import {
   Event,
   EventEmitter,
   ExtensionContext,
-  Uri,
   workspace,
-  WorkspaceConfiguration } from "vscode";
+} from "vscode";
 import { extensionId } from "./constants";
 import { IConfig } from "./config";
 
@@ -15,6 +14,13 @@ export class Configuration {
 
   private mOnDidChange = new EventEmitter<ConfigurationChangeEvent>();
   private mOnDidChangeAny = new EventEmitter<ConfigurationChangeEvent>();
+  private readonly mDefault: IConfig = {
+    autorefresh: true,
+    cmConfiguration: {
+      cmPath: "cm",
+      millisToWaitUntilUp: 5000,
+    },
+  };
 
   public get onDidChangeAny(): Event<ConfigurationChangeEvent> {
     return this.mOnDidChangeAny.event;
@@ -34,30 +40,8 @@ export class Configuration {
       }));
   }
 
-  public get(): IConfig;
-  public get<S1 extends keyof IConfig>(s1: S1, resource?: Uri | null, defaultValue?: IConfig[S1]): IConfig[S1];
-  public get<S1 extends keyof IConfig, S2 extends keyof IConfig[S1]>(
-    s1: S1,
-    s2: S2,
-    resource?: Uri | null,
-    defaultValue?: IConfig[S1][S2],
-  ): IConfig[S1][S2];
-
-  // Keep adding overloads here if configuration nestiness keeps growing.
-  public get<T>(...args: any[]): T | undefined {
-    const section: string | undefined = Configuration.buildConfigKey(...args);
-    const lastKeyIndex: number = Configuration.getLastConfigKeyIndex(...args);
-
-    const resource: Uri | null | undefined = args[lastKeyIndex + 1];
-    const defaultValue: T | undefined = args[lastKeyIndex + 2];
-
-    const wkConfig: WorkspaceConfiguration =
-      workspace.getConfiguration(
-        section === undefined ? undefined : extensionId, resource);
-
-    return defaultValue === undefined
-      ? wkConfig.get<T>(section === undefined ? extensionId : section)
-      : wkConfig.get<T>(section === undefined ? extensionId : section, defaultValue);
+  public get(): IConfig {
+    return workspace.getConfiguration(undefined, null).get<IConfig>(extensionId, this.mDefault);
   }
 
   private static buildConfigKey(...args: any[]): string | undefined {

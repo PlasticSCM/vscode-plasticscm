@@ -95,7 +95,7 @@ export class Workspace implements Disposable {
   }
 
   private onFileChanged(): void {
-    if (!configuration.get("autorefresh")) {
+    if (!configuration.get().autorefresh) {
       return;
     }
 
