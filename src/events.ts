@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Event } from "vscode";
 
 export interface IDisposable {
