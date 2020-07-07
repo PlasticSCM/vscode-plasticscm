@@ -1,10 +1,10 @@
 import { ICmParser, ICmResult, ICmShell } from "../../cmShell";
-import { ICheckinChangeset } from "../../models";
 import { CheckinParser } from "./checkinParser";
+import { ICheckinChangeset } from "../../models";
 
 export class Checkin {
   public static async run(
-      shell: ICmShell, message: string, ...paths: string[]): Promise<ICheckinChangeset[]> {
+    shell: ICmShell, message: string, ...paths: string[]): Promise<ICheckinChangeset[]> {
     const parser: ICmParser<ICheckinChangeset[]> = new CheckinParser();
 
     const result: ICmResult<ICheckinChangeset[]> = await shell.exec(

@@ -1,7 +1,7 @@
-import * as os from "os";
-import { ICmParser } from "../../cmShell";
-import { ICheckinChangeset } from "../../models";
 import * as checkinChangeset from "./checkinChangeset";
+import * as os from "os";
+import { ICheckinChangeset } from "../../models";
+import { ICmParser } from "../../cmShell";
 
 export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
   public static readonly SEPARATOR: string = "@#@";
@@ -37,7 +37,7 @@ export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
         }
 
         return this.parseLine(line);
-    }, []);
+      }, []);
   }
 
   public getError(): Error | undefined {
@@ -68,9 +68,9 @@ export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
       .trim()
       .split(CheckinParser.CHANGESET_SEPARATOR)
       .reduce<ICheckinChangeset[]>((csets, checkinCsetSpec) => {
-        const checkinCset: ICheckinChangeset | null = checkinChangeset.parse(checkinCsetSpec);
-        return checkinCset ? csets.concat(checkinCset) : csets;
-      }, [])
+      const checkinCset: ICheckinChangeset | null = checkinChangeset.parse(checkinCsetSpec);
+      return checkinCset ? csets.concat(checkinCset) : csets;
+    }, [])
       .sort((x, y) => x.mountPath.localeCompare(y.mountPath));
   }
 }
