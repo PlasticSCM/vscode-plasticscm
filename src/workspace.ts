@@ -10,24 +10,20 @@ import {
   WkConfigType,
 } from "./models";
 import {
-  debounce,
-  throttle,
-} from "./decorators";
-import {
   Disposable,
   Event,
   scm,
   SourceControl,
   SourceControlResourceGroup,
   Uri,
-  window as VsCodeWindow,
   workspace as VsCodeWorkspace,
 } from "vscode";
+import { IWorkspaceOperations, WorkspaceOperation } from "./workspaceOperations";
+import { Status as CmStatusCommand } from "./cm/commands";
 import { configuration } from "./configuration";
 import { ICmShell } from "./cm/shell";
-import { IWorkspaceOperations, WorkspaceOperation } from "./workspaceOperations";
 import { PlasticScmResource } from "./plasticScmResource";
-import { Status as CmStatusCommand } from "./cm/commands";
+import { throttle } from "./decorators";
 
 export class Workspace implements Disposable {
 

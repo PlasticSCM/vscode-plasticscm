@@ -1,9 +1,9 @@
-import { expect } from "chai";
 import * as os from "os";
-import { StatusParser } from "../../../../../cm/commands/status/statusParser";
-import { ICmParser } from "../../../../../cm/shell";
 import { IPendingChanges, WkConfigType } from "../../../../../models";
 import { ChangeType } from "../../../../../models/changeInfo";
+import { expect } from "chai";
+import { ICmParser } from "../../../../../cm/shell";
+import { StatusParser } from "../../../../../cm/commands/status/statusParser";
 
 describe("Status Parser", () => {
   context("When there is no input", () => {
@@ -124,7 +124,8 @@ describe("Status Parser", () => {
       "      <TypeVerbose>Moved</TypeVerbose>",
       "      <Path>01plastic\\build\\server\\nant.old.sh</Path>",
       "      <OldPath>01plastic\\build\\server\\nant.sh</OldPath>",
-      "      <PrintableMovedPath>01plastic\\build\\server\\nant.sh -&gt; 01plastic\\build\\server\\nant.old.sh</PrintableMovedPath>",
+      "      <PrintableMovedPath>01plastic\\build\\server\\nant.sh -&gt; " +
+        "01plastic\\build\\server\\nant.old.sh</PrintableMovedPath>",
       "      <MergesInfo />",
       "      <SimilarityPerUnit>1</SimilarityPerUnit>",
       "      <Similarity />",

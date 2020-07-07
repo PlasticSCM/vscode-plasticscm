@@ -1,16 +1,12 @@
 /* eslint-disable */
 
-/* ---------------------------------------------------------------------------------------------
+/*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-"use strict";
-
-function decorate(
-  decorator: (fn: Function, key: string) => Function,
-): Function {
-  return (_target: any, key: string, descriptor: any) => {
+export function createDecorator(mapFn: (fn: Function, key: string) => Function): Function {
+  return (target: any, key: string, descriptor: any) => {
     let fnKey: string | null = null;
     let fn: Function | null = null;
 
@@ -22,103 +18,138 @@ function decorate(
       fn = descriptor.get;
     }
 
-    if (!fn || !fnKey) {
+    if (!fn) {
       throw new Error("not supported");
     }
 
-    descriptor[fnKey] = decorator(fn, key);
+    descriptor[fnKey!] = mapFn(fn, key);
   };
 }
 
-function _memoize(fn: Function, key: string): Function {
-  const memoizeKey = `$memoize$${key}`;
+let memoizeId = 0;
+export function createMemoizer() {
+  const memoizeKeyPrefix = `$memoize${memoizeId++}`;
+  let self: any;
 
-  return function(this: any, ...args: any[]) {
-    if (!this.hasOwnProperty(memoizeKey)) {
-      Object.defineProperty(this, memoizeKey, {
-        configurable: false,
-        enumerable: false,
-        writable: false,
-        value: fn.apply(this, args),
-      });
+  const result = function memoize(target: any, key: string, descriptor: any) {
+    let fnKey: string | null = null;
+    let fn: Function | null = null;
+
+    if (typeof descriptor.value === "function") {
+      fnKey = "value";
+      fn = descriptor.value;
+
+      if (fn!.length !== 0) {
+        console.warn("Memoize should only be used in functions with zero parameters");
+      }
+    } else if (typeof descriptor.get === "function") {
+      fnKey = "get";
+      fn = descriptor.get;
     }
 
-    return this[memoizeKey];
-  };
-}
-
-export const memoize = decorate(_memoize);
-
-function _throttle<T>(fn: Function, key: string): Function {
-  const currentKey = `$throttle$current$${key}`;
-  const nextKey = `$throttle$next$${key}`;
-
-  const trigger = function(this: any, ...args: any[]) {
-    if (this[nextKey]) {
-      return this[nextKey];
+    if (!fn) {
+      throw new Error("not supported");
     }
 
-    if (this[currentKey]) {
-      this[nextKey] = done(this[currentKey]).then(() => {
-        this[nextKey] = undefined;
-        return trigger.apply(this, args);
-      });
+    const memoizeKey = `${memoizeKeyPrefix}:${key}`;
+    descriptor[fnKey!] = function(...args: any[]) {
+      self = this;
 
-      return this[nextKey];
+      if (!this.hasOwnProperty(memoizeKey)) {
+        Object.defineProperty(this, memoizeKey, {
+          configurable: true,
+          enumerable: false,
+          writable: true,
+          value: fn!.apply(this, args),
+        });
+      }
+
+      return this[memoizeKey];
+    };
+  };
+
+  result.clear = () => {
+    if (typeof self === "undefined") {
+      return;
     }
-
-    this[currentKey] = fn.apply(this, args) as Promise<T>;
-
-    const clear = () => (this[currentKey] = undefined);
-    done(this[currentKey]).then(clear, clear);
-
-    return this[currentKey];
+    Object.getOwnPropertyNames(self).forEach(property => {
+      if (property.indexOf(memoizeKeyPrefix) === 0) {
+        delete self[property];
+      }
+    });
   };
 
-  return trigger;
+  return result;
 }
 
-export const throttle = decorate(_throttle);
-
-function _sequentialize(fn: Function, key: string): Function {
-  const currentKey = `__$sequence$${key}`;
-
-  return function(this: any, ...args: any[]) {
-    const currentPromise =
-      (this[currentKey] as Promise<any>) || Promise.resolve(null);
-    const run = async () => fn.apply(this, args);
-    this[currentKey] = currentPromise.then(run, run);
-    return this[currentKey];
-  };
+export function memoize(target: any, key: string, descriptor: any) {
+  return createMemoizer()(target, key, descriptor);
 }
 
-export const sequentialize = decorate(_sequentialize);
+export type IDebounceReducer<T> = (previousValue: T, ...args: any[]) => T;
 
-export function debounce(delay: number): Function {
-  return decorate((fn, key) => {
+export function debounce<T>(delay: number, reducer?: IDebounceReducer<T>, initialValueProvider?: () => T): Function {
+  return createDecorator((fn, key) => {
     const timerKey = `$debounce$${key}`;
+    const resultKey = `$debounce$result$${key}`;
 
     return function(this: any, ...args: any[]) {
+      if (!this[resultKey]) {
+        this[resultKey] = initialValueProvider ? initialValueProvider() : undefined;
+      }
+
       clearTimeout(this[timerKey]);
-      this[timerKey] = setTimeout(() => fn.apply(this, args), delay);
+
+      if (reducer) {
+        this[resultKey] = reducer(this[resultKey], ...args);
+        args = [this[resultKey]];
+      }
+
+      this[timerKey] = setTimeout(() => {
+        fn.apply(this, args);
+        this[resultKey] = initialValueProvider ? initialValueProvider() : undefined;
+      }, delay);
     };
   });
 }
 
-const _seqList: { [key: string]: any } = {};
+export function throttle<T>(delay: number, reducer?: IDebounceReducer<T>, initialValueProvider?: () => T): Function {
+  return createDecorator((fn, key) => {
+    const timerKey = `$throttle$timer$${key}`;
+    const resultKey = `$throttle$result$${key}`;
+    const lastRunKey = `$throttle$lastRun$${key}`;
+    const pendingKey = `$throttle$pending$${key}`;
 
-export function globalSequentialize(name: string): Function {
-  return decorate((fn, _key) => function(this: any, ...args: any[]) {
-    const currentPromise =
-        (_seqList[name] as Promise<any>) || Promise.resolve(null);
-    const run = async () => fn.apply(this, args);
-    _seqList[name] = currentPromise.then(run, run);
-    return _seqList[name];
+    return function(this: any, ...args: any[]) {
+      if (!this[resultKey]) {
+        this[resultKey] = initialValueProvider ? initialValueProvider() : undefined;
+      }
+      if (this[lastRunKey] === null || this[lastRunKey] === undefined) {
+        this[lastRunKey] = -Number.MAX_VALUE;
+      }
+
+      if (reducer) {
+        this[resultKey] = reducer(this[resultKey], ...args);
+      }
+
+      if (this[pendingKey]) {
+        return;
+      }
+
+      const nextTime = this[lastRunKey] + delay;
+      if (nextTime <= Date.now()) {
+        this[lastRunKey] = Date.now();
+        fn.apply(this, [this[resultKey]]);
+        this[resultKey] = initialValueProvider ? initialValueProvider() : undefined;
+      } else {
+        this[pendingKey] = true;
+        this[timerKey] = setTimeout(() => {
+          this[pendingKey] = false;
+          this[lastRunKey] = Date.now();
+          fn.apply(this, [this[resultKey]]);
+          this[resultKey] = initialValueProvider ? initialValueProvider() : undefined;
+        }, nextTime - Date.now());
+      }
+    };
   });
 }
-
-function done<T>(promise: Promise<T>): Promise<void> {
-  return promise.then<void>(() => void 0);
-}
-
-// tslint:enable

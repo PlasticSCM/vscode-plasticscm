@@ -1,4 +1,4 @@
-import { ProgressLocation, scm, window } from "vscode";
+import { ProgressLocation, window } from "vscode";
 
 export const enum WorkspaceOperation {
   Status = "Status",

@@ -12,11 +12,11 @@ export class LineStream implements Disposable {
     this.lines = new byline.LineStream({ encoding });
   }
 
-  public on(event: string, listener: (chunk: any) => void): void {
+  public on(event: string, listener: (chunk: string) => void): void {
     this.lines.on(event, listener);
   }
 
-  public off(event: string, listener: (chunk: any) => void): void {
+  public off(event: string, listener: (chunk: string) => void): void {
     this.lines.off(event, listener);
   }
 
