@@ -1,9 +1,9 @@
 import * as os from "os";
-import { Uri } from "vscode";
 import * as xml2js from "xml2js";
+import { ChangeType, IChangeInfo, IPendingChanges, WkConfigType } from "../../models";
 import { firstCharLowerCase, parseBooleans, parseNumbers } from "xml2js/lib/processors";
 import { ICmParser } from "../../cmShell";
-import { ChangeType, IChangeInfo, IPendingChanges, WkConfigType } from "../../models";
+import { Uri } from "vscode";
 
 export class StatusParser implements ICmParser<IPendingChanges> {
   private readonly mOutputBuffer: string[] = [];
@@ -31,7 +31,7 @@ export class StatusParser implements ICmParser<IPendingChanges> {
       return this.parseXml(await xml2js.parseStringPromise(
         this.mOutputBuffer.join(""), options));
     } catch (error) {
-      this.mParseError = error;
+      this.mParseError = error as Error;
       return undefined;
     }
   }
