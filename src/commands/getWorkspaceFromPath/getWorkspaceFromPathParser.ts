@@ -1,14 +1,14 @@
 import * as os from "os";
+import { CommandInfo } from "./commandInfo";
 import { ICmParser } from "../../cmShell";
 import { IWorkspaceInfo } from "../../models";
-import { CommandInfo } from "./commandInfo";
 
 export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {
   private mOutputBuffer: string[];
   private mErrorBuffer: string[];
   private mError: Error | undefined;
 
-  constructor() {
+  public constructor() {
     this.mOutputBuffer = [];
     this.mErrorBuffer = [];
   }
