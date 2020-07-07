@@ -87,16 +87,6 @@ export class Configuration {
 
     return args.length;
   }
-
-  private onConfigurationChanged(e: ConfigurationChangeEvent) {
-    if (!e.affectsConfiguration(extensionId)) {
-      this.mOnDidChangeAny.fire(e);
-      return;
-    }
-
-    this.mOnDidChangeAny.fire(e);
-    this.mOnDidChange.fire(e);
-  }
 }
 
 export const configuration = new Configuration();
