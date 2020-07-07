@@ -84,7 +84,7 @@ export class Workspace implements Disposable {
       this.mSourceControl,
       this.mStatusResourceGroup,
       fsWatcher,
-      onWorkspaceFileChangeEvent(uri => this.onFileChanged(uri), this),
+      onWorkspaceFileChangeEvent(() => this.onFileChanged(), this),
     );
 
     this.updateWorkspaceStatus();
@@ -94,7 +94,7 @@ export class Workspace implements Disposable {
     this.mDisposables.dispose();
   }
 
-  private onFileChanged(uri: Uri): void {
+  private onFileChanged(): void {
     if (!configuration.get("autorefresh")) {
       return;
     }
