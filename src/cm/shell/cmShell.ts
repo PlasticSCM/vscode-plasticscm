@@ -58,7 +58,7 @@ export class CmShell implements ICmShell {
       fs.writeFile(commFile, "", () => resolve());
     });
 
-    this.mProcess = spawn("C:\\Users\\miguel\\wkspaces\\codice-wrk\\01plastic\\bin\\client\\cm.exe",
+    this.mProcess = spawn("cm",
       [
         "shell", "--encoding=UTF-8", `--commfile=${commFile}`, this.mStartDir,
       ], {
