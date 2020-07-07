@@ -12,7 +12,7 @@ module.exports = {
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": "tsconfig.json",
+        "project": "./tsconfig.json",
         "sourceType": "module"
     },
     "plugins": [
@@ -51,7 +51,6 @@ module.exports = {
                 }
             }
         ],
-        "@typescript-eslint/class-name-casing": "warn",
         "@typescript-eslint/consistent-type-assertions": "warn",
         "@typescript-eslint/consistent-type-definitions": "warn",
         "@typescript-eslint/dot-notation": "warn",
@@ -87,7 +86,51 @@ module.exports = {
                 }
             }
         ],
-        "@typescript-eslint/member-ordering": "warn",
+        "@typescript-eslint/member-ordering": [
+          "warn",
+          {
+            "default": {
+              "memberTypes": [
+                "signature",
+                "public-static-field",
+                "public-decorated-field",
+                "public-instance-field",
+                "public-abstract-field",
+
+                "protected-static-field",
+                "private-static-field",
+                "protected-decorated-field",
+                "private-decorated-field",
+                "protected-instance-field",
+                "private-instance-field",
+                "protected-abstract-field",
+                "private-abstract-field",
+
+                "public-static-method",
+
+                "public-constructor",
+                "protected-constructor",
+                "private-constructor",
+
+                "public-method",
+                "protected-method",
+                "private-method"
+              ]
+            }
+          }
+        ],
+        "@typescript-eslint/naming-convention": [
+          "error",
+          {
+            "selector": "typeLike",
+            "format": ["PascalCase"]
+          },
+          {
+            "selector": "interface",
+            "format": ["PascalCase"],
+            "prefix": ["I"]
+          }
+        ],
         "@typescript-eslint/no-empty-function": "warn",
         "@typescript-eslint/no-empty-interface": "warn",
         "@typescript-eslint/no-explicit-any": "off",
@@ -122,13 +165,23 @@ module.exports = {
         "@typescript-eslint/type-annotation-spacing": "warn",
         "@typescript-eslint/unbound-method": "warn",
         "@typescript-eslint/unified-signatures": "warn",
+        "array-bracket-spacing": [
+          "error",
+          "always",
+          {
+            "singleValue": false,
+            "objectsInArrays": false,
+            "arraysInArrays": false
+          }
+        ],
         "arrow-body-style": "warn",
         "arrow-parens": [
             "warn",
             "as-needed"
         ],
+        "arrow-spacing": "error",
         "brace-style": [
-            "warn",
+            "error",
             "1tbs"
         ],
         "camelcase": "warn",
@@ -136,7 +189,9 @@ module.exports = {
             "warn",
             "always-multiline"
         ],
+        "comma-spacing": "error",
         "complexity": "off",
+        "computed-property-spacing": "error",
         "constructor-super": "warn",
         "curly": "warn",
         "eol-last": "warn",
@@ -144,6 +199,7 @@ module.exports = {
             "warn",
             "smart"
         ],
+        "func-call-spacing": "error",
         "guard-for-in": "warn",
         "id-blacklist": [
             "warn",
@@ -162,6 +218,8 @@ module.exports = {
         "jsdoc/check-alignment": "warn",
         "jsdoc/check-indentation": "warn",
         "jsdoc/newline-after-description": "warn",
+        "key-spacing": "error",
+        "keyword-spacing": "error",
         "max-classes-per-file": [
             "warn",
             1
@@ -183,6 +241,7 @@ module.exports = {
         "no-fallthrough": "off",
         "no-invalid-this": "off",
         "no-multiple-empty-lines": "warn",
+        "no-multi-spaces": "error",
         "no-new-wrappers": "warn",
         "no-shadow": [
             "warn",
@@ -191,13 +250,20 @@ module.exports = {
             }
         ],
         "no-throw-literal": "warn",
-        "no-trailing-spaces": "warn",
+        "no-trailing-spaces": "error",
         "no-undef-init": "warn",
         "no-underscore-dangle": "warn",
         "no-unsafe-finally": "warn",
         "no-unused-labels": "warn",
         "no-var": "warn",
         "object-shorthand": "warn",
+        "object-curly-spacing": [
+          "warn",
+          "always",
+          {
+            "objectsInObjects": false
+          }
+        ],
         "one-var": [
             "warn",
             "never"
@@ -209,6 +275,16 @@ module.exports = {
             "consistent-as-needed"
         ],
         "radix": "warn",
+        "semi-spacing": "error",
+        "sort-keys": [
+          "warn",
+          "asc",
+          {
+            "caseSensitive": true,
+            "natural": true
+          }
+        ],
+        "space-before-blocks": "error",
         "space-before-function-paren": [
             "warn",
             {
@@ -217,6 +293,12 @@ module.exports = {
                 "named": "never"
             }
         ],
+        "space-infix-ops": "error",
+        "space-in-parens": [
+          "error",
+          "never"
+        ],
+        "space-unary-ops": "error",
         "spaced-comment": [
             "warn",
             "always",
@@ -226,18 +308,15 @@ module.exports = {
                 ]
             }
         ],
+        "switch-colon-spacing": "error",
         "use-isnan": "warn",
         "valid-typeof": "off",
         "@typescript-eslint/tslint/config": [
             "error",
             {
                 "rules": {
-                    "import-spacing": true,
-                    "object-literal-sort-keys": true,
                     "whitespace": [
                         true,
-                        "check-branch",
-                        "check-decl",
                         "check-operator",
                         "check-separator",
                         "check-type",
