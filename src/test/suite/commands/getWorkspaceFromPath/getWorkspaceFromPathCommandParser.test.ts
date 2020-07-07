@@ -1,7 +1,7 @@
-import { expect } from "chai";
 import * as os from "os";
-import { ICmParser } from "../../../../cmShell";
+import { expect } from "chai";
 import { GetWorkspaceFromPathParser } from "../../../../commands/getWorkspaceFromPath/getWorkspaceFromPathParser";
+import { ICmParser } from "../../../../cmShell";
 import { IWorkspaceInfo } from "../../../../models";
 
 describe("GetWorkspaceFromPath Parser", () => {
@@ -124,7 +124,7 @@ describe("GetWorkspaceFromPath Parser", () => {
     });
 
     it("has the appropriate error message", () => {
-      expect(error!.message).to.be.equal(["Unexpected output:", ...stdout].join(os.EOL));
+      expect(error!.message).to.be.equal([ "Unexpected output:", ...stdout ].join(os.EOL));
     });
   });
 
@@ -156,8 +156,8 @@ describe("GetWorkspaceFromPath Parser", () => {
       expect(error).to.be.not.undefined;
     });
 
-    it ("has the appropriate error message", () => {
-      expect(error?.message).to.be.equal(["Parsing failed:", "a@#@b"].join(os.EOL));
+    it("has the appropriate error message", () => {
+      expect(error?.message).to.be.equal([ "Parsing failed:", "a@#@b" ].join(os.EOL));
     });
   });
 
@@ -200,7 +200,7 @@ describe("GetWorkspaceFromPath Parser", () => {
     });
 
     it("holds the output correctly", () => {
-      expect(outputLines).to.eql([stdout, ...stderr]);
+      expect(outputLines).to.eql([ stdout, ...stderr ]);
     });
 
     it("produces an error object", () => {
