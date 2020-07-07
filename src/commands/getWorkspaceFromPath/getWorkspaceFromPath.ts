@@ -10,11 +10,11 @@ export class GetWorkspaceFromPath {
     const cmResult: ICmResult<IWorkspaceInfo | undefined> =
       await shell.exec(
         CommandInfo.commandName,
-        [path,
+        [ path,
           '--format="'
           + `{${CommandInfo.fields.guid.name}}` + CommandInfo.fieldSeparator
           + `{${CommandInfo.fields.wkName.name}}` + CommandInfo.fieldSeparator
-          + `{${CommandInfo.fields.wkPath.name}}"`],
+          + `{${CommandInfo.fields.wkPath.name}}"` ],
         parser);
 
     if (!cmResult.success) {

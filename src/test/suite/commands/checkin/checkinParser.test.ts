@@ -152,7 +152,7 @@ describe("Checkin Parser", () => {
       `STAGE${CheckinParser.SEPARATOR}`,
       `CO${CheckinParser.SEPARATOR}c:\\Users\\miguel\\wkspaces\\wk1\\foo.c`,
       `CO${CheckinParser.SEPARATOR}c:\\Users\\miguel\\wkspaces\\wk1\\bar.c`,
-      `CHANGESET${CheckinParser.SEPARATOR}${[csets[1], csets[2], csets[0]].map(toSpec).join(",")}`,
+      `CHANGESET${CheckinParser.SEPARATOR}${[ csets[1], csets[2], csets[0] ].map(toSpec).join(",")}`,
     ];
 
     let error: Error | undefined;

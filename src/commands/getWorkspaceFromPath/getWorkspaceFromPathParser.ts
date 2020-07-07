@@ -39,7 +39,7 @@ export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {
     }
 
     this.mError = new Error(this.mErrorBuffer.concat(
-      ["Parsing failed:", ...this.mOutputBuffer]).join(os.EOL));
+      [ "Parsing failed:", ...this.mOutputBuffer ]).join(os.EOL));
     return Promise.resolve(undefined);
   }
 

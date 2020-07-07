@@ -24,7 +24,7 @@ export class StatusParser implements ICmParser<IPendingChanges> {
       explicitRoot: false,
       tagNameProcessors: [firstCharLowerCase],
       trim: true,
-      valueProcessors: [parseNumbers, parseBooleans],
+      valueProcessors: [ parseNumbers, parseBooleans ],
     };
 
     try {
