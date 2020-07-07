@@ -1,7 +1,7 @@
-import { ICmParser, ICmResult, ICmShell } from "../../cmShell";
-import { IWorkspaceInfo } from "../../models";
+import { ICmResult, ICmShell } from "../../cmShell";
 import { CommandInfo } from "./commandInfo";
 import { GetWorkspaceFromPathParser } from "./getWorkspaceFromPathParser";
+import { IWorkspaceInfo } from "../../models";
 
 export class GetWorkspaceFromPath {
   public static async run(path: string, shell: ICmShell): Promise<IWorkspaceInfo | undefined> {
@@ -18,7 +18,7 @@ export class GetWorkspaceFromPath {
         parser);
 
     if (!cmResult.success) {
-      throw new Error(`Command failed: ${cmResult.error?.message}`);
+      throw new Error(`Command failed: ${cmResult.error?.message || ""}`);
     }
 
     if (cmResult.error) {
