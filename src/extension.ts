@@ -4,7 +4,7 @@ import { PlasticScm } from "./plasticScm";
 
 let plasticScm: PlasticScm;
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext): Promise<any> {
   Configuration.configureEvents(context);
   const plasticScmChannel: OutputChannel = window.createOutputChannel("Plastic SCM");
   plasticScm = new PlasticScm(plasticScmChannel);
@@ -12,7 +12,7 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(Disposable.from(
     plasticScmChannel, plasticScm));
 
-  plasticScm.initialize();
+  await plasticScm.initialize();
 }
 
 export function deactivate(): Promise<any> {
