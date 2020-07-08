@@ -4,7 +4,7 @@
   "description": "Plastic SCM integration",
   "publisher": "plastic-scm",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "icon": "images/logo.png",
   "homepage": "https://github.com/PlasticSCM/vscode-plasticscm/blob/master/README.md",
   "bugs": {
@@ -81,6 +81,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
     "test": "node ./out/test/runTest.js",
+    "package": "vsce package",
     "deploy": "vsce publish",
     "lint": "eslint --ext .ts src --fix"
   },
