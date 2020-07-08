@@ -173,7 +173,7 @@ module.exports = {
         "complexity": "off",
         "computed-property-spacing": "error",
         "constructor-super": "warn",
-        "curly": "warn",
+        "curly": "error",
         "eol-last": "warn",
         "eqeqeq": [
             "warn",
