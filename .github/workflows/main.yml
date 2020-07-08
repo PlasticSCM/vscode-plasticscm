@@ -10,11 +10,16 @@ jobs:
   build:
     name: Testing on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
+      - name: trigger release
+        if: startsWith(github.ref, 'refs/heads/master') && matrix.os == "ubuntu-latest" && contains(github.event.head_commit.message, 'trigger_release')
+        run: echo "::set-env name=TRIGGER_RELEASE::yes"
+
       - name: checkout repo
         uses: actions/checkout@v2
 
@@ -73,16 +78,16 @@ jobs:
           path: ${{ github.workspace }}/vscode-plasticscm-${{ steps.gitversion.outputs.semVer }}.vsix
 
       - name: publish to marketplace
-        if: success() && startsWith(github.ref, "refs/heads/master") && matrix.os == "ubuntu-latest"
+        if: success() && env.TRIGGER_RELEASE == 'yes'
         env:
           VSCE_PAT: ${{ secrets.VscePat }}
         run: npm run deploy -p ${{ env.VSCE_PAT }}
+          release_name: v${{ steps.gitversion.outputs.semVer }}
 
       - name: create a release
-        if: success() && startsWith(github.ref, 'refs/heads/master') && matrix.os == "ubuntu-latest"
+        if: success() && env.TRIGGER_RELEASE == 'yes'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ steps.gitversion.outputs.semVer }}
-          release_name: v${{ steps.gitversion.outputs.semVer }}
