@@ -40,9 +40,6 @@ export class CmShell implements ICmShell {
     this.mChannel = channel;
     this.mOutStream = new LineStream(UTF8);
     this.mErrStream = new LineStream(UTF8);
-    this.mOutStream.on("data", line => {
-      this.mChannel.appendLine(`DEBUG: ${line}`);
-    });
     this.mShellConfig = config;
     this.mDisposables = Disposable.from(
       this.mOutStream,
