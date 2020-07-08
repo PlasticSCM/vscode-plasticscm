@@ -6,5 +6,6 @@ export interface IConfig {
 
 export interface IShellConfig {
   cmPath: string;
+  millisToStop: number;
   millisToWaitUntilUp: number;
 }

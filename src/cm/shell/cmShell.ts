@@ -102,17 +102,20 @@ export class CmShell implements ICmShell {
     return true;
   }
 
-  public stop(): Promise<void> {
+  public async stop(): Promise<void> {
     if (!this.isRunning) {
-      return Promise.resolve();
+      return;
     }
 
-    this.write("exit");
-    this.mbIsRunning = false;
+    if (this.isBusy) {
+      await this.waitToStop(this.mShellConfig.millisToStop);
+    }
     this.mbIsBusy = true;
+    this.mbIsRunning = false;
+    this.write("exit");
     this.mProcess?.stdin?.end();
 
-    return new Promise(resolve => {
+    await new Promise(resolve => {
       if (!this.mProcess?.connected) {
         resolve();
         return;
@@ -239,21 +242,32 @@ export class CmShell implements ICmShell {
     this.mProcess?.stdin?.write(commandLine + os.EOL);
   }
 
+  private async waitToStop(timeoutMillis: number): Promise<void> {
+    const interval = 100;
+    let elapsed = 0;
+    while (this.isBusy && elapsed < timeoutMillis) {
+      elapsed += interval;
+      await CmShell.delay(interval);
+    }
+  }
+
   private async waitUntilFileDeleted(filePath: string, timeout: number): Promise<boolean> {
     const intervalTime = 50;
     let waitTime = 0;
-
-    const delay: (ms: number) => Promise<void> = ms => new Promise<void>(resolve => setTimeout(resolve, ms));
 
     while (waitTime < timeout) {
       if (!fs.existsSync(filePath)) {
         return true;
       }
 
-      await delay(intervalTime);
+      await CmShell.delay(intervalTime);
       waitTime += intervalTime;
     }
     return false;
+  }
+
+  private static delay(ms: number): Promise<void> {
+    return new Promise<void>(resolve => setTimeout(resolve, ms));
   }
 
   private async runInfoCommand(command: string): Promise<any> {

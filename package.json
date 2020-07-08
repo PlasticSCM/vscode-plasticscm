@@ -47,6 +47,12 @@
           "markdownDescription": "Milliseconds to wait for the `cm shell` to be up before disabling the extension. In some systems, shell initialization might be slow.",
           "scope": "window"
         },
+        "plastic-scm.cmConfiguration.millisToStop": {
+          "type": "number",
+          "default": 5000,
+          "markdownDescription": "Milliseconds to wait for the `cm shell` to exit when it has to stop or restart. This might prevent aborting commands in the middle of their execution.",
+          "scope": "window"
+        },
         "plastic-scm.autorefresh": {
           "type": "boolean",
           "default": true,

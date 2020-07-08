@@ -18,6 +18,7 @@ export class Configuration {
     autorefresh: true,
     cmConfiguration: {
       cmPath: "cm",
+      millisToStop: 5000,
       millisToWaitUntilUp: 5000,
     },
   };
