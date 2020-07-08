@@ -20,6 +20,7 @@ const defaultConfig: IConfig = {
     millisToStop: 5000,
     millisToWaitUntilUp: 5000,
   },
+  enabled: true,
 };
 
 let extension: Extension;
@@ -58,7 +59,11 @@ class Extension implements Disposable {
   }
 
   public async start(config?: IConfig): Promise<void> {
-    this.mConfig = config || Extension.getConfiguration();
+    this.mConfig = Extension.getValidConfiguration(config || Extension.getConfiguration());
+    if (!this.mConfig.enabled) {
+      return;
+    }
+
     this.mPlasticScm = new PlasticScm(this.mOutputChannel);
     await this.mPlasticScm.initialize(this.mConfig);
   }
@@ -75,9 +80,16 @@ class Extension implements Disposable {
 
   @throttle(2500)
   private async configurationChanged(): Promise<void> {
-    const newConfig = Extension.getConfiguration();
-    if (!newConfig.cmConfiguration.cmPath) {
-      newConfig.cmConfiguration.cmPath = defaultConfig.cmConfiguration.cmPath;
+    const newConfig = Extension.getValidConfiguration(Extension.getConfiguration());
+
+    if (this.mConfig.enabled !== newConfig.enabled) {
+      if (newConfig.enabled) {
+        await this.start(newConfig);
+      } else {
+        await this.stop();
+      }
+      this.mConfig = newConfig;
+      return;
     }
 
     if (this.mConfig.cmConfiguration.cmPath !== newConfig.cmConfiguration.cmPath) {
@@ -89,16 +101,27 @@ class Extension implements Disposable {
     this.updateConfig(newConfig);
   }
 
-  private static getConfiguration(): IConfig {
-    return workspace.getConfiguration(undefined, null).get<IConfig>(
-      extensionId, defaultConfig);
-  }
-
   private updateConfig(config: IConfig) {
     if (this.mPlasticScm) {
       this.mPlasticScm.updateConfig(config);
     }
     this.mConfig = config;
+  }
+
+  private static getConfiguration(): IConfig {
+    return workspace.getConfiguration(undefined, null).get<IConfig>(
+      extensionId, defaultConfig);
+  }
+
+  private static getValidConfiguration(config?: IConfig): IConfig {
+    if (!config) {
+      return defaultConfig;
+    }
+
+    if (!config.cmConfiguration.cmPath) {
+      config.cmConfiguration.cmPath = defaultConfig.cmConfiguration.cmPath;
+    }
+    return config;
   }
 }
 
