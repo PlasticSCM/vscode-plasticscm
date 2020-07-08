@@ -65,10 +65,10 @@ export class Workspace implements Disposable {
   private mbIsStatusSlow = false;
 
   public static async build(
-    workingDir: string,
-    workspaceInfo: IWorkspaceInfo,
-    shell: ICmShell,
-    workspaceOperations: IWorkspaceOperations): Promise<Workspace> {
+      workingDir: string,
+      workspaceInfo: IWorkspaceInfo,
+      shell: ICmShell,
+      workspaceOperations: IWorkspaceOperations): Promise<Workspace> {
 
     const result = new Workspace(workingDir, workspaceInfo, shell, workspaceOperations);
     await result.updateWorkspaceStatus();
@@ -76,10 +76,10 @@ export class Workspace implements Disposable {
   }
 
   private constructor(
-    workingDir: string,
-    workspaceInfo: IWorkspaceInfo,
-    shell: ICmShell,
-    workspaceOperations: IWorkspaceOperations) {
+      workingDir: string,
+      workspaceInfo: IWorkspaceInfo,
+      shell: ICmShell,
+      workspaceOperations: IWorkspaceOperations) {
 
     this.mWorkingDir = workingDir;
     this.mWkInfo = workspaceInfo;

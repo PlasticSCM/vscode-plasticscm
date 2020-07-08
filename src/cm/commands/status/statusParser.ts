@@ -88,7 +88,7 @@ export class StatusParser implements ICmParser<IPendingChanges> {
   }
 
   private mergeChanges(
-    destination: IChangeInfo | undefined, source: IChangeInfo): IChangeInfo {
+      destination: IChangeInfo | undefined, source: IChangeInfo): IChangeInfo {
     if (!destination) {
       return source;
     }
