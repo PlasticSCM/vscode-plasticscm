@@ -20,7 +20,7 @@ import {
 } from "vscode";
 import { IWorkspaceOperations, WorkspaceOperation } from "./workspaceOperations";
 import { Status as CmStatusCommand } from "./cm/commands";
-import { configuration } from "./configuration";
+import { Configuration } from "./configuration";
 import { ICmShell } from "./cm/shell";
 import { PlasticScmResource } from "./plasticScmResource";
 import { throttle } from "./decorators";
@@ -123,7 +123,7 @@ export class Workspace implements Disposable {
 
   @throttle(1000)
   private async onFileChanged(): Promise<void> {
-    if (!configuration.get().autorefresh) {
+    if (!Configuration.instance.get().autorefresh) {
       return;
     }
 

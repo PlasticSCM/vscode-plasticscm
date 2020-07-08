@@ -8,6 +8,7 @@ import {
   workspace as VsCodeWorkspace,
 } from "vscode";
 import { CheckinCommand } from "./commands";
+import { Configuration } from "./configuration";
 import { GetWorkspaceFromPath } from "./cm/commands";
 import { IWorkspaceInfo } from "./models";
 import { Workspace } from "./workspace";
@@ -35,7 +36,8 @@ export class PlasticScm implements Disposable {
       return;
     }
 
-    const globalShell: ICmShell = new CmShell(os.tmpdir(), this.mChannel);
+    const globalShell: ICmShell = new CmShell(
+      os.tmpdir(), this.mChannel, Configuration.instance);
     if (!await globalShell.start()) {
       const errorMessage = 'Plastic SCM extension can\'t start: unable to start "cm shell"';
       this.mChannel.appendLine(errorMessage);
@@ -55,7 +57,8 @@ export class PlasticScm implements Disposable {
           continue;
         }
 
-        const wkShell: ICmShell = new CmShell(wkInfo.path, this.mChannel);
+        const wkShell: ICmShell = new CmShell(
+          wkInfo.path, this.mChannel, Configuration.instance);
         if (!await wkShell.start()) {
           this.mChannel.appendLine(`Unable to start shell for workspace "${wkInfo.path}"`);
           wkShell.dispose();
