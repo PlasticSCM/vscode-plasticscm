@@ -130,13 +130,6 @@ module.exports = {
         "@typescript-eslint/prefer-for-of": "warn",
         "@typescript-eslint/prefer-function-type": "warn",
         "@typescript-eslint/prefer-namespace-keyword": "warn",
-        "@typescript-eslint/quotes": [
-            "warn",
-            "double",
-            {
-                "avoidEscape": true
-            }
-        ],
         "@typescript-eslint/semi": [
             "warn",
             "always"
@@ -267,6 +260,13 @@ module.exports = {
         ],
         "prefer-arrow-callback": "warn",
         "prefer-const": "warn",
+        "quotes": [
+            "error",
+            "double",
+            {
+                "avoidEscape": true
+            }
+        ],
         "quote-props": [
             "warn",
             "consistent-as-needed"
