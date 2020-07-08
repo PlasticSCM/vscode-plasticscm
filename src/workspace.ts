@@ -20,8 +20,8 @@ import {
 } from "vscode";
 import { IWorkspaceOperations, WorkspaceOperation } from "./workspaceOperations";
 import { Status as CmStatusCommand } from "./cm/commands";
-import { Configuration } from "./configuration";
 import { ICmShell } from "./cm/shell";
+import { IConfig } from "./config";
 import { PlasticScmResource } from "./plasticScmResource";
 import { throttle } from "./decorators";
 
@@ -61,6 +61,7 @@ export class Workspace implements Disposable {
 
   private readonly mDisposables: Disposable;
 
+  private mConfig: IConfig;
   private mWorkspaceConfig?: IWorkspaceConfig;
   private mbIsStatusSlow = false;
 
@@ -68,9 +69,10 @@ export class Workspace implements Disposable {
       workingDir: string,
       workspaceInfo: IWorkspaceInfo,
       shell: ICmShell,
-      workspaceOperations: IWorkspaceOperations): Promise<Workspace> {
+      workspaceOperations: IWorkspaceOperations,
+      config: IConfig): Promise<Workspace> {
 
-    const result = new Workspace(workingDir, workspaceInfo, shell, workspaceOperations);
+    const result = new Workspace(workingDir, workspaceInfo, shell, workspaceOperations, config);
     await result.updateWorkspaceStatus();
     return result;
   }
@@ -79,7 +81,8 @@ export class Workspace implements Disposable {
       workingDir: string,
       workspaceInfo: IWorkspaceInfo,
       shell: ICmShell,
-      workspaceOperations: IWorkspaceOperations) {
+      workspaceOperations: IWorkspaceOperations,
+      config: IConfig) {
 
     this.mWorkingDir = workingDir;
     this.mWkInfo = workspaceInfo;
@@ -92,6 +95,7 @@ export class Workspace implements Disposable {
       "status", "Workspace status");
 
     this.mOperations = workspaceOperations;
+    this.mConfig = config;
 
     const fsWatcher = VsCodeWorkspace.createFileSystemWatcher("**");
     const onAnyFsOperationEvent: Event<Uri> = events.anyEvent(
@@ -121,9 +125,13 @@ export class Workspace implements Disposable {
     this.mDisposables.dispose();
   }
 
+  public updateConfig(newConfig: IConfig): void {
+    this.mConfig = newConfig;
+  }
+
   @throttle(1000)
   private async onFileChanged(): Promise<void> {
-    if (!Configuration.instance.get().autorefresh) {
+    if (!this.mConfig.autorefresh) {
       return;
     }
 

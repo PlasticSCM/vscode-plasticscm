@@ -8,8 +8,8 @@ import {
   workspace as VsCodeWorkspace,
 } from "vscode";
 import { CheckinCommand } from "./commands";
-import { Configuration } from "./configuration";
 import { GetWorkspaceFromPath } from "./cm/commands";
+import { IConfig } from "./config";
 import { IWorkspaceInfo } from "./models";
 import { Workspace } from "./workspace";
 import { WorkspaceOperations } from "./workspaceOperations";
@@ -31,13 +31,13 @@ export class PlasticScm implements Disposable {
     this.mChannel = channel;
   }
 
-  public async initialize(): Promise<void> {
+  public async initialize(configuration: IConfig): Promise<void> {
     if (!VsCodeWorkspace.workspaceFolders) {
       return;
     }
 
     const globalShell: ICmShell = new CmShell(
-      os.tmpdir(), this.mChannel, Configuration.instance);
+      os.tmpdir(), this.mChannel, configuration.cmConfiguration);
     if (!await globalShell.start()) {
       const errorMessage = 'Plastic SCM extension can\'t start: unable to start "cm shell"';
       this.mChannel.appendLine(errorMessage);
@@ -58,7 +58,7 @@ export class PlasticScm implements Disposable {
         }
 
         const wkShell: ICmShell = new CmShell(
-          wkInfo.path, this.mChannel, Configuration.instance);
+          wkInfo.path, this.mChannel, configuration.cmConfiguration);
         if (!await wkShell.start()) {
           this.mChannel.appendLine(`Unable to start shell for workspace "${wkInfo.path}"`);
           wkShell.dispose();
@@ -66,7 +66,7 @@ export class PlasticScm implements Disposable {
         }
 
         const workspace: Workspace = await Workspace.build(
-          workingDir, wkInfo, wkShell, new WorkspaceOperations());
+          workingDir, wkInfo, wkShell, new WorkspaceOperations(), configuration);
         this.mDisposables.push(wkShell, workspace);
         this.mWorkspaces.set(wkInfo.id, workspace);
       } catch (e) {
@@ -82,6 +82,12 @@ export class PlasticScm implements Disposable {
 
     if (this.mWorkspaces.size) {
       this.mDisposables.push(new CheckinCommand(this));
+    }
+  }
+
+  public updateConfig(newConfig: IConfig): void {
+    for (const workspace of this.mWorkspaces.values()) {
+      workspace.updateConfig(newConfig);
     }
   }
 

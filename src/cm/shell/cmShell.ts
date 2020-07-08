@@ -5,7 +5,6 @@ import * as uuid from "uuid";
 import { ChildProcess, spawn } from "child_process";
 import { Disposable, OutputChannel } from "vscode";
 import { ICmParser, ICmResult, ICmShell } from "./interfaces";
-import { Configuration } from "../../configuration";
 import { IShellConfig } from "../../config";
 import { LineStream } from "./lineStream";
 import { Readable } from "stream";
@@ -26,7 +25,6 @@ export class CmShell implements ICmShell {
   private readonly mOutStream: LineStream;
   private readonly mErrStream: LineStream;
   private mbIsBusy = true;
-  private mConfiguration: Configuration;
   private mDisposables: Disposable;
   private mShellConfig: IShellConfig;
 
@@ -37,7 +35,7 @@ export class CmShell implements ICmShell {
   public constructor(
       startDir: string,
       channel: OutputChannel,
-      configuration: Configuration) {
+      config: IShellConfig) {
     this.mStartDir = startDir;
     this.mChannel = channel;
     this.mOutStream = new LineStream(UTF8);
@@ -45,12 +43,10 @@ export class CmShell implements ICmShell {
     this.mOutStream.on("data", line => {
       this.mChannel.appendLine(`DEBUG: ${line}`);
     });
-    this.mConfiguration = configuration;
-    this.mShellConfig = configuration.get().cmConfiguration;
+    this.mShellConfig = config;
     this.mDisposables = Disposable.from(
       this.mOutStream,
       this.mErrStream,
-      configuration.onDidChange(async () => await this.updateShellConfig())
     );
   }
 
@@ -206,17 +202,6 @@ export class CmShell implements ICmShell {
     result.error = new Error(
       parser.getOutputLines().join(os.EOL));
     return result;
-  }
-
-  private async updateShellConfig(): Promise<void> {
-    const newConfig = this.mConfiguration.get().cmConfiguration;
-
-    if (this.isRunning && this.mShellConfig.cmPath !== newConfig.cmPath) {
-      await this.stop();
-      await this.start();
-    }
-
-    this.mShellConfig = newConfig;
   }
 
   private static bindProcessStream(stream: Readable | null, handler: (chunk: any) => void): void {
