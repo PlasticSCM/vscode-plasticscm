@@ -22,6 +22,7 @@ extend it in the future, and we hope it will be useful and convenient to use.
 ## Features
 
 1. Lists your pending changes
+2. Allows you to checkin all your pending changes at once
 
 ## Install
 
@@ -34,14 +35,26 @@ extend it in the future, and we hope it will be useful and convenient to use.
 
 ## Configure
 
-|Name                                             |Type    |Description
-|-------------------------------------------------|--------|-----------
-|`plastic-scm.cmConfiguration.cmPath`             |`string`|Location of the `cm` CLI executable
-|`plastic-scm.cmConfiguration.millisToWaitUntilUp`|`number`|Time to wait for the shell to start
+|Name                                             |Type     |Description
+|-------------------------------------------------|---------|-----------
+|`plastic-scm.autorefresh`                        |`boolean`|Whether the extension should automatically look for changes in the workspace
+|`plastic-scm.enabled`                            |`boolean`|Whether the extension is enabled
+|`plastic-scm.cmConfiguration.cmPath`             |`string` |Location of the `cm` CLI executable
+|`plastic-scm.cmConfiguration.millisToStop`       |`number` |Grace time to wait before requesting a shell to closeshell to start
+|`plastic-scm.cmConfiguration.millisToWaitUntilUp`|`number` |Time to wait for the shell to start
 
 ## Commands
 
-We're working on it! 👷‍♀️👨‍🏭
+We're working to add more! 👷‍♀️👨‍🏭
+
+### Checkin
+
+You can type in the input field in the SCM view and hit `Ctrl+Enter` to checkin
+**all your pending changes**. We don't support selecting what items you want to
+check in at the moment.
+
+You can also invoke the Checkin command using the Command Palette. You'll be
+prompted to enter a commit message in that case.
 
 ## Contribute
 
