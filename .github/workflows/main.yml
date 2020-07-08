@@ -82,7 +82,6 @@ jobs:
         env:
           VSCE_PAT: ${{ secrets.VscePat }}
         run: npm run deploy -p ${{ env.VSCE_PAT }}
-          release_name: v${{ steps.gitversion.outputs.semVer }}
 
       - name: create a release
         if: success() && env.TRIGGER_RELEASE == 'yes'
@@ -91,3 +90,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ steps.gitversion.outputs.semVer }}
+          release_name: v${{ steps.gitversion.outputs.semVer }}
