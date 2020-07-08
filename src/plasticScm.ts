@@ -39,7 +39,8 @@ export class PlasticScm implements Disposable {
     const globalShell: ICmShell = new CmShell(
       os.tmpdir(), this.mChannel, configuration.cmConfiguration);
     if (!await globalShell.start()) {
-      const errorMessage = 'Plastic SCM extension can\'t start: unable to start "cm shell"';
+      const errorMessage =
+        `Plastic SCM extension can\'t start: unable to start "${configuration.cmConfiguration.cmPath} shell"`;
       this.mChannel.appendLine(errorMessage);
       await VsCodeWindow.showErrorMessage(errorMessage);
       return;
