@@ -3,9 +3,10 @@ import * as os from "os";
 import * as path from "path";
 import * as uuid from "uuid";
 import { ChildProcess, spawn } from "child_process";
+import { Disposable, OutputChannel } from "vscode";
 import { ICmParser, ICmResult, ICmShell } from "./interfaces";
+import { IShellConfig } from "../../config";
 import { LineStream } from "./lineStream";
-import { OutputChannel } from "vscode";
 import { Readable } from "stream";
 
 const UTF8 = "utf8";
@@ -24,24 +25,30 @@ export class CmShell implements ICmShell {
   private readonly mOutStream: LineStream;
   private readonly mErrStream: LineStream;
   private mbIsBusy = true;
+  private mDisposables: Disposable;
+  private mShellConfig: IShellConfig;
 
   public get isRunning(): boolean {
     return this.mbIsRunning;
   }
 
-  public constructor(startDir: string, channel: OutputChannel) {
+  public constructor(
+      startDir: string,
+      channel: OutputChannel,
+      config: IShellConfig) {
     this.mStartDir = startDir;
     this.mChannel = channel;
     this.mOutStream = new LineStream(UTF8);
     this.mErrStream = new LineStream(UTF8);
-    this.mOutStream.on("data", line => {
-      this.mChannel.appendLine(`DEBUG: ${line}`);
-    });
+    this.mShellConfig = config;
+    this.mDisposables = Disposable.from(
+      this.mOutStream,
+      this.mErrStream,
+    );
   }
 
   public dispose(): void {
-    this.mErrStream.dispose();
-    this.mOutStream.dispose();
+    this.mDisposables.dispose();
     if (this.mProcess && this.isRunning) {
       this.mProcess.kill();
     }
@@ -53,10 +60,12 @@ export class CmShell implements ICmShell {
       fs.writeFile(commFile, "", () => resolve());
     });
 
-    this.mProcess = spawn("cm",
+    this.mProcess = spawn(
+      this.mShellConfig.cmPath,
       [
         "shell", "--encoding=UTF-8", `--commfile=${commFile}`, this.mStartDir,
-      ], {
+      ],
+      {
         cwd: this.mStartDir,
         env: process.env,
         stdio: [ "pipe", "pipe", "pipe" ],
@@ -70,7 +79,7 @@ export class CmShell implements ICmShell {
     CmShell.bindProcessStream(this.mProcess.stdout, readOut);
     CmShell.bindProcessStream(this.mProcess.stderr, readErr);
 
-    if (!await this.waitUntilFileDeleted(commFile, 3000)) {
+    if (!await this.waitUntilFileDeleted(commFile, this.mShellConfig.millisToWaitUntilUp)) {
       CmShell.unbindProcessStream(this.mProcess.stdout, readOut);
       CmShell.unbindProcessStream(this.mProcess.stderr, readErr);
       this.mChannel.appendLine("Cm shell didn't respond after 3 seconds");
@@ -87,17 +96,20 @@ export class CmShell implements ICmShell {
     return true;
   }
 
-  public stop(): Promise<void> {
+  public async stop(): Promise<void> {
     if (!this.isRunning) {
-      return Promise.resolve();
+      return;
     }
 
-    this.write("exit");
-    this.mbIsRunning = false;
+    if (this.isBusy) {
+      await this.waitToStop(this.mShellConfig.millisToStop);
+    }
     this.mbIsBusy = true;
+    this.mbIsRunning = false;
+    this.write("exit");
     this.mProcess?.stdin?.end();
 
-    return new Promise(resolve => {
+    await new Promise(resolve => {
       if (!this.mProcess?.connected) {
         resolve();
         return;
@@ -122,9 +134,9 @@ export class CmShell implements ICmShell {
   }
 
   public async exec<T>(
-    command: string,
-    args: string[],
-    parser: ICmParser<T>): Promise<ICmResult<T>> {
+      command: string,
+      args: string[],
+      parser: ICmParser<T>): Promise<ICmResult<T>> {
     const commandLine = CmShell.buildCommandLine(command, ...args);
 
     if (!this.isRunning) {
@@ -213,21 +225,32 @@ export class CmShell implements ICmShell {
     this.mProcess?.stdin?.write(commandLine + os.EOL);
   }
 
+  private async waitToStop(timeoutMillis: number): Promise<void> {
+    const interval = 100;
+    let elapsed = 0;
+    while (this.isBusy && elapsed < timeoutMillis) {
+      elapsed += interval;
+      await CmShell.delay(interval);
+    }
+  }
+
   private async waitUntilFileDeleted(filePath: string, timeout: number): Promise<boolean> {
     const intervalTime = 50;
     let waitTime = 0;
-
-    const delay: (ms: number) => Promise<void> = ms => new Promise<void>(resolve => setTimeout(resolve, ms));
 
     while (waitTime < timeout) {
       if (!fs.existsSync(filePath)) {
         return true;
       }
 
-      await delay(intervalTime);
+      await CmShell.delay(intervalTime);
       waitTime += intervalTime;
     }
     return false;
+  }
+
+  private static delay(ms: number): Promise<void> {
+    return new Promise<void>(resolve => setTimeout(resolve, ms));
   }
 
   private async runInfoCommand(command: string): Promise<any> {

@@ -19,7 +19,14 @@ describe("CmShell", () => {
     channel.setup(ch => ch.appendLine(It.isAnyString()));
 
     before(async () => {
-      cmShell = new CmShell("mydir", channel.object);
+      cmShell = new CmShell(
+        "mydir",
+        channel.object,
+        {
+          cmPath: "cm",
+          millisToStop: 5000,
+          millisToWaitUntilUp: 5000,
+        });
       response = await cmShell.exec("location", [], parser.object);
     });
 

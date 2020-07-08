@@ -35,16 +35,28 @@
       "type": "object",
       "title": "Plastic SCM",
       "properties": {
+        "plastic-scm.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Whether Plastic SCM is enabled.",
+          "scope": "window"
+        },
         "plastic-scm.cmConfiguration.cmPath": {
           "type": "string",
-          "default": "",
-          "markdownDescription": "Specifies a given `cm` executable that is not in your `PATH` environment variable",
+          "default": "cm",
+          "markdownDescription": "Specifies a given `cm` executable that is not in your `PATH` environment variable.",
           "scope": "window"
         },
         "plastic-scm.cmConfiguration.millisToWaitUntilUp": {
           "type": "number",
           "default": 5000,
           "markdownDescription": "Milliseconds to wait for the `cm shell` to be up before disabling the extension. In some systems, shell initialization might be slow.",
+          "scope": "window"
+        },
+        "plastic-scm.cmConfiguration.millisToStop": {
+          "type": "number",
+          "default": 5000,
+          "markdownDescription": "Milliseconds to wait for the `cm shell` to exit when it has to stop or restart. This might prevent aborting commands in the middle of their execution.",
           "scope": "window"
         },
         "plastic-scm.autorefresh": {
