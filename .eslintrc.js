@@ -60,18 +60,6 @@ module.exports = {
                 "accessibility": "explicit"
             }
         ],
-        "@typescript-eslint/indent": [
-            "warn",
-            2,
-            {
-                "FunctionDeclaration": {
-                    "parameters": "first"
-                },
-                "FunctionExpression": {
-                    "parameters": "first"
-                }
-            }
-        ],
         "@typescript-eslint/member-delimiter-style": [
             "warn",
             {
@@ -213,6 +201,20 @@ module.exports = {
             "undefined"
         ],
         "id-match": "warn",
+        "indent": [
+            "warn",
+            2,
+            {
+                "FunctionDeclaration": {
+                    "body": 1,
+                    "parameters": 2
+                },
+                "FunctionExpression": {
+                    "body": 1,
+                    "parameters": 2
+                }
+            }
+        ],
         "key-spacing": "error",
         "keyword-spacing": "error",
         "max-classes-per-file": [
