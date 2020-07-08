@@ -11,7 +11,6 @@ import { extensionId } from "./constants";
 import { IConfig } from "./config";
 
 export class Configuration {
-
   private mOnDidChange = new EventEmitter<ConfigurationChangeEvent>();
   private mOnDidChangeAny = new EventEmitter<ConfigurationChangeEvent>();
   private readonly mDefault: IConfig = {
@@ -22,6 +21,10 @@ export class Configuration {
       millisToWaitUntilUp: 5000,
     },
   };
+
+  public static get instance(): Configuration {
+    return mInstance;
+  }
 
   public get onDidChangeAny(): Event<ConfigurationChangeEvent> {
     return this.mOnDidChangeAny.event;
@@ -34,9 +37,9 @@ export class Configuration {
   public static configureEvents(context: ExtensionContext): void {
     context.subscriptions.push(
       workspace.onDidChangeConfiguration(e => {
-        configuration.mOnDidChangeAny.fire(e);
+        mInstance.mOnDidChangeAny.fire(e);
         if (e.affectsConfiguration(extensionId)) {
-          configuration.mOnDidChange.fire(e);
+          mInstance.mOnDidChange.fire(e);
         }
       }));
   }
@@ -74,4 +77,4 @@ export class Configuration {
   }
 }
 
-export const configuration = new Configuration();
+const mInstance = new Configuration();
