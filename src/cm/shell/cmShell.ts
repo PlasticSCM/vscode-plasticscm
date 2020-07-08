@@ -3,9 +3,11 @@ import * as os from "os";
 import * as path from "path";
 import * as uuid from "uuid";
 import { ChildProcess, spawn } from "child_process";
+import { Disposable, OutputChannel } from "vscode";
 import { ICmParser, ICmResult, ICmShell } from "./interfaces";
+import { Configuration } from "../../configuration";
+import { IShellConfig } from "../../config";
 import { LineStream } from "./lineStream";
-import { OutputChannel } from "vscode";
 import { Readable } from "stream";
 
 const UTF8 = "utf8";
@@ -24,12 +26,18 @@ export class CmShell implements ICmShell {
   private readonly mOutStream: LineStream;
   private readonly mErrStream: LineStream;
   private mbIsBusy = true;
+  private mConfiguration: Configuration;
+  private mOnConfigurationDidChange: Disposable;
+  private mShellConfig: IShellConfig;
 
   public get isRunning(): boolean {
     return this.mbIsRunning;
   }
 
-  public constructor(startDir: string, channel: OutputChannel) {
+  public constructor(
+      startDir: string,
+      channel: OutputChannel,
+      configuration: Configuration) {
     this.mStartDir = startDir;
     this.mChannel = channel;
     this.mOutStream = new LineStream(UTF8);
@@ -37,6 +45,10 @@ export class CmShell implements ICmShell {
     this.mOutStream.on("data", line => {
       this.mChannel.appendLine(`DEBUG: ${line}`);
     });
+    this.mConfiguration = configuration;
+    this.mShellConfig = configuration.get().cmConfiguration;
+    this.mOnConfigurationDidChange = configuration.onDidChange(
+      async () => await this.updateShellConfig());
   }
 
   public dispose(): void {
@@ -45,6 +57,7 @@ export class CmShell implements ICmShell {
     if (this.mProcess && this.isRunning) {
       this.mProcess.kill();
     }
+    this.mOnConfigurationDidChange.dispose();
   }
 
   public async start(): Promise<boolean> {
@@ -53,10 +66,12 @@ export class CmShell implements ICmShell {
       fs.writeFile(commFile, "", () => resolve());
     });
 
-    this.mProcess = spawn("cm",
+    this.mProcess = spawn(
+      this.mShellConfig.cmPath,
       [
         "shell", "--encoding=UTF-8", `--commfile=${commFile}`, this.mStartDir,
-      ], {
+      ],
+      {
         cwd: this.mStartDir,
         env: process.env,
         stdio: [ "pipe", "pipe", "pipe" ],
@@ -70,7 +85,7 @@ export class CmShell implements ICmShell {
     CmShell.bindProcessStream(this.mProcess.stdout, readOut);
     CmShell.bindProcessStream(this.mProcess.stderr, readErr);
 
-    if (!await this.waitUntilFileDeleted(commFile, 3000)) {
+    if (!await this.waitUntilFileDeleted(commFile, this.mShellConfig.millisToWaitUntilUp)) {
       CmShell.unbindProcessStream(this.mProcess.stdout, readOut);
       CmShell.unbindProcessStream(this.mProcess.stderr, readErr);
       this.mChannel.appendLine("Cm shell didn't respond after 3 seconds");
@@ -122,9 +137,9 @@ export class CmShell implements ICmShell {
   }
 
   public async exec<T>(
-    command: string,
-    args: string[],
-    parser: ICmParser<T>): Promise<ICmResult<T>> {
+      command: string,
+      args: string[],
+      parser: ICmParser<T>): Promise<ICmResult<T>> {
     const commandLine = CmShell.buildCommandLine(command, ...args);
 
     if (!this.isRunning) {
@@ -187,6 +202,17 @@ export class CmShell implements ICmShell {
     result.error = new Error(
       parser.getOutputLines().join(os.EOL));
     return result;
+  }
+
+  private async updateShellConfig(): Promise<void> {
+    const newConfig = this.mConfiguration.get().cmConfiguration;
+
+    if (this.isRunning && this.mShellConfig.cmPath !== newConfig.cmPath) {
+      await this.stop();
+      await this.start();
+    }
+
+    this.mShellConfig = newConfig;
   }
 
   private static bindProcessStream(stream: Readable | null, handler: (chunk: any) => void): void {
