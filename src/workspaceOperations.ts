@@ -1,4 +1,4 @@
-import { ProgressLocation, scm, window } from "vscode";
+import { ProgressLocation, window } from "vscode";
 
 export const enum WorkspaceOperation {
   Status = "Status",
@@ -12,7 +12,7 @@ export interface IWorkspaceOperations {
 }
 
 function isReadOnlyOperation(operation: WorkspaceOperation) {
-  return true;
+  return operation !== WorkspaceOperation.Status;
 }
 
 export class WorkspaceOperations implements IWorkspaceOperations {

@@ -15,7 +15,7 @@ export class CheckinCommand implements Disposable {
       "plastic-scm.checkin", args => this.execute(args));
   }
 
-  public dispose() {
+  public dispose(): void {
     if (this.mDisposable) {
       this.mDisposable.dispose();
     }
@@ -36,7 +36,7 @@ export class CheckinCommand implements Disposable {
       return;
     }
 
-    workspace.operations.run(WorkspaceOperation.Checkin, async () => {
+    await workspace.operations.run(WorkspaceOperation.Checkin, async () => {
       try {
         const ciResult = await CmCheckinCommand.run(
           workspace.shell,
@@ -44,15 +44,16 @@ export class CheckinCommand implements Disposable {
           comment,
           ...this.getCheckinPaths(workspace.statusResourceGroup));
 
-        ciResult.forEach(cset => window.showInformationMessage(
-          `Created changeset cs:${cset.changesetInfo.changesetId}`));
+        await Promise.all(ciResult.map(cset => window.showInformationMessage(
+          `Created changeset cs:${cset.changesetInfo.changesetId}`)));
+
         workspace.sourceControl.inputBox.value = "";
       } catch (e) {
         const error = e as Error;
         const token = "Error: ";
         const message = error.message.substring(error.message.lastIndexOf(token) + token.length);
-        window.showErrorMessage(`Plastic SCM Checkin failed: ${message}`);
         this.mPlasticScm.channel.appendLine(`ERROR: ${message}`);
+        await window.showErrorMessage(`Plastic SCM Checkin failed: ${message}`);
       }
     });
   }
@@ -67,13 +68,11 @@ export class CheckinCommand implements Disposable {
     }
 
     const choice = await window.showQuickPick(
-      Array.from(this.mPlasticScm.workspaces.values()).map(wk => {
-        return {
-          description: wk.info.path,
-          label: wk.info.name,
-          workspace: wk,
-        };
-      }),
+      Array.from(this.mPlasticScm.workspaces.values()).map(wk => ({
+        description: wk.info.path,
+        label: wk.info.name,
+        workspace: wk,
+      })),
       {
         canPickMany: false,
         ignoreFocusOut: true,

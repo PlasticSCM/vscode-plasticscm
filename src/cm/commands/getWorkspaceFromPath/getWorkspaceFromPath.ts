@@ -1,7 +1,7 @@
-import { IWorkspaceInfo } from "../../../models";
 import { ICmResult, ICmShell } from "../../shell";
 import { CommandInfo } from "./commandInfo";
 import { GetWorkspaceFromPathParser } from "./getWorkspaceFromPathParser";
+import { IWorkspaceInfo } from "../../../models";
 
 export class GetWorkspaceFromPath {
   public static async run(path: string, shell: ICmShell): Promise<IWorkspaceInfo | undefined> {
@@ -10,11 +10,11 @@ export class GetWorkspaceFromPath {
     const cmResult: ICmResult<IWorkspaceInfo | undefined> =
       await shell.exec(
         CommandInfo.commandName,
-        [path,
+        [ path,
           '--format="'
           + `{${CommandInfo.fields.guid.name}}` + CommandInfo.fieldSeparator
           + `{${CommandInfo.fields.wkName.name}}` + CommandInfo.fieldSeparator
-          + `{${CommandInfo.fields.wkPath.name}}"`],
+          + `{${CommandInfo.fields.wkPath.name}}"` ],
         parser);
 
     if (!cmResult.success) {

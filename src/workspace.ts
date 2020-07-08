@@ -1,19 +1,6 @@
-import {
-  Disposable,
-  Event,
-  scm,
-  SourceControl,
-  SourceControlResourceGroup,
-  Uri,
-  window as VsCodeWindow,
-  workspace as VsCodeWorkspace,
-} from "vscode";
-import { Status as CmStatusCommand } from "./cm/commands";
-import { ICmShell } from "./cm/shell";
-import { configuration } from "./configuration";
 import * as constants from "./constants";
-import { debounce, throttle } from "./decorators";
 import * as events from "./events";
+import * as paths from "./paths";
 import {
   ChangeType,
   IChangeInfo,
@@ -22,9 +9,21 @@ import {
   IWorkspaceInfo,
   WkConfigType,
 } from "./models";
-import * as paths from "./paths";
-import { PlasticScmResource } from "./plasticScmResource";
+import {
+  Disposable,
+  Event,
+  scm,
+  SourceControl,
+  SourceControlResourceGroup,
+  Uri,
+  workspace as VsCodeWorkspace,
+} from "vscode";
 import { IWorkspaceOperations, WorkspaceOperation } from "./workspaceOperations";
+import { Status as CmStatusCommand } from "./cm/commands";
+import { configuration } from "./configuration";
+import { ICmShell } from "./cm/shell";
+import { PlasticScmResource } from "./plasticScmResource";
+import { throttle } from "./decorators";
 
 export class Workspace implements Disposable {
 
@@ -63,9 +62,20 @@ export class Workspace implements Disposable {
   private readonly mDisposables: Disposable;
 
   private mWorkspaceConfig?: IWorkspaceConfig;
-  private mbIsStatusSlow: boolean = false;
+  private mbIsStatusSlow = false;
 
-  constructor(
+  public static async build(
+    workingDir: string,
+    workspaceInfo: IWorkspaceInfo,
+    shell: ICmShell,
+    workspaceOperations: IWorkspaceOperations): Promise<Workspace> {
+
+    const result = new Workspace(workingDir, workspaceInfo, shell, workspaceOperations);
+    await result.updateWorkspaceStatus();
+    return result;
+  }
+
+  private constructor(
     workingDir: string,
     workspaceInfo: IWorkspaceInfo,
     shell: ICmShell,
@@ -97,7 +107,7 @@ export class Workspace implements Disposable {
       this.mSourceControl,
       this.mStatusResourceGroup,
       fsWatcher,
-      onWorkspaceFileChangeEvent(uri => this.onFileChanged(uri), this),
+      onWorkspaceFileChangeEvent(async () => this.onFileChanged(), this),
     );
 
     this.mSourceControl.acceptInputCommand = {
@@ -105,16 +115,15 @@ export class Workspace implements Disposable {
       command: "plastic-scm.checkin",
       title: "checkin",
     };
-    this.updateWorkspaceStatus();
   }
 
-  public dispose() {
+  public dispose(): void {
     this.mDisposables.dispose();
   }
 
   @throttle(1000)
-  private async onFileChanged(uri: Uri): Promise<any> {
-    if (!configuration.get("autorefresh")) {
+  private async onFileChanged(): Promise<void> {
+    if (!configuration.get().autorefresh) {
       return;
     }
 
@@ -184,30 +193,30 @@ export class Workspace implements Disposable {
 
   private getStatusBarIconKey(wkConfigType: WkConfigType) {
     switch (wkConfigType) {
-      case WkConfigType.Changeset:
-        return "git-commit";
-      case WkConfigType.Label:
-        return "tag";
-      case WkConfigType.Shelve:
-        return "archive";
-      case WkConfigType.Branch:
-      default:
-        return "git-branch";
+    case WkConfigType.Changeset:
+      return "git-commit";
+    case WkConfigType.Label:
+      return "tag";
+    case WkConfigType.Shelve:
+      return "archive";
+    case WkConfigType.Branch:
+    default:
+      return "git-branch";
     }
   }
 
   private getPrefix(wkConfigType: WkConfigType) {
     switch (wkConfigType) {
-      case WkConfigType.Changeset:
-        return "cs:";
-      case WkConfigType.Label:
-        return "lb:";
-      case WkConfigType.Shelve:
-        return "sh:";
-      case WkConfigType.Branch:
-        return "br:";
-      default:
-        return "";
+    case WkConfigType.Changeset:
+      return "cs:";
+    case WkConfigType.Label:
+      return "lb:";
+    case WkConfigType.Shelve:
+      return "sh:";
+    case WkConfigType.Branch:
+      return "br:";
+    default:
+      return "";
     }
   }
 }

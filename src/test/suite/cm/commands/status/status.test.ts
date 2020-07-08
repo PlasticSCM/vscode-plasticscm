@@ -1,9 +1,9 @@
-import { expect } from "chai";
-import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
-import { Uri } from "vscode";
-import { Status } from "../../../../../cm/commands";
-import { ICmParser, ICmShell } from "../../../../../cm/shell";
 import { ChangeType, IChangeInfo, IPendingChanges, WkConfigType } from "../../../../../models";
+import { ICmParser, ICmShell } from "../../../../../cm/shell";
+import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
+import { expect } from "chai";
+import { Status } from "../../../../../cm/commands";
+import { Uri } from "vscode";
 
 describe("Status command", () => {
   context("When the command runs successfully", () => {
@@ -30,8 +30,8 @@ describe("Status command", () => {
       cmShellMock
         .setup(mock => mock.exec(
           It.isAnyString(),
-          It.is(args => true),
-          It.is<ICmParser<IPendingChanges>>(parser => true)))
+          It.is(() => true),
+          It.is<ICmParser<IPendingChanges>>(() => true)))
         .returns(() => Promise.resolve({
           result,
           success: true,
@@ -63,8 +63,8 @@ describe("Status command", () => {
       cmShellMock
         .setup(mock => mock.exec(
           It.isAnyString(),
-          It.is(args => true),
-          It.is<ICmParser<IPendingChanges>>(parser => true)))
+          It.is(() => true),
+          It.is<ICmParser<IPendingChanges>>(() => true)))
         .returns(() => Promise.resolve({
           error: new Error("Sample error"),
           success: true,
@@ -74,7 +74,7 @@ describe("Status command", () => {
         try {
           await Status.run("/path/to/wk", cmShellMock.object);
         } catch (e) {
-          error = e;
+          error = e as Error;
         }
       });
 
@@ -98,8 +98,8 @@ describe("Status command", () => {
     cmShellMock
       .setup(mock => mock.exec(
         It.isAnyString(),
-        It.is(args => true),
-        It.is<ICmParser<IPendingChanges>>(parser => true)))
+        It.is(() => true),
+        It.is<ICmParser<IPendingChanges>>(() => true)))
       .returns(() => Promise.resolve({
         error: new Error("Sample error"),
         success: false,
@@ -107,18 +107,18 @@ describe("Status command", () => {
 
     before(async () => {
       try {
-          await Status.run("/path/to/wk", cmShellMock.object);
+        await Status.run("/path/to/wk", cmShellMock.object);
       } catch (e) {
-        error = e;
+        error = e as Error;
       }
     });
 
     it("produces the expected error", () => {
-        expect(error).to.be.not.undefined;
-        expect(error!.message).to.equal("Command execution failed.");
+      expect(error).to.be.not.undefined;
+      expect(error!.message).to.equal("Command execution failed.");
     });
 
-    it("calls the expected shell methods", async () => {
+    it("calls the expected shell methods", () => {
       cmShellMock.verify(
         mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
         Times.once());

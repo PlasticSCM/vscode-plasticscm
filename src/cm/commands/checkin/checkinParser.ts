@@ -1,7 +1,7 @@
+import * as checkinChangeset from "./checkinChangeset";
 import * as os from "os";
 import { ICheckinChangeset } from "../../../models";
 import { ICmParser } from "../../shell";
-import * as checkinChangeset from "./checkinChangeset";
 
 export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
   public static readonly SEPARATOR: string = "@#@";
@@ -29,15 +29,17 @@ export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
     this.mErrorBuffer.push(line);
   }
 
-  public async parse(): Promise<ICheckinChangeset[]> {
-    return this.mOutputBuffer.reduce<ICheckinChangeset[]>(
+  public parse(): Promise<ICheckinChangeset[]> {
+    const result = this.mOutputBuffer.reduce<ICheckinChangeset[]>(
       (previous: ICheckinChangeset[], line: string) => {
         if (previous && previous.length) {
           return previous;
         }
 
         return this.parseLine(line);
-    }, []);
+      }, []);
+
+    return Promise.resolve(result);
   }
 
   public getError(): Error | undefined {
@@ -68,9 +70,9 @@ export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
       .trim()
       .split(CheckinParser.CHANGESET_SEPARATOR)
       .reduce<ICheckinChangeset[]>((csets, checkinCsetSpec) => {
-        const checkinCset: ICheckinChangeset | null = checkinChangeset.parse(checkinCsetSpec);
-        return checkinCset ? csets.concat(checkinCset) : csets;
-      }, [])
+      const checkinCset: ICheckinChangeset | null = checkinChangeset.parse(checkinCsetSpec);
+      return checkinCset ? csets.concat(checkinCset) : csets;
+    }, [])
       .sort((x, y) => x.mountPath.localeCompare(y.mountPath));
   }
 }

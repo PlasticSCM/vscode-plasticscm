@@ -2,17 +2,17 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import * as uuid from "uuid";
-import { OutputChannel } from "vscode";
-import { ICheckinChangeset } from "../../../models";
 import { ICmParser, ICmResult, ICmShell } from "../../shell";
 import { CheckinParser } from "./checkinParser";
+import { ICheckinChangeset } from "../../../models";
+import { OutputChannel } from "vscode";
 
 export class Checkin {
   public static async run(
-      shell: ICmShell,
-      channel: OutputChannel,
-      message: string,
-      ...paths: string[]): Promise<ICheckinChangeset[]> {
+    shell: ICmShell,
+    channel: OutputChannel,
+    message: string,
+    ...paths: string[]): Promise<ICheckinChangeset[]> {
     const parser: ICmParser<ICheckinChangeset[]> = new CheckinParser();
 
     const args: string[] = [

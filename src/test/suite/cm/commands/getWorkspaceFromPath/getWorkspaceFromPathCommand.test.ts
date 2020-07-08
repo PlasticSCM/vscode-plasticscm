@@ -1,7 +1,7 @@
-import { assert, expect } from "chai";
-import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
-import { GetWorkspaceFromPath } from "../../../../../cm/commands";
 import { ICmParser, ICmShell } from "../../../../../cm/shell";
+import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
+import { expect } from "chai";
+import { GetWorkspaceFromPath } from "../../../../../cm/commands";
 import { IWorkspaceInfo } from "../../../../../models";
 
 describe("GetWorkspaceFromPath Command", () => {
@@ -13,8 +13,8 @@ describe("GetWorkspaceFromPath Command", () => {
       cmShellMock
         .setup(mock => mock.exec(
           It.isAnyString(),
-          It.is(args => true),
-          It.is<ICmParser<IWorkspaceInfo | undefined>>(parser => true)))
+          It.is(() => true),
+          It.is<ICmParser<IWorkspaceInfo | undefined>>(() => true)))
         .returns(() => Promise.resolve({
           result: {
             id: "95b0a429-7d9c-48af-8b5b-6f1ced257b20",
@@ -57,10 +57,10 @@ describe("GetWorkspaceFromPath Command", () => {
       let error: Error | undefined;
 
       cmShellMock
-      .setup(mock => mock.exec(
+        .setup(mock => mock.exec(
           It.isAnyString(),
-          It.is(args => true),
-          It.is<ICmParser<IWorkspaceInfo | undefined>>(parser => true)))
+          It.is(() => true),
+          It.is<ICmParser<IWorkspaceInfo | undefined>>(() => true)))
         .returns(() => Promise.resolve({
           error: new Error("Sample error"),
           success: true,
@@ -70,7 +70,7 @@ describe("GetWorkspaceFromPath Command", () => {
         try {
           await GetWorkspaceFromPath.run("/foo/bar", cmShellMock.object);
         } catch (e) {
-          error = e;
+          error = e as Error;
         }
       });
 
@@ -89,13 +89,14 @@ describe("GetWorkspaceFromPath Command", () => {
 
   context("When the command fails", () => {
     const cmShellMock = Mock.ofType<ICmShell>(undefined, MockBehavior.Strict);
+    let workspace: IWorkspaceInfo | undefined;
     let error: Error | undefined;
 
     cmShellMock
       .setup(mock => mock.exec(
         It.isAnyString(),
-        It.is(args => true),
-        It.is<ICmParser<IWorkspaceInfo>>(parser => true)))
+        It.is(() => true),
+        It.is<ICmParser<IWorkspaceInfo>>(() => true)))
       .returns(() => Promise.resolve({
         error: new Error("Sample error"),
         success: false,
@@ -103,18 +104,21 @@ describe("GetWorkspaceFromPath Command", () => {
 
     before(async () => {
       try {
-        await GetWorkspaceFromPath.run("/foo/bar", cmShellMock.object);
+        workspace = await GetWorkspaceFromPath.run("/foo/bar", cmShellMock.object);
       } catch (e) {
-        error = e;
+        error = e as Error;
       }
     });
 
-    it("produces the expected error", () => {
-        expect(error).to.be.not.undefined;
-        expect(error!.message).to.equal("Command failed: Sample error");
+    it("Doesn't return error", () => {
+      expect(error).to.be.undefined;
     });
 
-    it("calls the expected shell methods", async () => {
+    it("Returns an empty workspace", () => {
+      expect(workspace).to.be.undefined;
+    });
+
+    it("calls the expected shell methods", () => {
       cmShellMock.verify(
         mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
         Times.once());

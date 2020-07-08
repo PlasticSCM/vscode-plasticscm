@@ -1,14 +1,14 @@
 import * as os from "os";
-import { IWorkspaceInfo } from "../../../models";
-import { ICmParser } from "../../shell";
 import { CommandInfo } from "./commandInfo";
+import { ICmParser } from "../../shell";
+import { IWorkspaceInfo } from "../../../models";
 
 export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {
   private mOutputBuffer: string[];
   private mErrorBuffer: string[];
   private mError: Error | undefined;
 
-  constructor() {
+  public constructor() {
     this.mOutputBuffer = [];
     this.mErrorBuffer = [];
   }
@@ -39,7 +39,7 @@ export class GetWorkspaceFromPathParser implements ICmParser<IWorkspaceInfo> {
     }
 
     this.mError = new Error(this.mErrorBuffer.concat(
-      ["Parsing failed:", ...this.mOutputBuffer]).join(os.EOL));
+      [ "Parsing failed:", ...this.mOutputBuffer ]).join(os.EOL));
     return Promise.resolve(undefined);
   }
 

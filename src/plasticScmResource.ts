@@ -1,7 +1,7 @@
 import * as path from "path";
+import { ChangeType, IChangeInfo } from "./models";
 import { Command, SourceControlResourceDecorations, SourceControlResourceState, ThemeColor, Uri } from "vscode";
 import { memoize } from "./decorators";
-import { ChangeType, IChangeInfo } from "./models";
 
 const iconsRootPath = path.join(__dirname, "..", "images", "icons");
 
@@ -9,7 +9,47 @@ function getIconPath(iconName: string, theme: string): Uri {
   return Uri.file(path.join(iconsRootPath, theme, `${iconName}.svg`));
 }
 
+interface IIcons {
+  [theme: string]: IIconSet;
+}
+
+interface IIconSet {
+  added: Uri;
+  changed: Uri;
+  checkedout: Uri;
+  deleted: Uri;
+  moved: Uri;
+  private: Uri;
+}
+
 export class PlasticScmResource implements SourceControlResourceState {
+
+  public command?: Command;
+
+  private static icons: IIcons = {
+    dark: {
+      added: getIconPath("status-added", "dark"),
+      changed: getIconPath("status-modified", "dark"),
+      checkedout: getIconPath("status-modified", "dark"),
+      deleted: getIconPath("status-deleted", "dark"),
+      moved: getIconPath("status-renamed", "dark"),
+      private: getIconPath("status-unversioned", "dark"),
+    },
+    light: {
+      added: getIconPath("status-added", "light"),
+      changed: getIconPath("status-modified", "light"),
+      checkedout: getIconPath("status-modified", "light"),
+      deleted: getIconPath("status-deleted", "light"),
+      moved: getIconPath("status-renamed", "light"),
+      private: getIconPath("status-unversioned", "light"),
+    },
+  };
+
+  private mChangeInfo: IChangeInfo;
+
+  public constructor(changeInfo: IChangeInfo) {
+    this.mChangeInfo = changeInfo;
+  }
 
   @memoize
   public get resourceUri(): Uri {
@@ -90,7 +130,7 @@ export class PlasticScmResource implements SourceControlResourceState {
 
   private get tooltip(): string {
     if (this.mChangeInfo.type & ChangeType.Moved) {
-      return `Moved from ${this.mChangeInfo.oldPath?.fsPath}`;
+      return `Moved from ${this.mChangeInfo.oldPath?.fsPath || ""}`;
     }
 
     if (this.mChangeInfo.type & ChangeType.Private) {
@@ -120,58 +160,36 @@ export class PlasticScmResource implements SourceControlResourceState {
     return "Unknown";
   }
 
-  private static Icons: any = {
-    dark: {
-      Added: getIconPath("status-added", "dark"),
-      Changed: getIconPath("status-modified", "dark"),
-      Checkedout: getIconPath("status-modified", "dark"),
-      Deleted: getIconPath("status-deleted", "dark"),
-      Moved: getIconPath("status-renamed", "dark"),
-      Private: getIconPath("status-unversioned", "dark"),
-    },
-    light: {
-      Added: getIconPath("status-added", "light"),
-      Changed: getIconPath("status-modified", "light"),
-      Checkedout: getIconPath("status-modified", "light"),
-      Deleted: getIconPath("status-deleted", "light"),
-      Moved: getIconPath("status-renamed", "light"),
-      Private: getIconPath("status-unversioned", "light"),
-    },
-  };
-
   private static getIconPath(changeType: ChangeType, theme: string): Uri {
+    const icons = PlasticScmResource.icons[theme];
+    if (!icons) {
+      throw new Error(`Unknown theme: ${theme}`);
+    }
+
     if (changeType & ChangeType.Private) {
-      return PlasticScmResource.Icons[theme].Private;
+      return icons.private;
     }
 
     if (changeType & ChangeType.Added) {
-      return PlasticScmResource.Icons[theme].Added;
+      return icons.added;
     }
 
     if (changeType & ChangeType.Changed) {
-      return PlasticScmResource.Icons[theme].Changed;
+      return icons.changed;
     }
 
     if (changeType & ChangeType.Moved) {
-      return PlasticScmResource.Icons[theme].Moved;
+      return icons.moved;
     }
 
     if (changeType & ChangeType.Checkedout) {
-      return PlasticScmResource.Icons[theme].Checkedout;
+      return icons.checkedout;
     }
 
     if (changeType & ChangeType.Deleted) {
-      return PlasticScmResource.Icons[theme].Deleted;
+      return icons.deleted;
     }
 
     throw new Error(`Unknown ChangeType: ${changeType}`);
-  }
-
-  public command?: Command;
-
-  private mChangeInfo: IChangeInfo;
-
-  public constructor(changeInfo: IChangeInfo) {
-    this.mChangeInfo = changeInfo;
   }
 }

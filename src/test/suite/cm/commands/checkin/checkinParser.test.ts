@@ -1,12 +1,12 @@
-import { expect } from "chai";
 import * as os from "os";
 import { CheckinParser } from "../../../../../cm/commands/checkin/checkinParser";
-import { ICmParser } from "../../../../../cm/shell";
+import { expect } from "chai";
 import { ICheckinChangeset } from "../../../../../models";
+import { ICmParser } from "../../../../../cm/shell";
 
 describe("Checkin Parser", () => {
   const toSpec: (cset: ICheckinChangeset) => string = cset =>
-    `cs:${cset.changesetInfo.changesetId}@br:${cset.changesetInfo.branch}@`
+    `cs:${cset.changesetInfo.changesetId}@br:${cset.changesetInfo.branch || ""}@`
     + `${cset.changesetInfo.repository}@${cset.changesetInfo.server} (mount:'${cset.mountPath}')`;
 
   context("When there is no input", () => {
@@ -152,7 +152,7 @@ describe("Checkin Parser", () => {
       `STAGE${CheckinParser.SEPARATOR}`,
       `CO${CheckinParser.SEPARATOR}c:\\Users\\miguel\\wkspaces\\wk1\\foo.c`,
       `CO${CheckinParser.SEPARATOR}c:\\Users\\miguel\\wkspaces\\wk1\\bar.c`,
-      `CHANGESET${CheckinParser.SEPARATOR}${[csets[1], csets[2], csets[0]].map(toSpec).join(",")}`,
+      `CHANGESET${CheckinParser.SEPARATOR}${[ csets[1], csets[2], csets[0] ].map(toSpec).join(",")}`,
     ];
 
     let error: Error | undefined;

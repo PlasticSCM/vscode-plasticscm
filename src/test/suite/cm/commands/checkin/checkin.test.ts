@@ -1,9 +1,9 @@
-import { expect } from "chai";
-import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
-import { OutputChannel } from "vscode";
-import { Checkin } from "../../../../../cm/commands";
 import { ICmParser, ICmShell } from "../../../../../cm/shell";
+import { IMock, It, Mock, MockBehavior, Times } from "typemoq";
+import { Checkin } from "../../../../../cm/commands";
+import { expect } from "chai";
 import { ICheckinChangeset } from "../../../../../models";
+import { OutputChannel } from "vscode";
 
 describe("Checkin Command", () => {
   context("When the command runs successfully", () => {
@@ -27,8 +27,8 @@ describe("Checkin Command", () => {
       cmShellMock
         .setup(mock => mock.exec(
           It.isAnyString(),
-          It.is(args => true),
-          It.is<ICmParser<ICheckinChangeset[]>>(parser => true)))
+          It.is(() => true),
+          It.is<ICmParser<ICheckinChangeset[]>>(() => true)))
         .returns(() => Promise.resolve({
           result,
           success: true,
@@ -66,8 +66,8 @@ describe("Checkin Command", () => {
       cmShellMock
         .setup(mock => mock.exec(
           It.isAnyString(),
-          It.is(args => true),
-          It.is<ICmParser<ICheckinChangeset[]>>(parser => true)))
+          It.is(() => true),
+          It.is<ICmParser<ICheckinChangeset[]>>(() => true)))
         .returns(() => Promise.resolve({
           error: new Error("Sample error"),
           success: true,
@@ -82,7 +82,7 @@ describe("Checkin Command", () => {
             "/path/to/wk/foo.c",
             "/path/to/wk/bar.c");
         } catch (e) {
-          error = e;
+          error = e as Error;
         }
       });
 
@@ -107,8 +107,8 @@ describe("Checkin Command", () => {
     cmShellMock
       .setup(mock => mock.exec(
         It.isAnyString(),
-        It.is(args => true),
-        It.is<ICmParser<ICheckinChangeset[]>>(parser => true)))
+        It.is(() => true),
+        It.is<ICmParser<ICheckinChangeset[]>>(() => true)))
       .returns(() => Promise.resolve({
         error: new Error("Sample error"),
         success: false,
@@ -123,16 +123,16 @@ describe("Checkin Command", () => {
           "/path/to/wk/foo.c",
           "/path/to/wk/bar.c");
       } catch (e) {
-        error = e;
+        error = e as Error;
       }
     });
 
     it("produces the expected error", () => {
-        expect(error).to.be.not.undefined;
-        expect(error!.message).to.equal("Command execution failed.");
+      expect(error).to.be.not.undefined;
+      expect(error!.message).to.equal("Sample error");
     });
 
-    it("calls the expected shell methods", async () => {
+    it("calls the expected shell methods", () => {
       cmShellMock.verify(
         mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
         Times.once());

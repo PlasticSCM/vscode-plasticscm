@@ -17,7 +17,7 @@ export class Status {
 
     const result: ICmResult<IPendingChanges> = await shell.exec(
       "status",
-      [rootDir, "--xml", "--encoding=utf-8", "--fp"],
+      [ rootDir, "--xml", "--encoding=utf-8", "--fp" ],
       parser);
 
     if (!result.success) {

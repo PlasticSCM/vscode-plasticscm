@@ -1,9 +1,9 @@
 import * as os from "os";
-import { Uri } from "vscode";
 import * as xml2js from "xml2js";
-import { firstCharLowerCase, parseBooleans, parseNumbers } from "xml2js/lib/processors";
 import { ChangeType, IChangeInfo, IPendingChanges, WkConfigType } from "../../../models";
+import { firstCharLowerCase, parseBooleans, parseNumbers } from "xml2js/lib/processors";
 import { ICmParser } from "../../shell";
+import { Uri } from "vscode";
 
 function normalizePath(path: string): string {
   return path.replace(/\\/g, "/");
@@ -28,14 +28,14 @@ export class StatusParser implements ICmParser<IPendingChanges> {
       explicitRoot: false,
       tagNameProcessors: [firstCharLowerCase],
       trim: true,
-      valueProcessors: [parseNumbers, parseBooleans],
+      valueProcessors: [ parseNumbers, parseBooleans ],
     };
 
     try {
       return this.parseXml(await xml2js.parseStringPromise(
         this.mOutputBuffer.join(""), options));
     } catch (error) {
-      this.mParseError = error;
+      this.mParseError = error as Error;
       return undefined;
     }
   }
@@ -88,15 +88,15 @@ export class StatusParser implements ICmParser<IPendingChanges> {
   }
 
   private mergeChanges(
-      destination: IChangeInfo | undefined, source: IChangeInfo): IChangeInfo {
+    destination: IChangeInfo | undefined, source: IChangeInfo): IChangeInfo {
     if (!destination) {
       return source;
     }
 
     return {
       oldPath: destination.oldPath ?? source.oldPath,
-      path: destination!.path,
-      type: destination!.type | source.type,
+      path: destination.path,
+      type: destination.type | source.type,
     };
   }
 }
@@ -114,7 +114,7 @@ interface IStatusOutput {
   wkConfigType: WkConfigType;
   wkConfigName: string;
   changes: {
-    change: IChange[],
+    change: IChange[];
   };
 }
 
