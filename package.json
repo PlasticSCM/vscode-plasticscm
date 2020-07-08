@@ -35,10 +35,16 @@
       "type": "object",
       "title": "Plastic SCM",
       "properties": {
+        "plastic-scm.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Whether Plastic SCM is enabled.",
+          "scope": "window"
+        },
         "plastic-scm.cmConfiguration.cmPath": {
           "type": "string",
           "default": "cm",
-          "markdownDescription": "Specifies a given `cm` executable that is not in your `PATH` environment variable",
+          "markdownDescription": "Specifies a given `cm` executable that is not in your `PATH` environment variable.",
           "scope": "window"
         },
         "plastic-scm.cmConfiguration.millisToWaitUntilUp": {
