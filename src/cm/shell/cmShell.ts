@@ -27,7 +27,7 @@ export class CmShell implements ICmShell {
   private readonly mErrStream: LineStream;
   private mbIsBusy = true;
   private mConfiguration: Configuration;
-  private mOnConfigurationDidChange: Disposable;
+  private mDisposables: Disposable;
   private mShellConfig: IShellConfig;
 
   public get isRunning(): boolean {
@@ -47,17 +47,18 @@ export class CmShell implements ICmShell {
     });
     this.mConfiguration = configuration;
     this.mShellConfig = configuration.get().cmConfiguration;
-    this.mOnConfigurationDidChange = configuration.onDidChange(
-      async () => await this.updateShellConfig());
+    this.mDisposables = Disposable.from(
+      this.mOutStream,
+      this.mErrStream,
+      configuration.onDidChange(async () => await this.updateShellConfig())
+    );
   }
 
   public dispose(): void {
-    this.mErrStream.dispose();
-    this.mOutStream.dispose();
+    this.mDisposables.dispose();
     if (this.mProcess && this.isRunning) {
       this.mProcess.kill();
     }
-    this.mOnConfigurationDidChange.dispose();
   }
 
   public async start(): Promise<boolean> {
