@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: trigger release
-        if: startsWith(github.ref, 'refs/heads/master') && matrix.os == "ubuntu-latest" && contains(github.event.head_commit.message, 'trigger_release')
+        if: startsWith(github.ref, 'refs/heads/master') && matrix.os == 'ubuntu-latest' && contains(github.event.head_commit.message, 'trigger_release')
         run: echo "::set-env name=TRIGGER_RELEASE::yes"
 
       - name: checkout repo
