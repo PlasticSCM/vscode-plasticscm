@@ -1,8 +1,10 @@
 // tslint:disable-next-line: interface-name
 export interface IConfig {
-  cmConfiguration: {
-    cmPath: string | null;
-    millisToWaitUntilUp: number | null;
-  };
+  cmConfiguration: IShellConfig;
   autorefresh: boolean;
+}
+
+export interface IShellConfig {
+  cmPath: string;
+  millisToWaitUntilUp: number;
 }
