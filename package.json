@@ -37,7 +37,7 @@
       "properties": {
         "plastic-scm.cmConfiguration.cmPath": {
           "type": "string",
-          "default": "",
+          "default": "cm",
           "markdownDescription": "Specifies a given `cm` executable that is not in your `PATH` environment variable",
           "scope": "window"
         },
