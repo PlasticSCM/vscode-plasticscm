@@ -118,7 +118,7 @@
     "eslint": "^7.4.0",
     "eslint-config-prettier": "^6.11.0",
     "glob": "^7.1.5",
-    "mocha": "^6.2.2",
+    "mocha": "^8.0.1",
     "nyc": "^14.1.1",
     "typemoq": "^2.1.0",
     "typescript": "^3.6.4",
