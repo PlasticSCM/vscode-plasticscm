@@ -60,7 +60,7 @@ jobs:
         shell: powershell
         run: |
             $package = (Get-Content package.json | ConvertFrom-Json)
-            $package.version = ${{ steps.gitversion.outputs.semVer }}
+            $package.version = "${{ steps.gitversion.outputs.semVer }}"
             $package | ConvertTo-Json | Set-Content package.json
 
       - name: update metadata in package.json (non-Windows)
