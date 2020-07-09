@@ -4,8 +4,6 @@
 
 # Plastic SCM integration with VS Code's SCM features
 
-![CI](https://github.com/PlasticSCM/vscode-plasticscm/workflows/CI/badge.svg)
-
 ## Intro
 
 [`plastic-scm`](https://marketplace.visualstudio.com/items?itemName=plastic-scm.plastic-scm)
