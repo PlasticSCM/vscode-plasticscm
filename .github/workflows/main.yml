@@ -85,9 +85,8 @@ jobs:
 
       - name: upload vsix as artifact
         uses: actions/upload-artifact@v1
-        if: success() && matrix.os == 'ubuntu-latest'
         with:
-          name: plastic-scm-${{ steps.gitversion.outputs.semVer }}.vsix
+          name: plastic-scm-${{ steps.gitversion.outputs.semVer }}-${{ runner.os }}.vsix
           path: ${{ github.workspace }}/plastic-scm-${{ steps.gitversion.outputs.semVer }}.vsix
 
       - name: publish to marketplace
