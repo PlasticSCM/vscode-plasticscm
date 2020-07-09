@@ -61,7 +61,7 @@ jobs:
         run: |
           Get-Content -Path package.json | ForEach-Object {
             if ($_ -like '*"version":*') {
-              $_ -replace ': ".*"', ': "jajajaja"'
+              $_ -replace ': ".*"', ': "${{ steps.gitversion.outputs.semVer }}"'
             } else {
               $_
             }
