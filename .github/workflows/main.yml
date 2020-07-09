@@ -50,12 +50,20 @@ jobs:
       - name: clean install dependencies
         run: npm ci
 
-      - name: update metadata in package.json
-        uses: onlyutkarsh/patch-files-action@v1.0
-        with:
-          files: "${{github.workspace}}/package.json"
-          patch-syntax: |
-            = /version => "${{ steps.gitversion.outputs.semVer }}"
+      - name: update metadata in package.json (Windows)
+        if: success() && matrix.os == 'windows-latest'
+        shell: powershell
+        run: |
+            $file = "${{ github.workspace }}/package.json"
+            $package = (Get-Content "${{github.workspace}}/package.json" | ConvertFrom-Json)
+            $package.version = ${{ steps.gitversion.outputs.semVer }}
+            $package | ConvertTo-Json | Set-Content "$file"
+
+      - name: update metadata in package.json (non-Windows)
+        if: success() && matrix.os != 'windows-latest'
+        run: >
+          sed -e '/"version"/{s/: ".*"/: "${{ steps.gitversion.outputs.semVer }}"/}'
+          ${{github.workspace}}/package.json | tee ${{github.workspace}}/package.json
 
       - name: ensure there are no linting errors
         run: npm run lint
