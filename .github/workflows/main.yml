@@ -10,6 +10,10 @@ jobs:
   build:
     name: Testing on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     strategy:
       matrix:
@@ -55,16 +59,18 @@ jobs:
         if: success() && matrix.os == 'windows-latest'
         shell: powershell
         run: |
-            $file = "${{ github.workspace }}/package.json"
-            $package = (Get-Content "${{github.workspace}}/package.json" | ConvertFrom-Json)
+            $package = (Get-Content package.json | ConvertFrom-Json)
             $package.version = ${{ steps.gitversion.outputs.semVer }}
-            $package | ConvertTo-Json | Set-Content "$file"
+            $package | ConvertTo-Json | Set-Content package.json
 
       - name: update metadata in package.json (non-Windows)
         if: success() && matrix.os != 'windows-latest'
-        run: >
-          sed -e '/"version"/{s/: ".*"/: "${{ steps.gitversion.outputs.semVer }}"/}'
-          ${{github.workspace}}/package.json | tee ${{github.workspace}}/package.json
+        run: |
+          cat package.json
+          cat package.json >&2
+          sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion.outputs.semVer }}"/' package.json | tee package.json
+          cat package.json
+          cat package.json >&2
 
       - name: ensure there are no linting errors
         run: npm run lint
