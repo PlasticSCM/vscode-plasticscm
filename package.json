@@ -119,7 +119,7 @@
     "eslint-config-prettier": "^6.11.0",
     "glob": "^7.1.5",
     "mocha": "^6.2.2",
-    "nyc": "^14.1.1",
+    "nyc": "^15.1.0",
     "typemoq": "^2.1.0",
     "typescript": "^3.6.4",
     "vsce": "^1.71.0",
