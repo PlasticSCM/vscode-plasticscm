@@ -68,8 +68,6 @@ jobs:
         run: |
           sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion.outputs.semVer }}"/' package.json | tee package.json.modified
           mv package.json.modified package.json
-          echo "Displaying results"
-          cat package.json >&2
 
       - name: ensure there are no linting errors
         run: npm run lint
@@ -87,9 +85,10 @@ jobs:
 
       - name: upload vsix as artifact
         uses: actions/upload-artifact@v1
+        if: success() && matrix.os == 'ubuntu-latest'
         with:
-          name: vscode-plasticscm-${{ steps.gitversion.outputs.semVer }}.vsix
-          path: ${{ github.workspace }}/vscode-plasticscm-${{ steps.gitversion.outputs.semVer }}.vsix
+          name: plastic-scm-${{ steps.gitversion.outputs.semVer }}.vsix
+          path: ${{ github.workspace }}/plastic-scm-${{ steps.gitversion.outputs.semVer }}.vsix
 
       - name: publish to marketplace
         if: success() && env.TRIGGER_RELEASE == 'yes'
