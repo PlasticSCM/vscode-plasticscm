@@ -59,9 +59,14 @@ jobs:
         if: success() && matrix.os == 'windows-latest'
         shell: powershell
         run: |
-            $package = (Get-Content package.json | ConvertFrom-Json)
-            $package.version = "${{ steps.gitversion.outputs.semVer }}"
-            $package | ConvertTo-Json | Set-Content package.json
+          Get-Content -Path package.json | ForEach-Object {
+            if ($_ -like '*"version":*') {
+              $_ -replace ': ".*"', ': "jajajaja"'
+            } else {
+              $_
+            }
+          } | Add-Content -Path package.bkp.json
+          Move-Item -Path package.bkp.json -Destination package.json -Force
 
       - name: update metadata in package.json (non-Windows)
         if: success() && matrix.os != 'windows-latest'
