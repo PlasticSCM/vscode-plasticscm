@@ -9,10 +9,10 @@ import { OutputChannel } from "vscode";
 
 export class Checkin {
   public static async run(
-    shell: ICmShell,
-    channel: OutputChannel,
-    message: string,
-    ...paths: string[]): Promise<ICheckinChangeset[]> {
+      shell: ICmShell,
+      channel: OutputChannel,
+      message: string,
+      ...paths: string[]): Promise<ICheckinChangeset[]> {
     const parser: ICmParser<ICheckinChangeset[]> = new CheckinParser();
 
     const args: string[] = [

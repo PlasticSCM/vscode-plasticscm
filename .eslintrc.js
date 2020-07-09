@@ -60,18 +60,6 @@ module.exports = {
                 "accessibility": "explicit"
             }
         ],
-        "@typescript-eslint/indent": [
-            "warn",
-            2,
-            {
-                "FunctionDeclaration": {
-                    "parameters": "first"
-                },
-                "FunctionExpression": {
-                    "parameters": "first"
-                }
-            }
-        ],
         "@typescript-eslint/member-delimiter-style": [
             "warn",
             {
@@ -142,13 +130,6 @@ module.exports = {
         "@typescript-eslint/prefer-for-of": "warn",
         "@typescript-eslint/prefer-function-type": "warn",
         "@typescript-eslint/prefer-namespace-keyword": "warn",
-        "@typescript-eslint/quotes": [
-            "warn",
-            "double",
-            {
-                "avoidEscape": true
-            }
-        ],
         "@typescript-eslint/semi": [
             "warn",
             "always"
@@ -192,7 +173,7 @@ module.exports = {
         "complexity": "off",
         "computed-property-spacing": "error",
         "constructor-super": "warn",
-        "curly": "warn",
+        "curly": "error",
         "eol-last": "warn",
         "eqeqeq": [
             "warn",
@@ -213,6 +194,20 @@ module.exports = {
             "undefined"
         ],
         "id-match": "warn",
+        "indent": [
+            "warn",
+            2,
+            {
+                "FunctionDeclaration": {
+                    "body": 1,
+                    "parameters": 2
+                },
+                "FunctionExpression": {
+                    "body": 1,
+                    "parameters": 2
+                }
+            }
+        ],
         "key-spacing": "error",
         "keyword-spacing": "error",
         "max-classes-per-file": [
@@ -265,6 +260,13 @@ module.exports = {
         ],
         "prefer-arrow-callback": "warn",
         "prefer-const": "warn",
+        "quotes": [
+            "error",
+            "double",
+            {
+                "avoidEscape": true
+            }
+        ],
         "quote-props": [
             "warn",
             "consistent-as-needed"

@@ -70,9 +70,9 @@ export class CheckinParser implements ICmParser<ICheckinChangeset[]> {
       .trim()
       .split(CheckinParser.CHANGESET_SEPARATOR)
       .reduce<ICheckinChangeset[]>((csets, checkinCsetSpec) => {
-      const checkinCset: ICheckinChangeset | null = checkinChangeset.parse(checkinCsetSpec);
-      return checkinCset ? csets.concat(checkinCset) : csets;
-    }, [])
+        const checkinCset: ICheckinChangeset | null = checkinChangeset.parse(checkinCsetSpec);
+        return checkinCset ? csets.concat(checkinCset) : csets;
+      }, [])
       .sort((x, y) => x.mountPath.localeCompare(y.mountPath));
   }
 }
