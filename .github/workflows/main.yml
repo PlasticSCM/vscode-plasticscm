@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: Testing on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    steps:
+      - name: trigger release
+        if: startsWith(github.ref, 'refs/heads/master') && matrix.os == 'ubuntu-latest' && contains(github.event.head_commit.message, 'trigger_release')
+        run: echo "::set-env name=TRIGGER_RELEASE::yes"
+
+      - name: checkout repo
+        uses: actions/checkout@v2
+
+      - name: fetch all history and tags for gitversion
+        run: git fetch --prune --unshallow
+
+      - name: install gitversion
+        uses: gittools/actions/gitversion/setup@v0.9.4
+        with:
+          versionSpec: '5.2.x'
+
+      - name: execute gitversion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.4
+
+      - name: print gitversion
+        run: |
+          echo "Major: ${{ steps.gitversion.outputs.major }}"
+          echo "Minor: ${{ steps.gitversion.outputs.minor }}"
+          echo "Patch: ${{ steps.gitversion.outputs.patch }}"
+          echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+
+      - name: setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+
+      - name: clean install dependencies
+        run: npm ci
+
+      - name: update metadata in package.json (Windows)
+        if: success() && matrix.os == 'windows-latest'
+        shell: powershell
+        run: |
+            $package = (Get-Content package.json | ConvertFrom-Json)
+            $package.version = "${{ steps.gitversion.outputs.semVer }}"
+            $package | ConvertTo-Json | Set-Content package.json
+
+      - name: update metadata in package.json (non-Windows)
+        if: success() && matrix.os != 'windows-latest'
+        run: |
+          sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion.outputs.semVer }}"/' package.json | tee package.json.modified
+          mv package.json.modified package.json
+
+      - name: ensure there are no linting errors
+        run: npm run lint
+
+      - name: compile the extension and the tests
+        run: npm run compile
+
+      - name: run tests
+        uses: GabrielBB/xvfb-action@v1.2
+        with:
+          run: npm run test
+
+      - name: compile and create vsix
+        run: npm run package
+
+      - name: upload vsix as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: plastic-scm-${{ steps.gitversion.outputs.semVer }}-${{ runner.os }}.vsix
+          path: ${{ github.workspace }}/plastic-scm-${{ steps.gitversion.outputs.semVer }}.vsix
+
+      - name: publish to marketplace
+        if: success() && env.TRIGGER_RELEASE == 'yes'
+        env:
+          VSCE_PAT: ${{ secrets.VscePat }}
+        run: npm run deploy -p ${{ env.VSCE_PAT }}
+
+      - name: create a release
+        if: success() && env.TRIGGER_RELEASE == 'yes'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.gitversion.outputs.semVer }}
+          release_name: v${{ steps.gitversion.outputs.semVer }}
