@@ -66,10 +66,9 @@ jobs:
       - name: update metadata in package.json (non-Windows)
         if: success() && matrix.os != 'windows-latest'
         run: |
-          cat package.json
-          cat package.json >&2
-          sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion.outputs.semVer }}"/' package.json | tee package.json
-          cat package.json
+          sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion.outputs.semVer }}"/' package.json | tee package.json.modified
+          mv package.json.modified package.json
+          echo "Displaying results"
           cat package.json >&2
 
       - name: ensure there are no linting errors
