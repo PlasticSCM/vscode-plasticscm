@@ -110,11 +110,6 @@ jobs:
           sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion-after.outputs.semVer }}"/' package.json | tee package.json.modified
           mv package.json.modified package.json
 
-      - name: add updated package.json
-        run: |
-          git add package.json
-          git commit --no-verify -s -m '[Automatic] Bump version name (ci skip)'
-
       - name: create pull request
         id: cpr
         uses: peter-evans/create-pull-request@v2
