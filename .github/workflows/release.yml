@@ -50,6 +50,15 @@ jobs:
           sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion-before.outputs.semVer }}"/' package.json | tee package.json.modified
           mv package.json.modified package.json
 
+      - name: compile and create vsix
+        run: npm run package
+
+      - name: zip vsix package
+        run: >
+          zip -j
+          plastic-scm-${{ steps.gitversion-before.outputs.semVer }}.vsix.zip
+          plastic-scm-${{ steps.gitversion-before.outputs.semVer }}.vsix
+
       - name: publish to marketplace
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
@@ -73,9 +82,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./plastic-scm-${{ steps.gitversion-before.outputs.semVer }}.vsix
-          asset_name: plastic-scm-${{ steps.gitversion-before.outputs.semVer }}.vsix
+          asset_path: ./plastic-scm-${{ steps.gitversion-before.outputs.semVer }}.vsix.zip
+          asset_name: plastic-scm-${{ steps.gitversion-before.outputs.semVer }}.vsix.zip
           asset_content_type: application/zip
+
+      - name: bump version by using an empty commit
+        run: |
+          git config --global user.name 'Plastic SCM Releases'
+          git config --global user.email 'support@codicesoftware.com'
+          git commit --allow-empty -s -m 'Empty commit to bump version (ci skip)'
 
       - name: execute gitversion again
         id: gitversion-after
@@ -94,11 +109,12 @@ jobs:
           sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion-after.outputs.semVer }}"/' package.json | tee package.json.modified
           mv package.json.modified package.json
 
-      - name: commit and push updated package.json
-        uses: stefanzweifel/git-auto-commit-action@v4
+      - name: commit updated package.json
+        run: |
+          git add package.json
+          git commit --noverify -s -m '[Automatic] Bump version name (ci skip)'
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
         with:
-          commit_message: '[Automatic] Bump version name'
-          commit_options: '--no-verify --signoff'
-          file_pattern: package.json
-          commit_user_name: Plastic SCM Releases
-          commit_user_email: support@codicesoftware.com
+          github_token: ${{ secrets.GITHUB_TOKEN }}
