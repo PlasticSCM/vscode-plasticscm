@@ -112,12 +112,28 @@ jobs:
           sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion-after.outputs.semVer }}"/' package.json | tee package.json.modified
           mv package.json.modified package.json
 
-      - name: commit updated package.json
+      - name: add updated package.json
         run: |
           git add package.json
           git commit --no-verify -s -m '[Automatic] Bump version name (ci skip)'
 
-      - name: Push changes
-        uses: ad-m/github-push-action@master
+      - name: create pull request
+        id: cpr
+        uses: peter-evans/create-pull-request@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: '[create-pull-request] Bump version to ${{ steps.gitversion-after.outputs.semVer }}'
+          title: >
+            Bump version
+            from ${{ steps.gitversion-before.outputs.semVer }}
+            to ${{ steps.gitversion-after.outputs.semVer }}
+          body: |
+            Release `${{ steps.gitversion-before.outputs.semVer }}` was successful!
+            Let's make it official and update that version number.
+
+            Automated changes by [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub action
+          labels: release, automated
+          branch: bump-version-${{ steps.gitversion-after.outputs.semVer }}
+
+      - name: print PR number
+        run: |
+          echo 'Created pull request #${{ steps.cpr.outputs.pull-request-number }}'
