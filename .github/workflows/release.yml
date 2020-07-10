@@ -26,20 +26,20 @@ jobs:
           versionSpec: '5.2.x'
 
       - name: execute gitversion
-        id: gitversion
+        id: gitversion-before
         uses: gittools/actions/gitversion/execute@v0.9.4
 
       - name: print gitversion before release
         run: |
-          echo "Major: ${{ steps.gitversion.outputs.major }}"
-          echo "Minor: ${{ steps.gitversion.outputs.minor }}"
-          echo "Patch: ${{ steps.gitversion.outputs.patch }}"
-          echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
-          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+          echo "Major: ${{ steps.gitversion-before.outputs.major }}"
+          echo "Minor: ${{ steps.gitversion-before.outputs.minor }}"
+          echo "Patch: ${{ steps.gitversion-before.outputs.patch }}"
+          echo "MajorMinorPatch: ${{ steps.gitversion-before.outputs.majorMinorPatch }}"
+          echo "SemVer: ${{ steps.gitversion-before.outputs.semVer }}"
 
       - name: update version in package.json
         run: |
-          sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion.outputs.semVer }}"/' package.json | tee package.json.modified
+          sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion-before.outputs.semVer }}"/' package.json | tee package.json.modified
           mv package.json.modified package.json
 
       - name: publish to marketplace
@@ -53,8 +53,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ steps.gitversion.outputs.semVer }}
-          release_name: v${{ steps.gitversion.outputs.semVer }}
+          tag_name: v${{ steps.gitversion-before.outputs.semVer }}
+          release_name: v${{ steps.gitversion-before.outputs.semVer }}
           draft: false
           prerelease: false
 
@@ -65,26 +65,25 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./plastic-scm-${{ steps.gitversion.outputs.semVer }}.vsix
-          asset_name: plastic-scm-${{ steps.gitversion.outputs.semVer }}.vsix
+          asset_path: ./plastic-scm-${{ steps.gitversion-before.outputs.semVer }}.vsix
+          asset_name: plastic-scm-${{ steps.gitversion-before.outputs.semVer }}.vsix
           asset_content_type: application/zip
-      - name: bump version number
 
       - name: execute gitversion again
-        id: gitversion
+        id: gitversion-after
         uses: gittools/actions/gitversion/execute@v0.9.4
 
       - name: print gitversion after release
         run: |
-          echo "Major: ${{ steps.gitversion.outputs.major }}"
-          echo "Minor: ${{ steps.gitversion.outputs.minor }}"
-          echo "Patch: ${{ steps.gitversion.outputs.patch }}"
-          echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
-          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+          echo "Major: ${{ steps.gitversion-after.outputs.major }}"
+          echo "Minor: ${{ steps.gitversion-after.outputs.minor }}"
+          echo "Patch: ${{ steps.gitversion-after.outputs.patch }}"
+          echo "MajorMinorPatch: ${{ steps.gitversion-after.outputs.majorMinorPatch }}"
+          echo "SemVer: ${{ steps.gitversion-after.outputs.semVer }}"
 
       - name: update new version in package.json
         run: |
-          sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion.outputs.semVer }}"/' package.json | tee package.json.modified
+          sed -e '/"version"/s/: ".*"/: "${{ steps.gitversion-after.outputs.semVer }}"/' package.json | tee package.json.modified
           mv package.json.modified package.json
 
       - name: commit and push updated package.json
