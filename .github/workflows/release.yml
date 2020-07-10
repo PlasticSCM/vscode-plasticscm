@@ -72,8 +72,6 @@ jobs:
         with:
           tag_name: v${{ steps.gitversion-before.outputs.semVer }}
           release_name: v${{ steps.gitversion-before.outputs.semVer }}
-          draft: false
-          prerelease: false
 
       - name: upload release asset
         id: upload-release-asset
