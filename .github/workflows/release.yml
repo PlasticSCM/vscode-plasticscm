@@ -17,6 +17,14 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v2
 
+      - name: setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+
+      - name: clean install dependencies
+        run: npm ci
+
       - name: fetch all history and tags for gitversion
         run: git fetch --prune --unshallow
 
