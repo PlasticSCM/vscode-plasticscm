@@ -69,9 +69,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ steps.gitversion-before.outputs.semVer }}
-          release_name: >
-            Plastic SCM extension for VS Code
-            v${{ steps.gitversion-before.outputs.semVer }}
+          release_name: v${{ steps.gitversion-before.outputs.semVer }}
           body: |
             # ${{ steps.gitversion-before.outputs.semVer }} - ${{ steps.date.outputs.date }}
 
@@ -124,6 +122,13 @@ jobs:
           body: |
             Release `${{ steps.gitversion-before.outputs.semVer }}` was successful!
             Let's make it official and update that version number.
+
+            Since this PR is triggered from inside a workflow, GitHub prevents it from
+            triggering other workflows (e.g. CI) to avoid recursive workflow runs.
+            [See more info here](https://docs.github.com/en/actions/reference/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token).
+
+
+            As a workaround, checkout that PR branch and push an empty commit to it.
 
             Automated changes by [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub action
           labels: release, automated
