@@ -85,7 +85,7 @@ jobs:
         run: |
           git config --global user.name 'Plastic SCM Releases'
           git config --global user.email 'support@codicesoftware.com'
-          git commit --allow-empty -s -m 'Empty commit to bump version (ci skip)'
+          git commit --allow-empty -s -m 'Empty commit to bump version'
 
       - name: execute gitversion again
         id: gitversion-after
