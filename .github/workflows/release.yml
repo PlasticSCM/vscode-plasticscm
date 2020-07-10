@@ -86,6 +86,9 @@ jobs:
           asset_name: plastic-scm-${{ steps.gitversion-before.outputs.semVer }}.vsix.zip
           asset_content_type: application/zip
 
+      - name: fetch new tag for gitversion
+        run: git fetch --prune --unshallow
+
       - name: bump version by using an empty commit
         run: |
           git config --global user.name 'Plastic SCM Releases'
@@ -112,7 +115,7 @@ jobs:
       - name: commit updated package.json
         run: |
           git add package.json
-          git commit --noverify -s -m '[Automatic] Bump version name (ci skip)'
+          git commit --no-verify -s -m '[Automatic] Bump version name (ci skip)'
 
       - name: Push changes
         uses: ad-m/github-push-action@master
