@@ -20,10 +20,6 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
-      - name: trigger release
-        if: startsWith(github.ref, 'refs/heads/master') && matrix.os == 'ubuntu-latest' && contains(github.event.head_commit.message, 'trigger_release')
-        run: echo "::set-env name=TRIGGER_RELEASE::yes"
-
       - name: checkout repo
         uses: actions/checkout@v2
 
@@ -92,19 +88,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: plastic-scm-${{ steps.gitversion.outputs.semVer }}-${{ runner.os }}.vsix
-          path: ${{ github.workspace }}/plastic-scm-${{ steps.gitversion.outputs.semVer }}.vsix
-
-      - name: publish to marketplace
-        if: success() && env.TRIGGER_RELEASE == 'yes'
-        env:
-          VSCE_PAT: ${{ secrets.VscePat }}
-        run: npm run deploy -p ${{ env.VSCE_PAT }}
-
-      - name: create a release
-        if: success() && env.TRIGGER_RELEASE == 'yes'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.gitversion.outputs.semVer }}
-          release_name: v${{ steps.gitversion.outputs.semVer }}
+          path: plastic-scm-${{ steps.gitversion.outputs.semVer }}.vsix
