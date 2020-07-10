@@ -87,7 +87,7 @@ jobs:
           asset_content_type: application/zip
 
       - name: fetch new tag for gitversion
-        run: git fetch --prune --unshallow
+        run: git fetch
 
       - name: bump version by using an empty commit
         run: |
