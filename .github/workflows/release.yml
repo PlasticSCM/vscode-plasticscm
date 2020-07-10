@@ -58,6 +58,10 @@ jobs:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: npm run deploy
 
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+
       - name: create a release
         id: create_release
         uses: actions/create-release@v1
@@ -65,7 +69,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ steps.gitversion-before.outputs.semVer }}
-          release_name: v${{ steps.gitversion-before.outputs.semVer }}
+          release_name: >
+            Plastic SCM extension for VS Code
+            v${{ steps.gitversion-before.outputs.semVer }}
+          body: |
+            # ${{ steps.gitversion-before.outputs.semVer }} - ${{ steps.date.outputs.date }}
 
       - name: upload release asset
         id: upload-release-asset
