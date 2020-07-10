@@ -8,7 +8,7 @@ jobs:
   release:
     name: Release ${{  }}
     runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, 'trigger_release')"
+    if: "contains(github.event.head_commit.message, 'release:trigger')"
     defaults:
       run:
         working-directory: ${{ github.workspace }}
