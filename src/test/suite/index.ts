@@ -5,10 +5,10 @@ import * as path from "path";
 export function run(): Promise<void> {
   // Create the mocha test
   const mocha = new Mocha({
+    color: true,
     timeout: process.env.DEBUG === "TRUE" ? 0 : 2000,
     ui: "bdd",
   });
-  mocha.useColors(true);
 
   const testsRoot = path.resolve(__dirname, "..");
 
