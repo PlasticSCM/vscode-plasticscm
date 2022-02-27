@@ -79,6 +79,12 @@
         "icon": "$(check)"
       },
       {
+        "command": "plastic-scm.refresh",
+        "category": "Plastic SCM",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
         "command": "plastic-scm.openFile",
         "category": "Plastic SCM",
         "title": "Open File",
@@ -89,6 +95,11 @@
       "scm/title": [
         {
           "command": "plastic-scm.checkin",
+          "group": "navigation",
+          "when": "scmProvider == plastic-scm"
+        },
+        {
+          "command": "plastic-scm.refresh",
           "group": "navigation",
           "when": "scmProvider == plastic-scm"
         }
