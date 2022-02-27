@@ -18,6 +18,7 @@ export class OpenFileCommand implements Disposable {
   public constructor(plasticScm: PlasticScm) {
     this.mPlasticScm = plasticScm;
     this.mDisposable = commands.registerCommand(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       "plastic-scm.openFile", args => this.execute(args));
   }
 

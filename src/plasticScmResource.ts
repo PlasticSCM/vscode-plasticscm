@@ -7,7 +7,6 @@ import {
   SourceControlResourceState,
   ThemeColor,
   Uri,
-  window,
 } from "vscode";
 import { GetFile } from "./cm/commands";
 import { memoize } from "./decorators";

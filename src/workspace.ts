@@ -134,7 +134,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
       this.mSourceControl,
       this.mStatusResourceGroup,
       fsWatcher,
-      onWorkspaceFileChangeEvent(async (filePath: Uri) => this.onFileChanged(filePath), this),
+      onWorkspaceFileChangeEvent(async () => this.onFileChanged(), this),
     );
 
     this.mSourceControl.acceptInputCommand = {
@@ -165,6 +165,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
         });
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return await CmGetFileCommand.run(this.mWorkingDir, uri, this.mCurrentChangeset!, this.mShell);
     } else {
       return undefined;
@@ -172,7 +173,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
   }
 
   @throttle(1000)
-  private async onFileChanged(filePath: Uri): Promise<void> {
+  private async onFileChanged(): Promise<void> {
     if (!this.mConfig.autorefresh) {
       return;
     }
