@@ -1,4 +1,3 @@
-// tslint:disable-next-line: interface-name
 export interface IConfig {
   autorefresh: boolean;
   cmConfiguration: IShellConfig;
