@@ -63,6 +63,11 @@
           "type": "boolean",
           "default": true,
           "markdownDescription": "Autorefresh workspace status when something changes."
+        },
+        "plastic-scm.decorations.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Whether or not file decorations are enabled."
         }
       }
     },
@@ -71,10 +76,13 @@
         "command": "plastic-scm.checkin",
         "category": "Plastic SCM",
         "title": "Checkin",
-        "icon": {
-          "light": "images/icons/light/commit.svg",
-          "dark": "images/icons/dark/commit.svg"
-        }
+        "icon": "$(check)"
+      },
+      {
+        "command": "plastic-scm.openFile",
+        "category": "Plastic SCM",
+        "title": "Open File",
+        "icon": "$(go-to-file)"
       }
     ],
     "menus": {
@@ -83,6 +91,13 @@
           "command": "plastic-scm.checkin",
           "group": "navigation",
           "when": "scmProvider == plastic-scm"
+        }
+      ],
+      "scm/resourceState/context": [
+        {
+          "command": "plastic-scm.openFile",
+          "when": "scmProvider == plastic-scm && scmResourceGroup == status",
+          "group": "inline@1"
         }
       ]
     }
@@ -99,6 +114,7 @@
   },
   "dependencies": {
     "byline": "^5.0.0",
+    "isbinaryfile": "^4.0.8",
     "uuid": "^8.3.2",
     "xml2js": "^0.4.23"
   },

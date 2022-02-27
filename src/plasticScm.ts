@@ -11,6 +11,8 @@ import { CheckinCommand } from "./commands";
 import { GetWorkspaceFromPath } from "./cm/commands";
 import { IConfig } from "./config";
 import { IWorkspaceInfo } from "./models";
+import { OpenFileCommand } from "./commands/openFile";
+import { PlasticScmDecorations } from "./decorations";
 import { Workspace } from "./workspace";
 import { WorkspaceOperations } from "./workspaceOperations";
 
@@ -83,6 +85,8 @@ export class PlasticScm implements Disposable {
 
     if (this.mWorkspaces.size) {
       this.mDisposables.push(new CheckinCommand(this));
+      this.mDisposables.push(new OpenFileCommand(this));
+      this.mDisposables.push(new PlasticScmDecorations(this));
     }
   }
 
