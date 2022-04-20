@@ -8,6 +8,7 @@ import {
   window,
 } from "vscode";
 import { ChangeType } from "../models";
+import { existsSync } from "fs";
 import { PlasticScm } from "../plasticScm";
 import { PlasticScmResource } from "../plasticScmResource";
 
@@ -72,6 +73,10 @@ export class OpenFileCommand implements Disposable {
         preview: false,
         viewColumn: ViewColumn.Active,
       };
+
+      if (uri.scheme === "file" && !existsSync(uri.fsPath)) {
+        continue;
+      }
 
       await commands.executeCommand("vscode.open", uri, {
         ...opts,
