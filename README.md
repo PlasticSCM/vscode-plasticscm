@@ -16,7 +16,7 @@ extend it in the future, and we hope it will be useful and convenient to use.
 
 ## Requirements
 
-* Visual Studio Code v1.19
+* Visual Studio Code v1.64
 * Plastic SCM
 
 ## Features
@@ -26,7 +26,7 @@ extend it in the future, and we hope it will be useful and convenient to use.
 
 ## Install
 
-1. Install *Visual Studio Code* (1.19 or higher)
+1. Install *Visual Studio Code* (1.64 or higher)
 2. Launch *Code*
 3. Open the command palette : `Ctrl` `⇧` `P` (Windows, Linux), `⌘` `⇧` `P` (macOS)
 4. Select `Install Extensions`

@@ -47,6 +47,7 @@ describe("GetWorkspaceFromPath Command", () => {
 
       it("calls the expected shell methods", () => {
         cmShellMock.verify(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
           Times.once());
       });
@@ -81,6 +82,7 @@ describe("GetWorkspaceFromPath Command", () => {
 
       it("calls the expected shell methods", () => {
         cmShellMock.verify(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
           Times.once());
       });
@@ -120,6 +122,7 @@ describe("GetWorkspaceFromPath Command", () => {
 
     it("calls the expected shell methods", () => {
       cmShellMock.verify(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
         Times.once());
     });
