@@ -1,6 +1,6 @@
 import * as path from "path";
 
-import { runTests } from "vscode-test";
+import { runTests } from "@vscode/test-electron";
 
 function main() {
   // The folder containing the Extension Manifest package.json

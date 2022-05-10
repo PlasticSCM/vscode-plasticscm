@@ -32,6 +32,7 @@ export class StatusParser implements ICmParser<IPendingChanges> {
     };
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       return this.parseXml(await xml2js.parseStringPromise(
         this.mOutputBuffer.join(""), options));
     } catch (error) {
