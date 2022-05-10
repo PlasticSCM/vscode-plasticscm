@@ -51,6 +51,7 @@ describe("Status command", () => {
 
       it("calls the expected shell methods", () => {
         cmShellMock.verify(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
           Times.once());
       });
@@ -85,6 +86,7 @@ describe("Status command", () => {
 
       it("calls the expected shell methods", () => {
         cmShellMock.verify(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
           Times.once());
       });
@@ -120,6 +122,7 @@ describe("Status command", () => {
 
     it("calls the expected shell methods", () => {
       cmShellMock.verify(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         mock => mock.exec(It.isAny(), It.isAny(), It.isAny()),
         Times.once());
     });

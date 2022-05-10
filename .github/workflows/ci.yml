@@ -1,10 +1,6 @@
 name: CI
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -27,13 +23,13 @@ jobs:
         run: git fetch --prune --unshallow
 
       - name: install gitversion
-        uses: gittools/actions/gitversion/setup@v0.9.4
+        uses: gittools/actions/gitversion/setup@v0.9.7
         with:
-          versionSpec: '5.2.x'
+          versionSpec: '5.x'
 
       - name: execute gitversion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.4
+        uses: gittools/actions/gitversion/execute@v0.9.7
 
       - name: print gitversion
         run: |
@@ -46,7 +42,7 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: '16.x'
 
       - name: clean install dependencies
         run: npm ci
