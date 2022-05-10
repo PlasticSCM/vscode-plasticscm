@@ -7,7 +7,7 @@ export class LineStream implements Disposable {
   private readonly decoder: StringDecoder;
   private readonly lines: byline.LineStream;
 
-  public constructor(encoding: string) {
+  public constructor(encoding: BufferEncoding) {
     this.decoder = new StringDecoder(encoding);
     this.lines = new byline.LineStream({ encoding });
   }

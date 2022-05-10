@@ -74,7 +74,9 @@ export class CmShell implements ICmShell {
     const logError = (err: Error) => this.mChannel.appendLine(`ERROR: ${err.message}`);
     this.mProcess.on("error", logError);
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const readOut: (chunk: any) => void = chunk => this.mOutStream.write(chunk);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const readErr: (chunk: any) => void = chunk => this.mErrStream.write(chunk);
     CmShell.bindProcessStream(this.mProcess.stdout, readOut);
     CmShell.bindProcessStream(this.mProcess.stderr, readErr);
@@ -109,7 +111,7 @@ export class CmShell implements ICmShell {
     this.write("exit");
     this.mProcess?.stdin?.end();
 
-    await new Promise(resolve => {
+    await new Promise<void>(resolve => {
       if (!this.mProcess?.connected) {
         resolve();
         return;
