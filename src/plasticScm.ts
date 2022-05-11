@@ -108,4 +108,24 @@ export class PlasticScm implements Disposable {
       disposable.dispose();
     });
   }
+
+  public async promptUserToPickWorkspace(): Promise<Workspace | undefined> {
+    if (this.workspaces.size === 1) {
+      return Array.from(this.workspaces.values())[0];
+    }
+
+    const choice = await VsCodeWindow.showQuickPick(
+      Array.from(this.workspaces.values()).map(wk => ({
+        description: wk.info.path,
+        label: wk.info.name,
+        workspace: wk,
+      })),
+      {
+        canPickMany: false,
+        ignoreFocusOut: true,
+        placeHolder: "Which workspace would you like to refresh?",
+      });
+
+    return choice?.workspace;
+  }
 }

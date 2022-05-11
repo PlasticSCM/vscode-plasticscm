@@ -20,35 +20,14 @@ export class RefreshCommand implements Disposable {
   }
 
   private async execute(args: any[]): Promise<any> {
-    const workspace: Workspace | undefined = await this.getWorkspace(args);
+    const workspace: Workspace | undefined = args instanceof Workspace ?
+      args as Workspace :
+      await this.mPlasticScm.promptUserToPickWorkspace();
+
     if (!workspace) {
       return;
     }
 
     await workspace.updateWorkspaceStatus();
-  }
-
-  private async getWorkspace(args: any[]): Promise<Workspace | undefined> {
-    if (args instanceof Workspace) {
-      return args as Workspace;
-    }
-
-    if (this.mPlasticScm.workspaces.size === 1) {
-      return Array.from(this.mPlasticScm.workspaces.values())[0];
-    }
-
-    const choice = await window.showQuickPick(
-      Array.from(this.mPlasticScm.workspaces.values()).map(wk => ({
-        description: wk.info.path,
-        label: wk.info.name,
-        workspace: wk,
-      })),
-      {
-        canPickMany: false,
-        ignoreFocusOut: true,
-        placeHolder: "Which workspace would you like to refresh?",
-      });
-
-    return choice?.workspace;
   }
 }
