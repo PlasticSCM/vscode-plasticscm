@@ -1,28 +1,8 @@
 import { Disposable, Event, workspace as vscodeWorkspace } from "vscode";
+import { disposeAll, filterEvent } from "./events";
 import { PlasticScm } from "./plasticScm";
 import { PlasticSCMDecorationProvider } from "./decorationProvider";
 import { Workspace } from "./workspace";
-
-interface IDisposable {
-  dispose(): void;
-}
-
-function dispose<T extends IDisposable>(disposables: T[]): T[] {
-  disposables.forEach(d => d.dispose());
-  return [];
-}
-
-function filterEvent<T>(event: Event<T>, filter: (e: T) => boolean): Event<T> {
-  return (
-      listener: (e: T) => any,
-      thisArgs?: any,
-      disposables?: Disposable[]
-  ) => event(e => {
-    if (filter(e)) {
-      listener.call(thisArgs, e);
-    }
-  }, null, disposables);
-}
 
 export class PlasticScmDecorations {
   private disposables: Disposable[] = [];
@@ -42,7 +22,7 @@ export class PlasticScmDecorations {
 
   public dispose(): void {
     this.disable();
-    this.disposables = dispose(this.disposables);
+    this.disposables = disposeAll(this.disposables);
   }
 
   private update(): void {
@@ -60,7 +40,7 @@ export class PlasticScmDecorations {
   }
 
   private disable(): void {
-    this.modelDisposables = dispose(this.modelDisposables);
+    this.modelDisposables = disposeAll(this.modelDisposables);
     this.providers.forEach(value => {
       value.dispose();
     });
