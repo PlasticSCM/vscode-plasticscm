@@ -23,6 +23,7 @@ extend it in the future, and we hope it will be useful and convenient to use.
 
 1. Lists your pending changes
 2. Allows you to checkin all your pending changes at once
+3. Allow to see inline file changes as well as full-file changes compared to the latest changeset
 
 ## Install
 
@@ -42,6 +43,7 @@ extend it in the future, and we hope it will be useful and convenient to use.
 |`plastic-scm.cmConfiguration.cmPath`             |`string` |Location of the `cm` CLI executable
 |`plastic-scm.cmConfiguration.millisToStop`       |`number` |Grace time to wait before requesting a shell to closeshell to start
 |`plastic-scm.cmConfiguration.millisToWaitUntilUp`|`number` |Time to wait for the shell to start
+|`plastic-scm.decorations.enabled`                |`boolean`|Whether or not file decorations are enabled
 
 ## Commands
 
@@ -55,6 +57,10 @@ check in at the moment.
 
 You can also invoke the Checkin command using the Command Palette. You'll be
 prompted to enter a commit message in that case.
+
+### File Changes
+
+When editing a tracked text file, you'll see VS Code show inline gutter color indicators to show lines added, changed, or removed, similar to using Git or other source control extensions. You can also open the Source Control panel to and click on any modified text file to open a full-file diff from the latest changeset.
 
 ## Contribute
 
