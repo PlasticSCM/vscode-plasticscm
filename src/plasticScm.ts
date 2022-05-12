@@ -78,11 +78,11 @@ export class PlasticScm implements Disposable {
         this.mChannel.appendLine(
           `Unable to find workspace in ${workingDir}: ${error?.message}`);
         await VsCodeWindow.showErrorMessage(error?.message);
-      } finally {
-        await globalShell.stop();
-        globalShell.dispose();
       }
     }
+
+    await globalShell.stop();
+    globalShell.dispose();
 
     if (this.mWorkspaces.size) {
       this.mDisposables.push(new CheckinCommand(this));
