@@ -5,6 +5,7 @@ import { StatusParser } from "./statusParser";
 export class Status {
   public static readonly EmptyChanges: IPendingChanges = {
     changes: new Map<string, IChangeInfo>(),
+    changeset: 0,
     workspaceConfig: {
       configType: WkConfigType.Unknown,
       location: "unknown",
