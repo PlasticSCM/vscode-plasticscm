@@ -1,7 +1,16 @@
 import * as path from "path";
 import { ChangeType, IChangeInfo } from "./models";
-import { Command, SourceControlResourceDecorations, SourceControlResourceState, ThemeColor, Uri } from "vscode";
+import {
+  Command,
+  FileDecoration,
+  SourceControlResourceDecorations,
+  SourceControlResourceState,
+  ThemeColor,
+  Uri,
+} from "vscode";
+import { GetFile } from "./cm/commands";
 import { memoize } from "./decorators";
+import { Workspace } from "./workspace";
 
 const iconsRootPath = path.join(__dirname, "..", "images", "icons");
 
@@ -23,9 +32,6 @@ interface IIconSet {
 }
 
 export class PlasticScmResource implements SourceControlResourceState {
-
-  public command?: Command;
-
   private static icons: IIcons = {
     dark: {
       added: getIconPath("status-added", "dark"),
@@ -46,9 +52,11 @@ export class PlasticScmResource implements SourceControlResourceState {
   };
 
   private mChangeInfo: IChangeInfo;
+  private mWorkspace: Workspace;
 
-  public constructor(changeInfo: IChangeInfo) {
+  public constructor(changeInfo: IChangeInfo, workspace: Workspace) {
     this.mChangeInfo = changeInfo;
+    this.mWorkspace = workspace;
   }
 
   @memoize
@@ -60,17 +68,27 @@ export class PlasticScmResource implements SourceControlResourceState {
     return this.mChangeInfo.type === ChangeType.Private;
   }
 
+  public get type(): ChangeType {
+    return this.mChangeInfo.type;
+  }
+
   public get decorations(): SourceControlResourceDecorations {
     return {
-      dark: { iconPath: PlasticScmResource.getIconPath(this.mChangeInfo.type, "dark") },
+      dark: undefined, // leave undefined to use the other decorations instead of icons
       faded: false, // Maybe in the future for ignored items
-      light: { iconPath: PlasticScmResource.getIconPath(this.mChangeInfo.type, "light") },
+      light: undefined, // leave undefined to use the other decorations instead of icons
       strikeThrough: this.mChangeInfo.type === ChangeType.Deleted,
       tooltip: this.tooltip,
     };
   }
 
-  public get letter(): string | undefined {
+  public get resourceDecoration(): FileDecoration {
+    const res = new FileDecoration(this.letter, this.tooltip, this.color);
+    res.propagate = this.mChangeInfo.type !== ChangeType.Deleted;
+    return res;
+  }
+
+  public get letter(): string {
     const result: string[] = [];
 
     if (this.mChangeInfo.type & ChangeType.Private) {
@@ -90,7 +108,7 @@ export class PlasticScmResource implements SourceControlResourceState {
     }
 
     if (this.mChangeInfo.type & ChangeType.Checkedout) {
-      result.push("C");
+      result.push("CO");
     }
 
     if (this.mChangeInfo.type & ChangeType.Deleted) {
@@ -126,6 +144,33 @@ export class PlasticScmResource implements SourceControlResourceState {
     }
 
     return undefined;
+  }
+
+  public get command(): Command | undefined {
+    const unallowedFlag =
+      ChangeType.Added |
+      ChangeType.Private |
+      ChangeType.Moved |
+      ChangeType.Deleted;
+
+    if (
+      this.mWorkspace.currentChangeset >= 0 &&
+      (this.mChangeInfo.type & unallowedFlag) === 0
+    ) {
+      const originalFile = GetFile.cachedFileLocation(
+        this.mWorkspace.workingDir,
+        this.resourceUri,
+        this.mWorkspace.currentChangeset
+      );
+
+      return {
+        arguments: [ originalFile, this.resourceUri, `${path.basename(this.resourceUri.fsPath)} (Diff)` ],
+        command: "vscode.diff",
+        title: "Open",
+      };
+    } else {
+      return undefined;
+    }
   }
 
   private get tooltip(): string {

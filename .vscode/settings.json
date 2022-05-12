@@ -13,7 +13,7 @@
         "vscode-test"
     ],
     "editor.codeActionsOnSave": {
-      "source.fixAll.tslint": true
+      "source.fixAll.eslint": true
     },
     "better-comments.tags": [
       {
