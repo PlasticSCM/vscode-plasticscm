@@ -13,6 +13,7 @@ import { IConfig } from "./config";
 import { IWorkspaceInfo } from "./models";
 import { OpenFileCommand } from "./commands/openFile";
 import { PlasticScmDecorations } from "./decorations";
+import { RefreshCommand } from "./commands/refresh";
 import { Workspace } from "./workspace";
 import { WorkspaceOperations } from "./workspaceOperations";
 
@@ -85,6 +86,7 @@ export class PlasticScm implements Disposable {
 
     if (this.mWorkspaces.size) {
       this.mDisposables.push(new CheckinCommand(this));
+      this.mDisposables.push(new RefreshCommand(this));
       this.mDisposables.push(new OpenFileCommand(this));
       this.mDisposables.push(new PlasticScmDecorations(this));
     }
@@ -105,5 +107,25 @@ export class PlasticScm implements Disposable {
     this.mDisposables.forEach(disposable => {
       disposable.dispose();
     });
+  }
+
+  public async promptUserToPickWorkspace(): Promise<Workspace | undefined> {
+    if (this.workspaces.size === 1) {
+      return Array.from(this.workspaces.values())[0];
+    }
+
+    const choice = await VsCodeWindow.showQuickPick(
+      Array.from(this.workspaces.values()).map(wk => ({
+        description: wk.info.path,
+        label: wk.info.name,
+        workspace: wk,
+      })),
+      {
+        canPickMany: false,
+        ignoreFocusOut: true,
+        placeHolder: "Which workspace would you like to refresh?",
+      });
+
+    return choice?.workspace;
   }
 }

@@ -172,29 +172,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
     }
   }
 
-  @throttle(1000)
-  private async onFileChanged(): Promise<void> {
-    if (!this.mConfig.autorefresh) {
-      return;
-    }
-
-    if (this.mbIsStatusSlow) {
-      // IMPROVEMENT: ask the user if they want to keep calculating status on this workspace automatically.
-    }
-
-    if (this.mOperations.isRunning(WorkspaceOperation.Status)) {
-      return;
-    }
-
-    await this.mOperations.run(WorkspaceOperation.Status, async () => {
-      while (this.mShell.isBusy) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-      await this.updateWorkspaceStatus();
-    });
-  }
-
-  private async updateWorkspaceStatus(): Promise<void> {
+  public async updateWorkspaceStatus(): Promise<void> {
     // Improvement: measure status time and update the 'this.mbIsStatusSlow' flag.
     // ! Status XML output does not print performance warnings!
     const pendingChanges: IPendingChanges =
@@ -255,6 +233,28 @@ export class Workspace implements Disposable, QuickDiffProvider {
     }];
 
     this.onDidChangeStatus.fire();
+  }
+
+  @throttle(1000)
+  private async onFileChanged(): Promise<void> {
+    if (!this.mConfig.autorefresh) {
+      return;
+    }
+
+    if (this.mbIsStatusSlow) {
+      // IMPROVEMENT: ask the user if they want to keep calculating status on this workspace automatically.
+    }
+
+    if (this.mOperations.isRunning(WorkspaceOperation.Status)) {
+      return;
+    }
+
+    await this.mOperations.run(WorkspaceOperation.Status, async () => {
+      while (this.mShell.isBusy) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      await this.updateWorkspaceStatus();
+    });
   }
 
   private getCheckinPlaceholder(wkConfig: IWorkspaceConfig) {
