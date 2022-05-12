@@ -1,4 +1,4 @@
-import { commands, Disposable, window } from "vscode";
+import { commands, Disposable } from "vscode";
 import { PlasticScm } from "../plasticScm";
 import { Workspace } from "../workspace";
 
