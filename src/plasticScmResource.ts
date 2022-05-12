@@ -147,10 +147,15 @@ export class PlasticScmResource implements SourceControlResourceState {
   }
 
   public get command(): Command | undefined {
+    const unallowedFlag =
+      ChangeType.Added |
+      ChangeType.Private |
+      ChangeType.Moved |
+      ChangeType.Deleted;
+
     if (
       this.mWorkspace.currentChangeset >= 0 &&
-      this.mChangeInfo.type !== ChangeType.Added &&
-      this.mChangeInfo.type !== ChangeType.Private
+      (this.mChangeInfo.type & unallowedFlag) === 0
     ) {
       const originalFile = GetFile.cachedFileLocation(
         this.mWorkspace.workingDir,

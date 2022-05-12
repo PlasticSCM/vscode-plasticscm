@@ -31,6 +31,12 @@ export class GetFile {
     const cacheDir = join(rootDir, ".plastic", "fileCache");
     const outputFile = join(cacheDir, changeset.toString(), relative(rootDir, filePath.fsPath));
 
+    // make sure the directory exists where we're going to store the outputFile
+    // creates fileCache along the way if it doesn't exist yet
+    if (!existsSync(dirname(outputFile))) {
+      await promises.mkdir(dirname(outputFile), { recursive: true });
+    }
+
     // prune old changesets
     const cacheDirContents = await promises.readdir(cacheDir);
     for (const file of cacheDirContents) {
@@ -38,10 +44,6 @@ export class GetFile {
       if (!isNaN(fileNameAsChangeset) && fileNameAsChangeset < changeset) {
         await promises.rmdir(join(cacheDir, file), { recursive: true });
       }
-    }
-
-    if (!existsSync(dirname(outputFile))) {
-      await promises.mkdir(dirname(outputFile), { recursive: true });
     }
 
     if (!existsSync(outputFile)) {

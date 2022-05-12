@@ -187,7 +187,10 @@ export class Workspace implements Disposable, QuickDiffProvider {
 
     for (const changeInfo of changeInfos) {
       // prefetch original files for showing diff
-      if (changeInfo.type !== ChangeType.Added && changeInfo.type !== ChangeType.Private) {
+      const unallowedFlag = ChangeType.Added | ChangeType.Private | ChangeType.Deleted | ChangeType.Moved;
+      if (
+        (changeInfo.type & unallowedFlag) === 0
+      ) {
         let cachedFileType = this.mFileIsBinary.get(changeInfo.path.toString());
         if (typeof cachedFileType === "undefined") {
           // get the file type
@@ -196,7 +199,12 @@ export class Workspace implements Disposable, QuickDiffProvider {
         }
 
         if (cachedFileType === false) {
-          await CmGetFileCommand.run(this.mWorkingDir, changeInfo.path, pendingChanges.changeset, this.mShell);
+          try {
+            await CmGetFileCommand.run(this.mWorkingDir, changeInfo.path, pendingChanges.changeset, this.mShell);
+          } catch (e: any) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            console.log(`Error trying to get file ${changeInfo.path.toString()}: ${e}`);
+          }
         }
       }
       sourceControlResources.push(new PlasticScmResource(changeInfo, this));
