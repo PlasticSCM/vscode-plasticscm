@@ -95,7 +95,7 @@ jobs:
 
       - name: execute gitversion again
         id: gitversion-after
-        uses: gittools/actions/gitversion/execute@v0.9.4
+        uses: gittools/actions/gitversion/execute@v0.9.7
 
       - name: print gitversion after release
         run: |
