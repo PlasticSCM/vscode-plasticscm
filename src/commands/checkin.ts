@@ -22,7 +22,7 @@ export class CheckinCommand implements Disposable {
     }
   }
 
-  private async execute(args: any[]): Promise<any> {
+  private async execute(args: any[]): Promise<void> {
     const workspace: Workspace | undefined = args instanceof Workspace ?
       args as Workspace :
       await this.mPlasticScm.promptUserToPickWorkspace();

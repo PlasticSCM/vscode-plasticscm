@@ -125,6 +125,7 @@ module.exports = {
         "@typescript-eslint/no-parameter-properties": "off",
         "@typescript-eslint/no-unused-expressions": "warn",
         "@typescript-eslint/no-use-before-define": "off",
+        "@typescript-eslint/no-shadow": "error",
         "@typescript-eslint/no-var-requires": "warn",
         "@typescript-eslint/prefer-for-of": "warn",
         "@typescript-eslint/prefer-function-type": "warn",
@@ -232,12 +233,7 @@ module.exports = {
         "no-multiple-empty-lines": "warn",
         "no-multi-spaces": "error",
         "no-new-wrappers": "warn",
-        "no-shadow": [
-            "warn",
-            {
-                "hoist": "all"
-            }
-        ],
+        "no-shadow": "off",
         "no-throw-literal": "warn",
         "no-trailing-spaces": "error",
         "no-undef-init": "warn",

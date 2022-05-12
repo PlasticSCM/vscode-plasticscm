@@ -13,8 +13,9 @@ export class GetFileParser implements ICmParser<void> {
     this.mErrorBuffer.push(line);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  public async parse(): Promise<void> {}
+  public async parse(): Promise<void> {
+    // Do nothing
+  }
 
   public getError(): Error | undefined {
     return this.mErrorBuffer.length !== 0
