@@ -158,7 +158,7 @@ export class PlasticScmResource implements SourceControlResourceState {
       (this.mChangeInfo.type & unallowedFlag) === 0
     ) {
       const originalFile = GetFile.cachedFileLocation(
-        this.mWorkspace.workingDir,
+        this.mWorkspace.info.path,
         this.resourceUri,
         this.mWorkspace.currentChangeset
       );
