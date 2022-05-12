@@ -1,6 +1,5 @@
 import * as constants from "./constants";
 import * as events from "./events";
-import * as paths from "./paths";
 import {
   ChangeType,
   IChangeInfo,
@@ -15,6 +14,7 @@ import {
   Event,
   EventEmitter,
   QuickDiffProvider,
+  RelativePattern,
   scm,
   SourceControl,
   SourceControlResourceGroup,
@@ -50,10 +50,6 @@ export class Workspace implements Disposable, QuickDiffProvider {
     return this.mShell;
   }
 
-  public get workingDir(): string {
-    return this.mWorkingDir;
-  }
-
   public get currentChangeset(): number {
     return this.mCurrentChangeset || -1;
   }
@@ -65,7 +61,6 @@ export class Workspace implements Disposable, QuickDiffProvider {
   public readonly onDidRunStatus: Event<void>;
 
   private readonly mShell: ICmShell;
-  private readonly mWorkingDir: string;
   private readonly mWkInfo: IWorkspaceInfo;
   private readonly mSourceControl: SourceControl;
   private readonly mStatusResourceGroup: SourceControlResourceGroup;
@@ -84,19 +79,17 @@ export class Workspace implements Disposable, QuickDiffProvider {
   private mFileIsBinary: Map<string, boolean>;
 
   public static async build(
-      workingDir: string,
       workspaceInfo: IWorkspaceInfo,
       shell: ICmShell,
       workspaceOperations: IWorkspaceOperations,
       config: IConfig): Promise<Workspace> {
 
-    const result = new Workspace(workingDir, workspaceInfo, shell, workspaceOperations, config);
+    const result = new Workspace(workspaceInfo, shell, workspaceOperations, config);
     await result.updateWorkspaceStatus();
     return result;
   }
 
   private constructor(
-      workingDir: string,
       workspaceInfo: IWorkspaceInfo,
       shell: ICmShell,
       workspaceOperations: IWorkspaceOperations,
@@ -107,7 +100,6 @@ export class Workspace implements Disposable, QuickDiffProvider {
 
     this.mFileIsBinary = new Map<string, boolean>();
 
-    this.mWorkingDir = workingDir;
     this.mWkInfo = workspaceInfo;
     this.mShell = shell;
     this.mSourceControl = scm.createSourceControl(
@@ -120,21 +112,18 @@ export class Workspace implements Disposable, QuickDiffProvider {
     this.mOperations = workspaceOperations;
     this.mConfig = config;
 
-    const fsWatcher = VsCodeWorkspace.createFileSystemWatcher("**");
+    const fsWatcher = VsCodeWorkspace.createFileSystemWatcher(new RelativePattern(workspaceInfo.path, "**"));
     const onAnyFsOperationEvent: Event<Uri> = events.anyEvent(
       fsWatcher.onDidChange,
       fsWatcher.onDidCreate,
       fsWatcher.onDidDelete,
     );
-    const onWorkspaceFileChangeEvent: Event<Uri> = events.filterEvent(
-      onAnyFsOperationEvent,
-      uri => paths.isContainedOn(this.mWkInfo.path, uri.fsPath));
 
     this.mDisposables = Disposable.from(
       this.mSourceControl,
       this.mStatusResourceGroup,
       fsWatcher,
-      onWorkspaceFileChangeEvent(async () => this.onFileChanged(), this),
+      onAnyFsOperationEvent(async () => this.onFileChanged(), this),
     );
 
     this.mSourceControl.acceptInputCommand = {
@@ -166,7 +155,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
       }
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return await CmGetFileCommand.run(this.mWorkingDir, uri, this.mCurrentChangeset!, this.mShell);
+      return await CmGetFileCommand.run(this.mWkInfo.path, uri, this.mCurrentChangeset!, this.mShell);
     } else {
       return undefined;
     }
@@ -176,7 +165,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
     // Improvement: measure status time and update the 'this.mbIsStatusSlow' flag.
     // ! Status XML output does not print performance warnings!
     const pendingChanges: IPendingChanges =
-      await CmStatusCommand.run(this.mWorkingDir, this.mShell);
+      await CmStatusCommand.run(this.mWkInfo.path, this.mShell);
 
     this.mWorkspaceConfig = pendingChanges.workspaceConfig;
     this.mCurrentChangeset = pendingChanges.changeset;
@@ -200,7 +189,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
 
         if (cachedFileType === false) {
           try {
-            await CmGetFileCommand.run(this.mWorkingDir, changeInfo.path, pendingChanges.changeset, this.mShell);
+            await CmGetFileCommand.run(this.mWkInfo.path, changeInfo.path, pendingChanges.changeset, this.mShell);
           } catch (e: any) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             console.log(`Error trying to get file ${changeInfo.path.toString()}: ${e}`);
