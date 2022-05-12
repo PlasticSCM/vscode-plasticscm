@@ -6,20 +6,25 @@
     {
       "type": "npm",
       "script": "watch",
-      "problemMatcher": "$tsc-watch",
-      "isBackground": true,
-      "presentation": {
-        "reveal": "never"
-      },
+      "problemMatcher": "$tsc-watch"
+    },
+    {
+      "type": "npm",
+      "script": "compile",
       "group": {
         "kind": "build",
         "isDefault": true
-      }
+      },
+      "problemMatcher": [],
+      "label": "compile",
+      "detail": "tsc -p ./"
     },
     {
       "type": "npm",
       "script": "lint",
-      "problemMatcher": ["$eslint-stylish"],
+      "problemMatcher": [
+        "$eslint-stylish"
+      ],
       "label": "npm: lint",
       "detail": "eslint --fix --ext .ts src"
     }

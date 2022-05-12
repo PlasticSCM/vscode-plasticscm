@@ -18,6 +18,7 @@ describe("Status command", () => {
             },
           ],
         ]),
+        changeset: 0,
         workspaceConfig: {
           configType: WkConfigType.Branch,
           location: "/main/task001",

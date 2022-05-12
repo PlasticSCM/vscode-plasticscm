@@ -21,6 +21,7 @@ export enum ChangeType {
 export interface IPendingChanges {
   readonly workspaceConfig: IWorkspaceConfig;
   readonly changes: Map<string, IChangeInfo>;
+  readonly changeset: number;
 }
 
 export interface IWorkspaceConfig {

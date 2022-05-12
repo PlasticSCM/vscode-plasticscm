@@ -9,9 +9,12 @@ import {
   IWorkspaceInfo,
   WkConfigType,
 } from "./models";
+import { GetFile as CmGetFileCommand, Status as CmStatusCommand } from "./cm/commands";
 import {
   Disposable,
   Event,
+  EventEmitter,
+  QuickDiffProvider,
   scm,
   SourceControl,
   SourceControlResourceGroup,
@@ -19,13 +22,13 @@ import {
   workspace as VsCodeWorkspace,
 } from "vscode";
 import { IWorkspaceOperations, WorkspaceOperation } from "./workspaceOperations";
-import { Status as CmStatusCommand } from "./cm/commands";
 import { ICmShell } from "./cm/shell";
 import { IConfig } from "./config";
+import { isBinaryFile } from "isbinaryfile";
 import { PlasticScmResource } from "./plasticScmResource";
 import { throttle } from "./decorators";
 
-export class Workspace implements Disposable {
+export class Workspace implements Disposable, QuickDiffProvider {
 
   public get sourceControl(): SourceControl {
     return this.mSourceControl;
@@ -47,9 +50,19 @@ export class Workspace implements Disposable {
     return this.mShell;
   }
 
+  public get workingDir(): string {
+    return this.mWorkingDir;
+  }
+
+  public get currentChangeset(): number {
+    return this.mCurrentChangeset || -1;
+  }
+
   public get operations(): IWorkspaceOperations {
     return this.mOperations;
   }
+
+  public readonly onDidRunStatus: Event<void>;
 
   private readonly mShell: ICmShell;
   private readonly mWorkingDir: string;
@@ -64,6 +77,11 @@ export class Workspace implements Disposable {
   private mConfig: IConfig;
   private mWorkspaceConfig?: IWorkspaceConfig;
   private mbIsStatusSlow = false;
+  private mCurrentChangeset?: number;
+
+  private onDidChangeStatus: EventEmitter<void>;
+
+  private mFileIsBinary: Map<string, boolean>;
 
   public static async build(
       workingDir: string,
@@ -83,6 +101,11 @@ export class Workspace implements Disposable {
       shell: ICmShell,
       workspaceOperations: IWorkspaceOperations,
       config: IConfig) {
+
+    this.onDidChangeStatus = new EventEmitter<void>();
+    this.onDidRunStatus = this.onDidChangeStatus.event;
+
+    this.mFileIsBinary = new Map<string, boolean>();
 
     this.mWorkingDir = workingDir;
     this.mWkInfo = workspaceInfo;
@@ -119,6 +142,8 @@ export class Workspace implements Disposable {
       command: "plastic-scm.checkin",
       title: "checkin",
     };
+
+    this.mSourceControl.quickDiffProvider = this;
   }
 
   public dispose(): void {
@@ -127,6 +152,24 @@ export class Workspace implements Disposable {
 
   public updateConfig(newConfig: IConfig): void {
     this.mConfig = newConfig;
+  }
+
+  public async provideOriginalResource(uri: Uri): Promise<Uri | undefined> {
+    if (uri.scheme === "file") {
+      if (typeof this.mCurrentChangeset === "undefined") {
+        await this.mOperations.run(WorkspaceOperation.Status, async () => {
+          while (this.mShell.isBusy) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+          await this.updateWorkspaceStatus();
+        });
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return await CmGetFileCommand.run(this.mWorkingDir, uri, this.mCurrentChangeset!, this.mShell);
+    } else {
+      return undefined;
+    }
   }
 
   @throttle(1000)
@@ -158,11 +201,36 @@ export class Workspace implements Disposable {
       await CmStatusCommand.run(this.mWorkingDir, this.mShell);
 
     this.mWorkspaceConfig = pendingChanges.workspaceConfig;
+    this.mCurrentChangeset = pendingChanges.changeset;
 
     const changeInfos: IChangeInfo[] = Array.from(pendingChanges.changes.values());
 
-    const sourceControlResources: PlasticScmResource[] = changeInfos.map(
-      changeInfo => new PlasticScmResource(changeInfo));
+    const sourceControlResources: PlasticScmResource[] = [];
+
+    for (const changeInfo of changeInfos) {
+      // prefetch original files for showing diff
+      const unallowedFlag = ChangeType.Added | ChangeType.Private | ChangeType.Deleted | ChangeType.Moved;
+      if (
+        (changeInfo.type & unallowedFlag) === 0
+      ) {
+        let cachedFileType = this.mFileIsBinary.get(changeInfo.path.toString());
+        if (typeof cachedFileType === "undefined") {
+          // get the file type
+          cachedFileType = await isBinaryFile(changeInfo.path.fsPath);
+          this.mFileIsBinary.set(changeInfo.path.toString(), cachedFileType);
+        }
+
+        if (cachedFileType === false) {
+          try {
+            await CmGetFileCommand.run(this.mWorkingDir, changeInfo.path, pendingChanges.changeset, this.mShell);
+          } catch (e: any) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            console.log(`Error trying to get file ${changeInfo.path.toString()}: ${e}`);
+          }
+        }
+      }
+      sourceControlResources.push(new PlasticScmResource(changeInfo, this));
+    }
 
     this.mStatusResourceGroup.resourceStates = sourceControlResources;
     this.mSourceControl.count = changeInfos.filter(
@@ -185,6 +253,8 @@ export class Workspace implements Disposable {
         this.mWorkspaceConfig.repSpec,
       ].join(""),
     }];
+
+    this.onDidChangeStatus.fire();
   }
 
   private getCheckinPlaceholder(wkConfig: IWorkspaceConfig) {

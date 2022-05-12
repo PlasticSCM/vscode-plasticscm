@@ -80,6 +80,7 @@ export class StatusParser implements ICmParser<IPendingChanges> {
 
     return {
       changes,
+      changeset: statusOutput.workspaceStatus.status.changeset,
       workspaceConfig: {
         configType: statusOutput.wkConfigType,
         location: statusOutput.wkConfigName.replace(`@${repSpec}`, ""),
