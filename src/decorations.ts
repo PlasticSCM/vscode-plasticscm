@@ -1,4 +1,4 @@
-import { Disposable, Event, workspace as vscodeWorkspace } from "vscode";
+import { Disposable, workspace as vscodeWorkspace } from "vscode";
 import { disposeAll, filterEvent } from "./events";
 import { PlasticScm } from "./plasticScm";
 import { PlasticSCMDecorationProvider } from "./decorationProvider";

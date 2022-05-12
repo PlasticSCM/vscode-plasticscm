@@ -13,6 +13,7 @@ import {
   Disposable,
   Event,
   EventEmitter,
+  OutputChannel,
   QuickDiffProvider,
   RelativePattern,
   scm,
@@ -61,6 +62,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
   public readonly onDidRunStatus: Event<void>;
 
   private readonly mShell: ICmShell;
+  private readonly mChannel: OutputChannel;
   private readonly mWkInfo: IWorkspaceInfo;
   private readonly mSourceControl: SourceControl;
   private readonly mStatusResourceGroup: SourceControlResourceGroup;
@@ -81,10 +83,12 @@ export class Workspace implements Disposable, QuickDiffProvider {
   public static async build(
       workspaceInfo: IWorkspaceInfo,
       shell: ICmShell,
+      channel: OutputChannel,
       workspaceOperations: IWorkspaceOperations,
       config: IConfig): Promise<Workspace> {
 
-    const result = new Workspace(workspaceInfo, shell, workspaceOperations, config);
+    const result = new Workspace(workspaceInfo, shell, channel, workspaceOperations, config);
+
     await result.updateWorkspaceStatus();
     return result;
   }
@@ -92,6 +96,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
   private constructor(
       workspaceInfo: IWorkspaceInfo,
       shell: ICmShell,
+      channel: OutputChannel,
       workspaceOperations: IWorkspaceOperations,
       config: IConfig) {
 
@@ -102,6 +107,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
 
     this.mWkInfo = workspaceInfo;
     this.mShell = shell;
+    this.mChannel = channel;
     this.mSourceControl = scm.createSourceControl(
       constants.extensionId,
       constants.extensionDisplayName,
@@ -154,8 +160,12 @@ export class Workspace implements Disposable, QuickDiffProvider {
         });
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return await CmGetFileCommand.run(this.mWkInfo.path, uri, this.mCurrentChangeset!, this.mShell);
+      if (!this.mCurrentChangeset) {
+        return undefined;
+      }
+
+      return await CmGetFileCommand.run(this.mWkInfo.path, uri, this.mCurrentChangeset, this.mShell);
+
     } else {
       return undefined;
     }
@@ -191,8 +201,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
           try {
             await CmGetFileCommand.run(this.mWkInfo.path, changeInfo.path, pendingChanges.changeset, this.mShell);
           } catch (e: any) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            console.log(`Error trying to get file ${changeInfo.path.toString()}: ${e}`);
+            this.mChannel.appendLine(`Error trying to get file ${changeInfo.path.toString()}: ${(e as Error).message}`);
           }
         }
       }
