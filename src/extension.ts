@@ -20,8 +20,8 @@ const defaultConfig: IConfig = {
     millisToStop: 5000,
     millisToWaitUntilUp: 5000,
   },
+  consolidateUnrealOneFilePerActorChanges: true,
   enabled: true,
-  hiddenChanges: [],
 };
 
 let extension: Extension;

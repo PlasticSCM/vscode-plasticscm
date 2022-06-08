@@ -191,19 +191,16 @@ export class Workspace implements Disposable, QuickDiffProvider {
     const changeInfos: IChangeInfo[] = Array.from(pendingChanges.changes.values());
 
     const sourceControlResources: PlasticScmResource[] = [];
+    const unrealLevelResources: SourceControlResourceState[] = [];
+
+    // regex pattern for Unreal Engine's One File Per Actor system
+    const unrealOfpaRegex = /(__ExternalActors__|__ExternalObjects__)/;
 
     for (const changeInfo of changeInfos) {
-      let skipFile = false;
-
-      for (const hiddenChangePattern of this.mConfig.hiddenChanges) {
-        const regex = new RegExp(hiddenChangePattern);
-        if (regex.exec(changeInfo.path.fsPath) !== null) {
-          skipFile = true;
-          break;
-        }
-      }
-
-      if (skipFile) {
+      if (
+        this.mConfig.consolidateUnrealOneFilePerActorChanges &&
+        unrealOfpaRegex.exec(changeInfo.path.toString()) !== null
+      ) {
         continue;
       }
 
@@ -230,47 +227,47 @@ export class Workspace implements Disposable, QuickDiffProvider {
       sourceControlResources.push(new PlasticScmResource(changeInfo, this));
     }
 
+    if (this.mConfig.consolidateUnrealOneFilePerActorChanges) {
+      const unrealLevelNames: string[] = [];
+      for (const changeInfo of changeInfos) {
+        let skipFile =
+          unrealOfpaRegex.exec(changeInfo.path.fsPath) === null ||
+          !changeInfo.path.fsPath.endsWith("uasset");
 
-    const ofpaRegex = /(__ExternalActors__|__ExternalObjects__)/;
-    const unrealLevelNames: string[] = [];
-    const unrealLevelResources: SourceControlResourceState[] = [];
-    for (const changeInfo of changeInfos) {
-      let skipFile = ofpaRegex.exec(changeInfo.path.fsPath) === null || !changeInfo.path.fsPath.endsWith("uasset");
-
-      for (const name of unrealLevelNames) {
-        if (changeInfo.path.fsPath.includes(name)) {
-          skipFile = true;
-          break;
+        for (const name of unrealLevelNames) {
+          if (changeInfo.path.fsPath.includes(name)) {
+            skipFile = true;
+            break;
+          }
         }
+
+        if (skipFile) {
+          continue;
+        }
+
+        const pathParts = changeInfo.path.fsPath.replace(/\\/g, "/").split("/");
+        const ofpaIndex = pathParts.findIndex((value: string) => unrealOfpaRegex.exec(value) !== null);
+        const levelRelativeLocation = pathParts.slice(ofpaIndex + 1, pathParts.length - 3).join("/");
+        const pathToContentDir = pathParts.slice(0, ofpaIndex).join("/");
+        const levelName = path.basename(levelRelativeLocation);
+
+        unrealLevelNames.push(levelName);
+
+        const resourceState: SourceControlResourceState = {
+          decorations: {
+            faded: false,
+            strikeThrough: false,
+            tooltip: "Hello",
+          },
+          resourceUri: Uri.from({
+            path: `${pathToContentDir}/${levelRelativeLocation}.umap`,
+            scheme: "file",
+          }),
+        };
+
+        unrealLevelResources.push(resourceState);
       }
-
-      if (skipFile) {
-        continue;
-      }
-
-      const pathParts = changeInfo.path.fsPath.replace(/\\/g, "/").split("/");
-      const ofpaIndex = pathParts.findIndex((value: string) => ofpaRegex.exec(value) !== null);
-      const levelRelativeLocation = pathParts.slice(ofpaIndex + 1, pathParts.length - 3).join("/");
-      const pathToContentDir = pathParts.slice(0, ofpaIndex).join("/");
-      const levelName = path.basename(levelRelativeLocation);
-
-      unrealLevelNames.push(levelName);
-
-      const resourceState: SourceControlResourceState = {
-        decorations: {
-          faded: false,
-          strikeThrough: false,
-          tooltip: "Hello",
-        },
-        resourceUri: Uri.from({
-          path: `${pathToContentDir}/${levelRelativeLocation}.umap`,
-          scheme: "file",
-        }),
-      };
-
-      unrealLevelResources.push(resourceState);
     }
-
 
     this.mStatusResourceGroup.resourceStates = sourceControlResources;
     this.mUnrealLevelsResourceGroup.resourceStates = unrealLevelResources;

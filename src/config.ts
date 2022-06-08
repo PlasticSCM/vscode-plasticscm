@@ -1,6 +1,6 @@
 export interface IConfig {
   autorefresh: boolean;
-  hiddenChanges: string[];
+  consolidateUnrealOneFilePerActorChanges: boolean;
   cmConfiguration: IShellConfig;
   enabled: boolean;
 }

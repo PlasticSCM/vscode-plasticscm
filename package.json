@@ -59,10 +59,10 @@
           "markdownDescription": "Milliseconds to wait for the `cm shell` to exit when it has to stop or restart. This might prevent aborting commands in the middle of their execution.",
           "scope": "window"
         },
-        "plastic-scm.hiddenChanges": {
-          "type": "array",
-          "default": [],
-          "markdownDescription": "Not to be confused with hidden_changes.conf, this variable has Regular Expression patterns to hide changes from the VS Code changes panel."
+        "plastic-scm.consolidateUnrealOneFilePerActorChanges": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "By default, the plugin will consolidate all __ExternalActors__ and __ExternalObjects__ changes (from Unreal Engine's One File Per Actor system) into a single entry in the Dirty Unreal Levels group."
         },
         "plastic-scm.autorefresh": {
           "type": "boolean",
