@@ -21,6 +21,7 @@ const defaultConfig: IConfig = {
     millisToWaitUntilUp: 5000,
   },
   enabled: true,
+  hiddenChanges: [],
 };
 
 let extension: Extension;

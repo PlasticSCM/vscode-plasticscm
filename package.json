@@ -59,6 +59,11 @@
           "markdownDescription": "Milliseconds to wait for the `cm shell` to exit when it has to stop or restart. This might prevent aborting commands in the middle of their execution.",
           "scope": "window"
         },
+        "plastic-scm.hiddenChanges": {
+          "type": "array",
+          "default": [],
+          "markdownDescription": "Not to be confused with hidden_changes.conf, this variable has Regular Expression patterns to hide changes from the VS Code changes panel."
+        },
         "plastic-scm.autorefresh": {
           "type": "boolean",
           "default": true,

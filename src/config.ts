@@ -1,5 +1,6 @@
 export interface IConfig {
   autorefresh: boolean;
+  hiddenChanges: string[];
   cmConfiguration: IShellConfig;
   enabled: boolean;
 }
