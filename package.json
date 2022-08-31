@@ -132,7 +132,7 @@
   "devDependencies": {
     "@types/byline": "^4.2.33",
     "@types/chai": "^4.3.3",
-    "@types/glob": "^7.2.0",
+    "@types/glob": "^8.0.0",
     "@types/mocha": "^9.1.1",
     "@types/node": "^16.11.26",
     "@types/uuid": "^8.3.4",
