@@ -19,6 +19,7 @@ import {
   scm,
   SourceControl,
   SourceControlResourceGroup,
+  SourceControlResourceState,
   Uri,
   workspace as VsCodeWorkspace,
 } from "vscode";
@@ -28,6 +29,7 @@ import { IConfig } from "./config";
 import { isBinaryFile } from "isbinaryfile";
 import { PlasticScmResource } from "./plasticScmResource";
 import { throttle } from "./decorators";
+import path = require("path");
 
 export class Workspace implements Disposable, QuickDiffProvider {
 
@@ -66,6 +68,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
   private readonly mWkInfo: IWorkspaceInfo;
   private readonly mSourceControl: SourceControl;
   private readonly mStatusResourceGroup: SourceControlResourceGroup;
+  private readonly mUnrealLevelsResourceGroup: SourceControlResourceGroup;
 
   private readonly mOperations: IWorkspaceOperations;
 
@@ -112,8 +115,12 @@ export class Workspace implements Disposable, QuickDiffProvider {
       constants.extensionId,
       constants.extensionDisplayName,
       Uri.file(workspaceInfo.path));
+    this.mUnrealLevelsResourceGroup = this.mSourceControl.createResourceGroup(
+      "unreal-levels", "Dirty Unreal Levels");
     this.mStatusResourceGroup = this.mSourceControl.createResourceGroup(
-      "status", "Workspace status");
+      "status", "Workspace Status");
+
+    this.mUnrealLevelsResourceGroup.hideWhenEmpty = true;
 
     this.mOperations = workspaceOperations;
     this.mConfig = config;
@@ -127,6 +134,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
 
     this.mDisposables = Disposable.from(
       this.mSourceControl,
+      this.mUnrealLevelsResourceGroup,
       this.mStatusResourceGroup,
       fsWatcher,
       onAnyFsOperationEvent(async () => this.onFileChanged(), this),
@@ -183,8 +191,19 @@ export class Workspace implements Disposable, QuickDiffProvider {
     const changeInfos: IChangeInfo[] = Array.from(pendingChanges.changes.values());
 
     const sourceControlResources: PlasticScmResource[] = [];
+    const unrealLevelResources: SourceControlResourceState[] = [];
+
+    // regex pattern for Unreal Engine's One File Per Actor system
+    const unrealOfpaRegex = /(__ExternalActors__|__ExternalObjects__)/;
 
     for (const changeInfo of changeInfos) {
+      if (
+        this.mConfig.consolidateUnrealOneFilePerActorChanges &&
+        unrealOfpaRegex.exec(changeInfo.path.toString()) !== null
+      ) {
+        continue;
+      }
+
       // prefetch original files for showing diff
       const unallowedFlag = ChangeType.Added | ChangeType.Private | ChangeType.Deleted | ChangeType.Moved;
       if (
@@ -208,9 +227,52 @@ export class Workspace implements Disposable, QuickDiffProvider {
       sourceControlResources.push(new PlasticScmResource(changeInfo, this));
     }
 
+    if (this.mConfig.consolidateUnrealOneFilePerActorChanges) {
+      const unrealLevelNames: string[] = [];
+      for (const changeInfo of changeInfos) {
+        let skipFile =
+          unrealOfpaRegex.exec(changeInfo.path.fsPath) === null ||
+          !changeInfo.path.fsPath.endsWith("uasset");
+
+        for (const name of unrealLevelNames) {
+          if (changeInfo.path.fsPath.includes(name)) {
+            skipFile = true;
+            break;
+          }
+        }
+
+        if (skipFile) {
+          continue;
+        }
+
+        const pathParts = changeInfo.path.fsPath.replace(/\\/g, "/").split("/");
+        const ofpaIndex = pathParts.findIndex((value: string) => unrealOfpaRegex.exec(value) !== null);
+        const levelRelativeLocation = pathParts.slice(ofpaIndex + 1, pathParts.length - 3).join("/");
+        const pathToContentDir = pathParts.slice(0, ofpaIndex).join("/");
+        const levelName = path.basename(levelRelativeLocation);
+
+        unrealLevelNames.push(levelName);
+
+        const resourceState: SourceControlResourceState = {
+          decorations: {
+            faded: false,
+            strikeThrough: false,
+            tooltip: "Hello",
+          },
+          resourceUri: Uri.from({
+            path: `${pathToContentDir}/${levelRelativeLocation}.umap`,
+            scheme: "file",
+          }),
+        };
+
+        unrealLevelResources.push(resourceState);
+      }
+    }
+
     this.mStatusResourceGroup.resourceStates = sourceControlResources;
-    this.mSourceControl.count = changeInfos.filter(
-      changeInfo => changeInfo.type !== ChangeType.Private).length;
+    this.mUnrealLevelsResourceGroup.resourceStates = unrealLevelResources;
+    this.mSourceControl.count = sourceControlResources.length + unrealLevelResources.length;
+
 
     this.mSourceControl.inputBox.placeholder = this.getCheckinPlaceholder(this.mWorkspaceConfig);
     this.mSourceControl.statusBarCommands = [{
