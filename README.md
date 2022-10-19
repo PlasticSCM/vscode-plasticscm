@@ -24,6 +24,7 @@ extend it in the future, and we hope it will be useful and convenient to use.
 1. Lists your pending changes
 2. Allows you to checkin all your pending changes at once
 3. Allow to see inline file changes as well as full-file changes compared to the latest changeset
+4. Group changes to assets from Unreal Engine 5 One File Per Actor (OFPA) in the "Dirty Unreal Levels" resource group, coalesced under the name(s) of the corresponding map(s)
 
 ## Install
 
@@ -36,18 +37,21 @@ extend it in the future, and we hope it will be useful and convenient to use.
 
 ## Configure
 
-|Name                                             |Type     |Description
-|-------------------------------------------------|---------|-----------
-|`plastic-scm.autorefresh`                        |`boolean`|Whether the extension should automatically look for changes in the workspace
-|`plastic-scm.enabled`                            |`boolean`|Whether the extension is enabled
-|`plastic-scm.cmConfiguration.cmPath`             |`string` |Location of the `cm` CLI executable
-|`plastic-scm.cmConfiguration.millisToStop`       |`number` |Grace time to wait before requesting a shell to closeshell to start
-|`plastic-scm.cmConfiguration.millisToWaitUntilUp`|`number` |Time to wait for the shell to start
-|`plastic-scm.decorations.enabled`                |`boolean`|Whether or not file decorations are enabled
+|Name                                                 |Type     |Description
+|-----------------------------------------------------|---------|-----------
+|`plastic-scm.autorefresh`                            |`boolean`|Whether the extension should automatically look for changes in the workspace
+|`plastic-scm.enabled`                                |`boolean`|Whether the extension is enabled
+|`plastic-scm.cmConfiguration.cmPath`                 |`string` |Location of the `cm` CLI executable
+|`plastic-scm.cmConfiguration.millisToStop`           |`number` |Grace time to wait before requesting a shell to closeshell to start
+|`plastic-scm.cmConfiguration.millisToWaitUntilUp`    |`number` |Time to wait for the shell to start
+|`plastic-scm.decorations.enabled`                    |`boolean`|Whether or not file decorations are enabled
+|`plastic-scm.consolidateUnrealOneFilePerActorChanges`|`boolean`|Whether all changes under Unreal Engine 5 One File Per Actor (OFPA) should be groupped under "Dirty Unreal Levels"
 
 ## Commands
 
 We're working to add more! 👷‍♀️👨‍🏭
+
+Have a look at the [list of issues on Github](https://github.com/PlasticSCM/vscode-plasticscm/issues).
 
 ### Checkin
 
