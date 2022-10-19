@@ -4,7 +4,7 @@
   "description": "Plastic SCM integration",
   "publisher": "plastic-scm",
   "license": "MIT",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "icon": "images/logo.png",
   "homepage": "https://github.com/PlasticSCM/vscode-plasticscm/blob/master/README.md",
   "bugs": {
