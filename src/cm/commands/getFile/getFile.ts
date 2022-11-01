@@ -7,16 +7,6 @@ import { IFileInfo } from "../../../models/fileInfo";
 import { Uri } from "vscode";
 
 export class GetFile {
-  public static cachedFileLocation(
-      rootDir: string,
-      filePath: Uri,
-      changeset: number
-  ): Uri {
-    const cacheDir = join(rootDir, ".plastic", "fileCache");
-    const outputFile = join(cacheDir, changeset.toString(), relative(rootDir, filePath.fsPath));
-    return Uri.file(outputFile);
-  }
-
   public static async run(
       rootDir: string,
       filePath: Uri,
