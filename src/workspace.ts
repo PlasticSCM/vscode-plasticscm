@@ -204,6 +204,8 @@ export class Workspace implements Disposable, QuickDiffProvider {
         continue;
       }
 
+      let cachedFileLocation: Uri | undefined;
+
       // prefetch original files for showing diff
       const unallowedFlag = ChangeType.Added | ChangeType.Private | ChangeType.Deleted | ChangeType.Moved;
       if (
@@ -218,13 +220,18 @@ export class Workspace implements Disposable, QuickDiffProvider {
 
         if (cachedFileType === false) {
           try {
-            await CmGetFileCommand.run(this.mWkInfo.path, changeInfo.path, pendingChanges.changeset, this.mShell);
+            cachedFileLocation = await CmGetFileCommand.run(
+              this.mWkInfo.path,
+              changeInfo.path,
+              pendingChanges.changeset,
+              this.mShell
+            );
           } catch (e: any) {
             this.mChannel.appendLine(`Error trying to get file ${changeInfo.path.toString()}: ${(e as Error).message}`);
           }
         }
       }
-      sourceControlResources.push(new PlasticScmResource(changeInfo, this));
+      sourceControlResources.push(new PlasticScmResource(changeInfo, cachedFileLocation));
     }
 
     if (this.mConfig.consolidateUnrealOneFilePerActorChanges) {

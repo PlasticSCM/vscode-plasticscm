@@ -1,7 +1,9 @@
 import { dirname, join, relative } from "path";
 import { existsSync, promises } from "fs";
 import { ICmParser, ICmResult, ICmShell } from "../../shell";
+import { FileInfoParser } from "./fileInfoParser";
 import { GetFileParser } from "./getFileParser";
+import { IFileInfo } from "../../../models/fileInfo";
 import { Uri } from "vscode";
 
 export class GetFile {
@@ -27,9 +29,34 @@ export class GetFile {
       return undefined;
     }
 
-    const fileSpec = `${filePath.fsPath}#cs:${changeset}`;
+    let actualChangeset = changeset;
+
+    if (actualChangeset === -1) {
+      // partial workspaces on a branch will not have a changeset,
+      // we need to get the fileinfo to figure out what version
+      // of the file we have checked out
+      const fileInfoParser = new FileInfoParser();
+      const fileInfoResult: ICmResult<IFileInfo> = await shell.exec(
+        "fileinfo",
+        [ "--xml", filePath.fsPath ],
+        fileInfoParser);
+
+      if (!fileInfoResult.success) {
+        throw new Error("Command execution failed.");
+      }
+
+      if (fileInfoResult.error) {
+        throw fileInfoResult.error;
+      }
+
+      if (fileInfoResult.result?.revisionChangeset) {
+        actualChangeset = fileInfoResult.result?.revisionChangeset;
+      }
+    }
+
+    const fileSpec = `${filePath.fsPath}#cs:${actualChangeset}`;
     const cacheDir = join(rootDir, ".plastic", "fileCache");
-    const outputFile = join(cacheDir, changeset.toString(), relative(rootDir, filePath.fsPath));
+    const outputFile = join(cacheDir, actualChangeset.toString(), relative(rootDir, filePath.fsPath));
 
     // make sure the directory exists where we're going to store the outputFile
     // creates fileCache along the way if it doesn't exist yet
@@ -41,7 +68,7 @@ export class GetFile {
     const cacheDirContents = await promises.readdir(cacheDir);
     for (const file of cacheDirContents) {
       const fileNameAsChangeset = parseInt(file, 10);
-      if (!isNaN(fileNameAsChangeset) && fileNameAsChangeset < changeset) {
+      if (!isNaN(fileNameAsChangeset) && fileNameAsChangeset < actualChangeset) {
         await promises.rmdir(join(cacheDir, file), { recursive: true });
       }
     }
