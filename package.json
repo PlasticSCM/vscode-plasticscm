@@ -143,7 +143,7 @@
     "@types/uuid": "^8.3.4",
     "@types/vscode": "^1.64.0",
     "@types/xml2js": "^0.4.11",
-    "@typescript-eslint/eslint-plugin": "^5.40.1",
+    "@typescript-eslint/eslint-plugin": "^5.50.0",
     "@typescript-eslint/parser": "^5.40.1",
     "@vscode/test-electron": "^2.1.5",
     "chai": "^4.3.6",
