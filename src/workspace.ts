@@ -41,6 +41,10 @@ export class Workspace implements Disposable, QuickDiffProvider {
     return this.mStatusResourceGroup as IPlasticScmResourceGroup;
   }
 
+  public get stagedChangesResourceGroup(): IPlasticScmResourceGroup {
+    return this.mStagedChangesResourceGroup as IPlasticScmResourceGroup;
+  }
+
   public get workspaceConfig(): IWorkspaceConfig | undefined {
     return this.mWorkspaceConfig;
   }
@@ -67,6 +71,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
   private readonly mChannel: OutputChannel;
   private readonly mWkInfo: IWorkspaceInfo;
   private readonly mSourceControl: SourceControl;
+  private readonly mStagedChangesResourceGroup: SourceControlResourceGroup;
   private readonly mStatusResourceGroup: SourceControlResourceGroup;
   private readonly mUnrealLevelsResourceGroup: SourceControlResourceGroup;
 
@@ -117,8 +122,10 @@ export class Workspace implements Disposable, QuickDiffProvider {
       Uri.file(workspaceInfo.path));
     this.mUnrealLevelsResourceGroup = this.mSourceControl.createResourceGroup(
       "unreal-levels", "Dirty Unreal Levels");
+    this.mStagedChangesResourceGroup = this.mSourceControl.createResourceGroup(
+      "staged-changes", "Staged Changes");
     this.mStatusResourceGroup = this.mSourceControl.createResourceGroup(
-      "status", "Workspace Status");
+      "status", "Changes");
 
     this.mUnrealLevelsResourceGroup.hideWhenEmpty = true;
 
@@ -136,6 +143,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
       this.mSourceControl,
       this.mUnrealLevelsResourceGroup,
       this.mStatusResourceGroup,
+      this.mStagedChangesResourceGroup,
       fsWatcher,
       onAnyFsOperationEvent(async () => this.onFileChanged(), this),
     );
@@ -191,6 +199,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
     const changeInfos: IChangeInfo[] = Array.from(pendingChanges.changes.values());
 
     const sourceControlResources: PlasticScmResource[] = [];
+    const stagedChangesControlResources: PlasticScmResource[] = [];
     const unrealLevelResources: SourceControlResourceState[] = [];
 
     // regex pattern for Unreal Engine's One File Per Actor system
@@ -205,7 +214,7 @@ export class Workspace implements Disposable, QuickDiffProvider {
       }
 
       // prefetch original files for showing diff
-      const unallowedFlag = ChangeType.Added | ChangeType.Private | ChangeType.Deleted | ChangeType.Moved;
+      const unallowedFlag = ChangeType.Added | ChangeType.Private | ChangeType.Deleted | ChangeType.LocalDeleted | ChangeType.Moved;
       if (
         (changeInfo.type & unallowedFlag) === 0
       ) {
@@ -223,6 +232,13 @@ export class Workspace implements Disposable, QuickDiffProvider {
             this.mChannel.appendLine(`Error trying to get file ${changeInfo.path.toString()}: ${(e as Error).message}`);
           }
         }
+      }
+
+      const stagedChangesType = [ChangeType.Checkedout, ChangeType.Added, ChangeType.Moved, ChangeType.Deleted] 
+
+      if(stagedChangesType.indexOf(changeInfo.type) !==  -1){
+        stagedChangesControlResources.push(new PlasticScmResource(changeInfo, this));
+        continue;
       }
       sourceControlResources.push(new PlasticScmResource(changeInfo, this));
     }
@@ -270,8 +286,9 @@ export class Workspace implements Disposable, QuickDiffProvider {
     }
 
     this.mStatusResourceGroup.resourceStates = sourceControlResources;
+    this.mStagedChangesResourceGroup.resourceStates = stagedChangesControlResources;
     this.mUnrealLevelsResourceGroup.resourceStates = unrealLevelResources;
-    this.mSourceControl.count = sourceControlResources.length + unrealLevelResources.length;
+    this.mSourceControl.count = sourceControlResources.length + unrealLevelResources.length + stagedChangesControlResources.length;
 
 
     this.mSourceControl.inputBox.placeholder = this.getCheckinPlaceholder(this.mWorkspaceConfig);

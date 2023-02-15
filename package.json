@@ -94,6 +94,42 @@
         "category": "Plastic SCM",
         "title": "Open File",
         "icon": "$(go-to-file)"
+      },
+      {
+        "command": "plastic-scm.undo",
+        "category": "Plastic SCM",
+        "title": "Discard Changes",
+        "icon": "$(discard)"
+      },
+      {
+        "command": "plastic-scm.undoAll",
+        "category": "Plastic SCM",
+        "title": "Discard All Changes",
+        "icon": "$(discard)"
+      },
+      {
+        "command": "plastic-scm.addStagedChange",
+        "category": "Plastic SCM",
+        "title": "Stage Changes",
+        "icon": "$(add)"
+      },
+      {
+        "command": "plastic-scm.addAllStagedChange",
+        "category": "Plastic SCM",
+        "title": "Stage All Changes",
+        "icon": "$(add)"
+      },
+      {
+        "command": "plastic-scm.removeStagedChange",
+        "category": "Plastic SCM",
+        "title": "Discard Changes",
+        "icon": "$(remove)"
+      },
+      {
+        "command": "plastic-scm.removeAllStagedChange",
+        "category": "Plastic SCM",
+        "title": "Discard All Changes",
+        "icon": "$(remove)"
       }
     ],
     "menus": {
@@ -109,11 +145,43 @@
           "when": "scmProvider == plastic-scm"
         }
       ],
+      "scm/resourceGroup/context": [
+        {
+          "command": "plastic-scm.undoAll",
+          "when": "scmProvider == plastic-scm && scmResourceGroup == status",
+          "group": "inline@1"
+        },
+        {
+          "command": "plastic-scm.addAllStagedChange",
+          "when": "scmProvider == plastic-scm && scmResourceGroup == status",
+          "group": "inline@1"
+        },
+        {
+          "command": "plastic-scm.removeAllStagedChange",
+          "when": "scmProvider == plastic-scm && scmResourceGroup == staged-changes",
+          "group": "inline@1"
+        }
+      ],
       "scm/resourceState/context": [
         {
           "command": "plastic-scm.openFile",
+          "when": "scmProvider == plastic-scm",
+          "group": "inline@1"
+        },
+        {
+          "command": "plastic-scm.undo",
           "when": "scmProvider == plastic-scm && scmResourceGroup == status",
           "group": "inline@1"
+        },
+        {
+          "command": "plastic-scm.addStagedChange",
+          "when": "scmProvider == plastic-scm && scmResourceGroup == status",
+          "group": "inline@1"
+        },
+        {
+          "command": "plastic-scm.removeStagedChange",
+          "when": "scmProvider == plastic-scm && scmResourceGroup == staged-changes",
+          "group": "inline@2"
         }
       ]
     }

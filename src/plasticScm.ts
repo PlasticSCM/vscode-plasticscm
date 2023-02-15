@@ -14,6 +14,10 @@ import { IWorkspaceInfo } from "./models";
 import { OpenFileCommand } from "./commands/openFile";
 import { PlasticScmDecorations } from "./decorations";
 import { RefreshCommand } from "./commands/refresh";
+import { UndoCommand, UndoAllCommand } from "./commands/undo";
+import { AddStagedChangesCommand, AddAllStagedChangesCommand } from "./commands/addStagedChanges";
+import { RemoveStagedChangesCommand, RemoveAllStagedChangesCommand } from "./commands/removeStagedChanges";
+
 import { Workspace } from "./workspace";
 import { WorkspaceOperations } from "./workspaceOperations";
 
@@ -90,6 +94,12 @@ export class PlasticScm implements Disposable {
       this.mDisposables.push(new RefreshCommand(this));
       this.mDisposables.push(new OpenFileCommand(this));
       this.mDisposables.push(new PlasticScmDecorations(this));
+      this.mDisposables.push(new UndoCommand(this));
+      this.mDisposables.push(new UndoAllCommand(this));
+      this.mDisposables.push(new AddStagedChangesCommand(this));
+      this.mDisposables.push(new AddAllStagedChangesCommand(this));
+      this.mDisposables.push(new RemoveStagedChangesCommand(this));
+      this.mDisposables.push(new RemoveAllStagedChangesCommand(this));
     }
   }
 
