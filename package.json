@@ -94,6 +94,12 @@
         "category": "Plastic SCM",
         "title": "Open File",
         "icon": "$(go-to-file)"
+      },
+      {
+        "command": "plastic-scm.addPrivateFile",
+        "category": "Plastic SCM",
+        "title": "Add Private File",
+        "icon": "$(add)"
       }
     ],
     "menus": {
@@ -112,6 +118,11 @@
       "scm/resourceState/context": [
         {
           "command": "plastic-scm.openFile",
+          "when": "scmProvider == plastic-scm && scmResourceGroup == status",
+          "group": "inline@1"
+        },
+        {
+          "command": "plastic-scm.addPrivateFile",
           "when": "scmProvider == plastic-scm && scmResourceGroup == status",
           "group": "inline@1"
         }
