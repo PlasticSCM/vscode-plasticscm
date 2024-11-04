@@ -1,7 +1,7 @@
 import * as Mocha from "mocha";
+import * as path from "path";
 
 import { glob } from "glob";
-import * as path from "path";
 
 export async function run(): Promise<void> {
   // Create the mocha test
@@ -19,13 +19,13 @@ export async function run(): Promise<void> {
   testFiles.forEach(testFile => mocha.addFile(path.resolve(testsRoot, testFile)));
 
   // Run the mocha test
-  const failures = await new Promise<number>((resolve) => {
+  const failureCount = await new Promise<number>(resolve => {
     mocha.run(failures => {
       resolve(failures);
     });
   });
 
-  if (failures > 0) {
-    throw new Error(`${failures} tests failed.`);
+  if (failureCount > 0) {
+    throw new Error(`${failureCount} tests failed.`);
   }
 }
