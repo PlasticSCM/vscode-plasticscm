@@ -84,7 +84,9 @@ export class CmShell implements ICmShell {
     if (!await this.waitUntilFileDeleted(commFile, this.mShellConfig.millisToWaitUntilUp)) {
       CmShell.unbindProcessStream(this.mProcess.stdout, readOut);
       CmShell.unbindProcessStream(this.mProcess.stderr, readErr);
-      this.mChannel.appendLine(`Cm shell didn't respond after {this.mShellConfig.millisToWaitUntilUp / 1000} seconds. Consider adjusting "plastic-scm.cmConfiguration.millisToWaitUntilUp" setting.`);
+      this.mChannel.appendLine(
+        "Cm shell didn't respond after {this.mShellConfig.millisToWaitUntilUp / 1000} seconds. "
+         + 'Consider adjusting "plastic-scm.cmConfiguration.millisToWaitUntilUp" setting.');
 
       if (fs.existsSync(commFile)) {
         await new Promise<void>(resolve => fs.unlink(commFile, () => resolve()));
