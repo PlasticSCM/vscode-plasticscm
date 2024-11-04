@@ -1,5 +1,6 @@
 import * as constants from "./constants";
 import * as events from "./events";
+import * as path from "path";
 import {
   ChangeType,
   IChangeInfo,
@@ -29,7 +30,6 @@ import { IConfig } from "./config";
 import { isBinaryFile } from "isbinaryfile";
 import { PlasticScmResource } from "./plasticScmResource";
 import { throttle } from "./decorators";
-import path = require("path");
 
 export class Workspace implements Disposable, QuickDiffProvider {
 

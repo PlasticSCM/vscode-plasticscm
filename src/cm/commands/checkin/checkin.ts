@@ -29,7 +29,7 @@ export class Checkin {
       const result: ICmResult<ICheckinChangeset[]> = await shell.exec("checkin", args, parser);
 
       if (!result.success || result.error) {
-        throw result.error;
+        throw result.error ?? Error("Checkin failed - unknown error");
       }
 
       return result.result ?? [];

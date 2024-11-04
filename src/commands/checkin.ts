@@ -86,6 +86,6 @@ export class CheckinCommand implements Disposable {
       const change = entry as PlasticScmResource;
       return change.isPrivate ? null : change.resourceUri.fsPath;
     });
-    return results.filter(path => path !== null) as string[];
+    return results.filter(path => path !== null);
   }
 }

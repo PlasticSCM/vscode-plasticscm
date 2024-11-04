@@ -8,19 +8,19 @@ jobs:
   release:
     name: Release extension to Marketplace
     runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, 'release:trigger')"
+    if: contains(github.event.head_commit.message, 'release:trigger')
     defaults:
       run:
         working-directory: ${{ github.workspace }}
 
     steps:
       - name: checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: '16.x'
+          node-version: 22
 
       - name: clean install dependencies
         run: npm ci
@@ -29,13 +29,13 @@ jobs:
         run: git fetch --prune --unshallow
 
       - name: install gitversion
-        uses: gittools/actions/gitversion/setup@v0.9.7
+        uses: gittools/actions/gitversion/setup@v3.0.0
         with:
-          versionSpec: '5.x'
+          versionSpec: '6.x'
 
       - name: execute gitversion
         id: gitversion-before
-        uses: gittools/actions/gitversion/execute@v0.9.7
+        uses: gittools/actions/gitversion/execute@v3.0.0
 
       - name: print gitversion before release
         run: |
@@ -95,7 +95,7 @@ jobs:
 
       - name: execute gitversion again
         id: gitversion-after
-        uses: gittools/actions/gitversion/execute@v0.9.7
+        uses: gittools/actions/gitversion/execute@v3.0.0
 
       - name: print gitversion after release
         run: |
@@ -112,7 +112,7 @@ jobs:
 
       - name: create pull request
         id: cpr
-        uses: peter-evans/create-pull-request@v2
+        uses: peter-evans/create-pull-request@v7
         with:
           commit-message: '[create-pull-request] Bump version to ${{ steps.gitversion-after.outputs.semVer }}'
           title: >
