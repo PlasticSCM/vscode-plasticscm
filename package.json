@@ -131,7 +131,7 @@
   "dependencies": {
     "byline": "^5.0.0",
     "isbinaryfile": "^5.0.4",
-    "uuid": "^11.0.2",
+    "uuid": "^11.0.3",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
