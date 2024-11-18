@@ -136,7 +136,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.14.0",
+    "@eslint/js": "^9.15.0",
     "@stylistic/eslint-plugin": "^2.10.1",
     "@types/byline": "^4.2.36",
     "@types/chai": "^4.3.3",
