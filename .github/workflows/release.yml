@@ -29,13 +29,13 @@ jobs:
         run: git fetch --prune --unshallow
 
       - name: install gitversion
-        uses: gittools/actions/gitversion/setup@v3.0.0
+        uses: gittools/actions/gitversion/setup@v3.0.4
         with:
           versionSpec: '6.x'
 
       - name: execute gitversion
         id: gitversion-before
-        uses: gittools/actions/gitversion/execute@v3.0.0
+        uses: gittools/actions/gitversion/execute@v3.0.4
 
       - name: print gitversion before release
         run: |
@@ -95,7 +95,7 @@ jobs:
 
       - name: execute gitversion again
         id: gitversion-after
-        uses: gittools/actions/gitversion/execute@v3.0.0
+        uses: gittools/actions/gitversion/execute@v3.0.4
 
       - name: print gitversion after release
         run: |
