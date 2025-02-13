@@ -64,6 +64,10 @@ export class PlasticScmResource implements SourceControlResourceState {
     return this.mChangeInfo.path;
   }
 
+  public get oldResourceUri(): Uri | undefined {
+    return this.mChangeInfo.oldPath;
+  }
+
   public get isPrivate(): boolean {
     return this.mChangeInfo.type === ChangeType.Private;
   }
@@ -77,14 +81,14 @@ export class PlasticScmResource implements SourceControlResourceState {
       dark: undefined, // leave undefined to use the other decorations instead of icons
       faded: false, // Maybe in the future for ignored items
       light: undefined, // leave undefined to use the other decorations instead of icons
-      strikeThrough: this.mChangeInfo.type === ChangeType.Deleted,
+      strikeThrough: this.mChangeInfo.type === ChangeType.Deleted || this.mChangeInfo.type === ChangeType.LocalDeleted,
       tooltip: this.tooltip,
     };
   }
 
   public get resourceDecoration(): FileDecoration {
     const res = new FileDecoration(this.letter, this.tooltip, this.color);
-    res.propagate = this.mChangeInfo.type !== ChangeType.Deleted;
+    res.propagate = this.mChangeInfo.type !== ChangeType.Deleted &&  this.mChangeInfo.type !== ChangeType.LocalDeleted;
     return res;
   }
 
@@ -107,12 +111,20 @@ export class PlasticScmResource implements SourceControlResourceState {
       result.push("M");
     }
 
+    if (this.mChangeInfo.type & ChangeType.LocalMoved) {
+      result.push("LM");
+    }
+
     if (this.mChangeInfo.type & ChangeType.Checkedout) {
       result.push("CO");
     }
 
     if (this.mChangeInfo.type & ChangeType.Deleted) {
       result.push("D");
+    }
+
+    if (this.mChangeInfo.type & ChangeType.LocalDeleted) {
+      result.push("LD");
     }
 
     return result.join("");
@@ -135,6 +147,10 @@ export class PlasticScmResource implements SourceControlResourceState {
       return new ThemeColor("gitDecoration.modifiedResourceForeground");
     }
 
+    if (this.mChangeInfo.type & ChangeType.LocalMoved) {
+      return new ThemeColor("gitDecoration.modifiedResourceForeground");
+    }
+
     if (this.mChangeInfo.type & ChangeType.Checkedout) {
       return new ThemeColor("gitDecoration.modifiedResourceForeground");
     }
@@ -143,6 +159,9 @@ export class PlasticScmResource implements SourceControlResourceState {
       return new ThemeColor("gitDecoration.deletedResourceForeground");
     }
 
+    if (this.mChangeInfo.type & ChangeType.LocalDeleted) {
+      return new ThemeColor("gitDecoration.deletedResourceForeground");
+    }
     return undefined;
   }
 
@@ -151,6 +170,8 @@ export class PlasticScmResource implements SourceControlResourceState {
       ChangeType.Added |
       ChangeType.Private |
       ChangeType.Moved |
+      ChangeType.LocalMoved |
+      ChangeType.LocalDeleted |
       ChangeType.Deleted;
 
     if (
@@ -194,6 +215,10 @@ export class PlasticScmResource implements SourceControlResourceState {
       return "Moved";
     }
 
+    if (this.mChangeInfo.type & ChangeType.LocalMoved) {
+      return "Local Moved";
+    }
+
     if (this.mChangeInfo.type & ChangeType.Checkedout) {
       return "Checked Out";
     }
@@ -202,6 +227,9 @@ export class PlasticScmResource implements SourceControlResourceState {
       return "Deleted";
     }
 
+    if (this.mChangeInfo.type & ChangeType.LocalDeleted) {
+      return "Local Deleted";
+    }
     return "Unknown";
   }
 
@@ -227,11 +255,19 @@ export class PlasticScmResource implements SourceControlResourceState {
       return icons.moved;
     }
 
+    if (changeType & ChangeType.LocalMoved) {
+      return icons.moved;
+    }
+
     if (changeType & ChangeType.Checkedout) {
       return icons.checkedout;
     }
 
     if (changeType & ChangeType.Deleted) {
+      return icons.deleted;
+    }
+
+    if (changeType & ChangeType.LocalDeleted) {
       return icons.deleted;
     }
 
