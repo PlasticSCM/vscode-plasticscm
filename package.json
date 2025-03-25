@@ -151,7 +151,7 @@
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^3.3.0",
     "chai": "^4.5.0",
-    "eslint": "^9.22.0",
+    "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.4",
     "glob": "^11.0.1",
