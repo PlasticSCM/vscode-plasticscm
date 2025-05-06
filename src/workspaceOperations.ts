@@ -3,6 +3,9 @@ import { ProgressLocation, window } from "vscode";
 export const enum WorkspaceOperation {
   Status = "Status",
   Checkin = "Checkin",
+  Undo = "Undo",
+  AddStagedChanges = "AddStagedChanges",
+  RemoveStagedChanges = "RemoveStagedChanges",
 }
 
 export interface IWorkspaceOperations {
