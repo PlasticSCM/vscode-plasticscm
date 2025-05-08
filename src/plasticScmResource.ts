@@ -52,11 +52,12 @@ export class PlasticScmResource implements SourceControlResourceState {
   };
 
   private mChangeInfo: IChangeInfo;
-  private mWorkspace: Workspace;
+  private mCachedOriginalFile: Uri | null;
 
-  public constructor(changeInfo: IChangeInfo, workspace: Workspace) {
+  public constructor(changeInfo: IChangeInfo, cachedOriginalFile?: Uri) {
     this.mChangeInfo = changeInfo;
-    this.mWorkspace = workspace;
+
+    this.mCachedOriginalFile = cachedOriginalFile || null;
   }
 
   @memoize
@@ -154,17 +155,11 @@ export class PlasticScmResource implements SourceControlResourceState {
       ChangeType.Deleted;
 
     if (
-      this.mWorkspace.currentChangeset >= 0 &&
+      this.mCachedOriginalFile !== null &&
       (this.mChangeInfo.type & unallowedFlag) === 0
     ) {
-      const originalFile = GetFile.cachedFileLocation(
-        this.mWorkspace.info.path,
-        this.resourceUri,
-        this.mWorkspace.currentChangeset
-      );
-
       return {
-        arguments: [ originalFile, this.resourceUri, `${path.basename(this.resourceUri.fsPath)} (Diff)` ],
+        arguments: [ this.mCachedOriginalFile, this.resourceUri, `${path.basename(this.resourceUri.fsPath)} (Diff)` ],
         command: "vscode.diff",
         title: "Open",
       };
