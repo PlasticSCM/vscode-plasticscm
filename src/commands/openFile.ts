@@ -50,7 +50,7 @@ export class OpenFileCommand implements Disposable {
 
       if (resource) {
         uris = ([ resource, ...resourceStates ] as PlasticScmResource[])
-          .filter(r => r.type !== ChangeType.Deleted)
+          .filter(r => r.type !== ChangeType.Deleted && r.type !== ChangeType.LocalDeleted)
           .map(r => r.resourceUri);
       } else if (window.activeTextEditor) {
         uris = [window.activeTextEditor.document.uri];
