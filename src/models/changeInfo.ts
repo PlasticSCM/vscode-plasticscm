@@ -16,6 +16,8 @@ export enum ChangeType {
   Checkedout = 1 << 3,
   Moved = 1 << 4,
   Deleted = 1 << 5,
+  LocalMoved = 1 << 6,
+  LocalDeleted = 1 << 7,
 }
 
 export interface IPendingChanges {

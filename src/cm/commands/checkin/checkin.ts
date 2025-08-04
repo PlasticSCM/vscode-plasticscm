@@ -16,7 +16,6 @@ export class Checkin {
     const parser: ICmParser<ICheckinChangeset[]> = new CheckinParser();
 
     const args: string[] = [
-      "--all",
       "--machinereadable",
       ...paths,
     ];
