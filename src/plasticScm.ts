@@ -7,7 +7,7 @@ import {
   window as VsCodeWindow,
   workspace as VsCodeWorkspace,
 } from "vscode";
-import { CheckinCommand } from "./commands";
+import { CheckinCommand, AddPrivateFileCommand } from "./commands";
 import { GetWorkspaceFromPath } from "./cm/commands";
 import { IConfig } from "./config";
 import { IWorkspaceInfo } from "./models";
@@ -90,6 +90,7 @@ export class PlasticScm implements Disposable {
       this.mDisposables.push(new RefreshCommand(this));
       this.mDisposables.push(new OpenFileCommand(this));
       this.mDisposables.push(new PlasticScmDecorations(this));
+      this.mDisposables.push(new AddPrivateFileCommand(this));
     }
   }
 
